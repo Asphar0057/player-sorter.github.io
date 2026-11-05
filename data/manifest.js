@@ -1,5 +1,5 @@
 window.SQUAD_MANIFEST = {
-  siteUrl: "",
+  siteUrl: "bit.ly/player-sorter",
   leagues: [
     {
       id: "laliga",

@@ -52,15 +52,15 @@ registerTeam({
       muted: "#5E626D",
       primary: "#C8302A",
       onPrimary: "#FFFFFF",
-      accent: "#272E61",
+      accent: "#262F61",
       onAccent: "#FFFFFF",
       header: "#8B8F96",
       onHeader: "#FFFFFF",
-      headerBand: "#272E61",
-      rowTint: "#272E61",
+      headerBand: "#262F61",
+      rowTint: "#262F61",
       rowTintStrength: 0.24,
       rowTintFloor: 0.5,
-      pattern: { type: "hoops", base: "#8B8F96", bands: ["#C8302A", "#272E61"] }
+      pattern: { type: "hoops", base: "#8B8F96", bands: ["#C8302A", "#262F61"] }
     }
   },
   players: [
