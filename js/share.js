@@ -223,9 +223,16 @@
     let textX = PAD;
     const crestSize = f.head * 0.52;
     if (crestImg) {
-      const s = Math.min(crestSize / crestImg.naturalWidth, crestSize / crestImg.naturalHeight);
+      const inner = k.crestBg ? crestSize * 0.68 : crestSize;
+      const s = Math.min(inner / crestImg.naturalWidth, inner / crestImg.naturalHeight);
       const w = crestImg.naturalWidth * s;
       const h = crestImg.naturalHeight * s;
+      if (k.crestBg) {
+        ctx.fillStyle = k.crestBg;
+        ctx.beginPath();
+        ctx.arc(PAD + crestSize / 2, (f.head - 14) / 2, crestSize / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
       ctx.drawImage(crestImg, PAD + (crestSize - w) / 2, (f.head - 14 - h) / 2, w, h);
       textX = PAD + crestSize + 36;
     }

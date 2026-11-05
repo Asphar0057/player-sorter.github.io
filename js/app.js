@@ -99,7 +99,10 @@
       "--page-hi:" + k.paperPrimary,
       "--page-on-hi:" + k.paperOnPrimary,
       "--line:" + k.line,
-      "--row-tint:" + (k.rowTint || k.primary)
+      "--row-tint:" + (k.rowTint || k.primary),
+      "--crest-bg:" + (k.crestBg || "transparent"),
+      "--crest-scale:" + (k.crestBg ? "0.68" : "1"),
+      "--crest-radius:" + (k.crestBg ? "50%" : "0")
     ].join(";");
   }
 
@@ -212,11 +215,15 @@
       const tiles = league.teams.filter(id => TEAMS[id]).map(id => {
         const team = TEAMS[id];
         const home = Kits.get(team, "home");
+        const tile = Object.assign(
+          { bg: home.paper, fg: home.onPaper, muted: home.onPaperMuted, pattern: home.pattern },
+          team.tile || {}
+        );
         const tileVars = [
-          "--tile-bg:" + home.paper,
-          "--tile-fg:" + home.onPaper,
-          "--tile-muted:" + home.onPaperMuted,
-          "--tile-pattern:" + Kits.css(home.pattern)
+          "--tile-bg:" + tile.bg,
+          "--tile-fg:" + tile.fg,
+          "--tile-muted:" + tile.muted,
+          "--tile-pattern:" + Kits.css(tile.pattern)
         ].join(";");
         return (
           '<button type="button" class="team-tile team-tile-club" data-go="' + team.id + '" style="' + tileVars + '">' +
@@ -232,7 +239,6 @@
         '<section class="league">' +
           '<h2 class="league-name">' + esc(league.name) + '</h2>' +
           '<div class="team-grid">' + tiles +
-            '<div class="team-tile team-tile-soon">More clubs soon</div>' +
           '</div>' +
         '</section>'
       );
@@ -242,7 +248,7 @@
       '<section class="hero">' +
         '<p class="eyebrow">Player Sorter</p>' +
         "<h1>Pick a club &amp; start ranking</h1>" +
-        '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA.</p>' +
+        '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA.<br>More clubs coming soon.</p>' +
       "</section>" +
       leagues
     );
@@ -663,12 +669,12 @@
           "</div>" +
           kitPicker(team) +
         "</div>" +
-        '<ol class="rank-list">' + rows.join("") + "</ol>" +
-        '<div class="setup-actions">' +
+        '<div class="setup-actions results-actions">' +
           '<button class="btn btn-primary" data-act="share">Share ranking</button>' +
           '<button class="btn btn-ghost" data-act="again">Sort again</button>' +
           '<button type="button" class="btn btn-ghost" data-go="">All clubs</button>' +
         "</div>" +
+        '<ol class="rank-list">' + rows.join("") + "</ol>" +
       "</section>"
     );
 

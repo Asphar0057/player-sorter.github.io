@@ -89,6 +89,8 @@
     return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
   }
 
+  const CB = [0.33, 0.39, 0.61, 0.67];
+
   const TIP = [[0.24, 0.3], [0.33, 0.39]];
 
   const SLEEVE_L = [[0, 0], [30, 0], [22, 46], [0, 60]];
@@ -139,6 +141,12 @@
     }
     if (p.type === "zigzag") {
       return zigzagSvg(p) + " center / 100% 100% no-repeat, " + p.base;
+    }
+    if (p.type === "centreband") {
+      const edge = b[0] || "#FFFFFF";
+      const mid = b[1] || edge;
+      return "linear-gradient(90deg, " + p.base + " 0 " + pct(CB[0]) + ", " + edge + " " + pct(CB[0]) + " " + pct(CB[1]) + ", " +
+        mid + " " + pct(CB[1]) + " " + pct(CB[2]) + ", " + edge + " " + pct(CB[2]) + " " + pct(CB[3]) + ", " + p.base + " " + pct(CB[3]) + " 100%)";
     }
     if (p.type === "tipping") {
       const c = b.length ? b : ["#000000"];
@@ -230,6 +238,12 @@
         ctx.stroke();
       });
       ctx.restore();
+    } else if (p.type === "centreband") {
+      const edge = b[0] || "#FFFFFF";
+      ctx.fillStyle = edge;
+      ctx.fillRect(x + w * CB[0], y, w * (CB[3] - CB[0]), h);
+      ctx.fillStyle = b[1] || edge;
+      ctx.fillRect(x + w * CB[1], y, w * (CB[2] - CB[1]), h);
     } else if (p.type === "tipping") {
       const c = b.length ? b : ["#000000"];
       TIP.forEach(([from, to], i) => {
