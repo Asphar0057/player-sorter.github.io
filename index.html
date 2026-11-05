@@ -8,16 +8,37 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,800;1,800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<script>
+window.SITE_VERSION = "1";
+document.write('<link rel="stylesheet" href="css/style.css?v=' + window.SITE_VERSION + '">');
+(function () {
+  var current = window.SITE_VERSION;
+  var match = location.search.match(/[?&]v=([^&]*)/);
+  if (!window.fetch || location.protocol === "file:") return;
+  fetch("version.json?t=" + Date.now(), { cache: "no-store" })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d || d.version == null) return;
+      var latest = String(d.version);
+      if (latest !== current) {
+        if (match && match[1] === latest) return;
+        location.replace(location.pathname + "?v=" + encodeURIComponent(latest) + location.hash);
+      } else if (match) {
+        history.replaceState(history.state, "", location.pathname + location.hash);
+      }
+    })
+    .catch(function () {});
+})();
+</script>
 </head>
 <body>
 <main id="app"></main>
 <footer class="foot">Club names and marks belong to their owners. Please don't sue me.<br>Made with love, Nic.</footer>
-<script src="data/manifest.js"></script>
-<script src="js/kits.js"></script>
-<script src="js/sorter.js"></script>
-<script src="js/share.js"></script>
-<script src="js/app.js"></script>
+<script>
+["data/manifest.js", "js/kits.js", "js/sorter.js", "js/share.js", "js/app.js"].forEach(function (src) {
+  document.write('<script src="' + src + '?v=' + window.SITE_VERSION + '"><\/script>');
+});
+</script>
 <script data-goatcounter="https://nicolepanggabean.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </body>
