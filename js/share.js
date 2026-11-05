@@ -1,7 +1,9 @@
 (function () {
   const FORMATS = {
     story: { w: 1080, h: 1920, head: 340, foot: 120 },
-    post: { w: 1080, h: 1350, head: 240, foot: 96 }
+    post: { w: 1080, h: 1350, head: 240, foot: 96 },
+    square: { w: 1080, h: 1080, head: 210, foot: 90, maxCols: 3 },
+    wide: { w: 1920, h: 1080, head: 210, foot: 90, maxCols: 3, side: true, maxRowW: 1200, uniformNames: true, leadMax: 150 }
   };
   const LIMITS = { top3: 3, top10: 10, full: Infinity };
   const GROWTH = 0.9;
@@ -282,7 +284,27 @@
     return 1 + GROWTH * rankScale(entry.rank);
   }
 
-  function drawRow(ctx, x, y, w, h, entry, img, theme, showPos, cols) {
+  function centredBaseline(ctx, text, mid) {
+    const mt = ctx.measureText(text);
+    return mid + (mt.actualBoundingBoxAscent - mt.actualBoundingBoxDescent) / 2;
+  }
+
+  function nameFit(ctx, w, h, entry, showPos, m) {
+    const twoLine = m.twoLine && h >= 56;
+    const posW = showPos && !twoLine ? h * 2.3 : 0;
+    const maxName = w - m.nameOff - posW - m.pad;
+    const desired = Math.min(h * (twoLine ? 0.3 : 0.4), 84);
+    const fitted = fitSize(ctx, entry.player.name.toUpperCase(), maxName, 800, desired, 18, DISPLAY);
+    return { desired, fitted };
+  }
+
+  function groupNameSizes(ctx, rows) {
+    const fits = rows.map(r => nameFit(ctx, r.w, r.h, r.entry, r.showPos, r.cols));
+    const k = Math.min(1, ...fits.map(f => f.fitted / f.desired));
+    return fits.map(f => Math.max(18, f.desired * k));
+  }
+
+  function drawRow(ctx, x, y, w, h, entry, img, theme, showPos, cols, nameSize) {
     const m = cols || columns(h);
     const sc = rankScale(entry.rank);
     const floor = theme.rowTintFloor || 0;
@@ -296,10 +318,10 @@
     const label = entry.rank + (entry.tied ? "=" : "");
     ctx.fillStyle = theme.primary;
     ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    ctx.textBaseline = "alphabetic";
     const rankSize = Math.min(h * 0.5, 120);
     ctx.font = font(800, fitSize(ctx, label, m.rankW, 800, rankSize, 18, DISPLAY, true), DISPLAY, true);
-    ctx.fillText(label, x + pad + m.rankW / 2, mid + h * 0.03);
+    ctx.fillText(label, x + pad + m.rankW / 2, centredBaseline(ctx, label, mid));
     ctx.textAlign = "left";
 
     const ar = Math.min(h * 0.36, 96);
@@ -312,25 +334,35 @@
     const posW = posInline ? h * 2.3 : 0;
     const maxName = x + w - nameX - posW - pad;
     const name = entry.player.name.toUpperCase();
-    const size = fitSize(ctx, name, maxName, 800, Math.min(h * (twoLine ? 0.3 : 0.4), 84), 20, DISPLAY);
+    const size = nameSize || fitSize(ctx, name, maxName, 800, Math.min(h * (twoLine ? 0.3 : 0.4), 84), 18, DISPLAY);
     ctx.fillStyle = theme.ink;
     ctx.font = font(800, size, DISPLAY);
     const nameText = ellipsize(ctx, name, maxName);
 
+    ctx.textBaseline = "alphabetic";
     if (twoLine) {
-      const metaSize = Math.min(Math.max(18, h * 0.14), 32);
-      ctx.textBaseline = "alphabetic";
-      ctx.fillText(nameText, nameX, mid + size * 0.12);
+      const metaSize = nameSize ? Math.min(Math.max(16, nameSize * 0.62), 32) : Math.min(Math.max(18, h * 0.14), 32);
+      const meta = entry.positionLabel + " · #" + entry.player.number;
+      const nameAsc = ctx.measureText(nameText).actualBoundingBoxAscent;
+      ctx.font = font(500, metaSize, BODY);
+      const mm = ctx.measureText(meta);
+      const gap = metaSize * 0.5;
+      const block = nameAsc + gap + mm.actualBoundingBoxAscent + mm.actualBoundingBoxDescent;
+      const nameBase = mid - block / 2 + nameAsc;
+      ctx.fillStyle = theme.ink;
+      ctx.font = font(800, size, DISPLAY);
+      ctx.fillText(nameText, nameX, nameBase);
       ctx.fillStyle = theme.muted;
       ctx.font = font(500, metaSize, BODY);
-      ctx.fillText(entry.positionLabel + " · #" + entry.player.number, nameX, mid + size * 0.12 + metaSize * 1.35);
+      ctx.fillText(meta, nameX, nameBase + gap + mm.actualBoundingBoxAscent);
     } else {
-      ctx.fillText(nameText, nameX, mid + h * 0.02);
+      ctx.fillText(nameText, nameX, centredBaseline(ctx, nameText, mid));
       if (posInline) {
+        const pos = entry.positionLabel.toUpperCase();
         ctx.fillStyle = theme.muted;
         ctx.textAlign = "right";
         ctx.font = font(600, h * 0.28, DISPLAY);
-        ctx.fillText(entry.positionLabel.toUpperCase(), x + w - pad, mid);
+        ctx.fillText(pos, x + w - pad, centredBaseline(ctx, pos, mid));
       }
     }
   }
@@ -346,13 +378,18 @@
     base = Math.min(base, MAX_ROW, maxFirst / weight(shown[0]));
 
     if (base >= MIN_ROW) {
+      const rowW = Math.min(fullW, f.maxRowW || fullW);
+      const x0 = PAD + (fullW - rowW) / 2;
       const heights = shown.map(e => base * weight(e));
       const gaps = heights.slice(1).map(gapOf);
       const used = heights.reduce((a, h) => a + h, 0) + gaps.reduce((a, g) => a + g, 0);
       let y = top + Math.max(0, (avail - used) / 2);
       const cols = columns(heights[0]);
+      const sizes = f.uniformNames
+        ? groupNameSizes(ctx, shown.map((e, i) => ({ w: rowW, h: heights[i], entry: e, showPos: true, cols })))
+        : [];
       shown.forEach((e, i) => {
-        drawRow(ctx, PAD, y, fullW, heights[i], e, imgs.get(e.key), theme, true, cols);
+        drawRow(ctx, x0, y, rowW, heights[i], e, imgs.get(e.key), theme, true, cols, sizes[i]);
         y += heights[i] + (gaps[i] || 0);
       });
       return;
@@ -360,29 +397,64 @@
 
     const lead = shown.slice(0, Math.min(3, shown.length));
     const rest = shown.slice(lead.length);
-    const perCol = Math.ceil(rest.length / 2);
-    const colGap = 20;
-    const colW = (fullW - colGap) / 2;
     const leadW = lead.reduce((sum, e) => sum + weight(e), 0);
-    let c = avail / (leadW * 1.1 + perCol * 1.12 + 0.3);
-    c = Math.min(c, MAX_ROW, maxFirst / weight(lead[0]));
-    const leadH = lead.map(e => c * weight(e));
-    const leadGaps = leadH.map(gapOf);
+    const colGap = 20;
+    const sideGap = 40;
+    const leadAreaW = f.side ? fullW * 0.4 : fullW;
+    const restX = f.side ? PAD + leadAreaW + sideGap : PAD;
+    const restAreaW = f.side ? fullW - leadAreaW - sideGap : fullW;
+
+    let best = null;
+    for (let n = 2; n <= (f.maxCols || 2); n++) {
+      const perCol = Math.ceil(rest.length / n);
+      const colW = (restAreaW - colGap * (n - 1)) / n;
+      if (n > 2 && (colW < 290 || rest.length < 12)) break;
+      let c = f.side
+        ? (avail - (perCol - 1) * 8) / (perCol * 1.0)
+        : avail / (leadW * 1.1 + perCol * 1.12 + 0.3);
+      c = Math.min(c, MAX_ROW);
+      if (!f.side) c = Math.min(c, maxFirst / weight(lead[0]));
+      const score = f.uniformNames
+        ? Math.min(...groupNameSizes(ctx, rest.map(e => ({ w: colW, h: c, entry: e, showPos: false, cols: columns(c) }))))
+        : c;
+      if (!best || score > best.score + 0.5) best = { n, perCol, colW, c, score };
+    }
+    const { perCol, colW, c } = best;
     const restGap = gapOf(c);
-    const used = leadH.reduce((a, h) => a + h, 0) + leadGaps.reduce((a, g) => a + g, 0) + perCol * c + (perCol - 1) * restGap;
-    let y = top + Math.max(0, (avail - used) / 2);
+
+    let leadH;
+    let y;
+    if (f.side) {
+      let lb = (avail - gapOf(90) * (lead.length - 1)) / leadW;
+      lb = Math.min(lb, MAX_ROW * 1.1, Math.min(maxFirst, f.leadMax || Infinity) / weight(lead[0]));
+      leadH = lead.map(e => lb * weight(e));
+      const leadUsed = leadH.reduce((a, h) => a + h, 0) + leadH.slice(1).map(gapOf).reduce((a, g) => a + g, 0);
+      y = top + Math.max(0, (avail - leadUsed) / 2);
+    } else {
+      leadH = lead.map(e => c * weight(e));
+      const used = leadH.reduce((a, h) => a + h, 0) + leadH.map(gapOf).reduce((a, g) => a + g, 0) + perCol * c + (perCol - 1) * restGap;
+      y = top + Math.max(0, (avail - used) / 2);
+    }
     const leadCols = columns(leadH[0]);
     const restCols = columns(c);
+    const leadSizes = f.uniformNames
+      ? groupNameSizes(ctx, lead.map((e, i) => ({ w: leadAreaW, h: leadH[i], entry: e, showPos: true, cols: leadCols })))
+      : [];
+    const restSizes = f.uniformNames
+      ? groupNameSizes(ctx, rest.map(e => ({ w: colW, h: c, entry: e, showPos: false, cols: restCols })))
+      : [];
     lead.forEach((e, i) => {
-      drawRow(ctx, PAD, y, fullW, leadH[i], e, imgs.get(e.key), theme, true, leadCols);
-      y += leadH[i] + leadGaps[i];
+      drawRow(ctx, PAD, y, leadAreaW, leadH[i], e, imgs.get(e.key), theme, true, leadCols, leadSizes[i]);
+      y += leadH[i] + gapOf(leadH[i]);
     });
+    const restTop = f.side ? top + Math.max(0, (avail - (perCol * c + (perCol - 1) * restGap)) / 2) : y;
     rest.forEach((e, i) => {
       const col = Math.floor(i / perCol);
       const row = i % perCol;
-      drawRow(ctx, PAD + col * (colW + colGap), y + row * (c + restGap), colW, c, e, imgs.get(e.key), theme, false, restCols);
+      drawRow(ctx, restX + col * (colW + colGap), restTop + row * (c + restGap), colW, c, e, imgs.get(e.key), theme, false, restCols, restSizes[i]);
     });
   }
+
 
   function drawFooter(ctx, f, siteUrl, creditNote, theme) {
     const y = f.h - f.foot;

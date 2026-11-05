@@ -9,6 +9,7 @@ registerTeam({
     home: {
       label: "Home",
       paper: "#C8102E",
+      crestBg: "#FFFFFF",
       card: "#FFFFFF",
       onPaper: "#FFFFFF",
       onPaperMuted: "rgba(255,255,255,0.82)",
@@ -79,7 +80,6 @@ registerTeam({
     { id: "frimpong", name: "Jeremie Frimpong", number: 30, position: "DF", nation: "NED" },
     { id: "araujo", name: "Ronald Araújo", number: 33, position: "DF", nation: "URU" },
     { id: "chambers", name: "Luke Chambers", number: 44, position: "DF", nation: "ENG" },
-    { id: "mabaya", name: "Isaac Mabaya", number: 52, position: "DF", nation: "ENG" },
 
     { id: "wirtz", name: "Florian Wirtz", number: 7, position: "MF", nation: "GER" },
     { id: "szoboszlai", name: "Dominik Szoboszlai", number: 8, position: "MF", nation: "HUN" },
