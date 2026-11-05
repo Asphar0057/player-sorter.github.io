@@ -89,6 +89,8 @@
     return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
   }
 
+  const TIP = [[0.24, 0.3], [0.33, 0.39]];
+
   const SLEEVE_L = [[0, 0], [30, 0], [22, 46], [0, 60]];
 
   const ZZ_ROWS = [0.3, 0.46, 0.62, 0.78];
@@ -137,6 +139,15 @@
     }
     if (p.type === "zigzag") {
       return zigzagSvg(p) + " center / 100% 100% no-repeat, " + p.base;
+    }
+    if (p.type === "tipping") {
+      const c = b.length ? b : ["#000000"];
+      const stops = [p.base + " 0 " + pct(TIP[0][0])];
+      TIP.forEach(([from, to], i) => {
+        stops.push(c[i % c.length] + " " + pct(from) + " " + pct(to));
+        stops.push(p.base + " " + pct(to) + " " + pct(i + 1 < TIP.length ? TIP[i + 1][0] : 1));
+      });
+      return "linear-gradient(180deg, " + stops.join(", ") + ")";
     }
     if (p.type === "split") {
       return splitSvg(p) + " center / 100% 100% no-repeat, " + p.base;
@@ -219,6 +230,12 @@
         ctx.stroke();
       });
       ctx.restore();
+    } else if (p.type === "tipping") {
+      const c = b.length ? b : ["#000000"];
+      TIP.forEach(([from, to], i) => {
+        ctx.fillStyle = c[i % c.length];
+        ctx.fillRect(x, y + h * from, w, h * (to - from));
+      });
     } else if (p.type === "gradient") {
       const g = ctx.createLinearGradient(x, y, x, y + h);
       g.addColorStop(0, p.base);

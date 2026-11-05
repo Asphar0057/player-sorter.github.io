@@ -170,6 +170,13 @@
         }
         ctx.stroke();
       });
+    } else if (p.type === "tipping") {
+      const colors = p.bands && p.bands.length ? p.bands : [k.onHeader];
+      const bandH = Math.round(f.head * 0.035);
+      colors.forEach((c, i) => {
+        ctx.fillStyle = c;
+        ctx.fillRect(0, h - bandH * (2 * colors.length - 2 * i), f.w, bandH);
+      });
     } else if (p.type === "gradient") {
       const g = ctx.createLinearGradient(0, 0, f.w, 0);
       g.addColorStop(0, p.base);

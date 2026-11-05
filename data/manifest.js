@@ -1,5 +1,5 @@
 window.SQUAD_MANIFEST = {
-  siteUrl: "bit.ly/player-sorter",
+  siteUrl: "",
   leagues: [
     {
       id: "laliga",
@@ -7,13 +7,17 @@ window.SQUAD_MANIFEST = {
       country: "Spain",
       teams: ["atletico-madrid"]//, "barcelona"]
     },
-    /*
     {
       id: "premier-league",
       name: "Premier League",
       country: "England",
       teams: ["arsenal"]
+    },
+    {
+      id: "bundesliga",
+      name: "Bundesliga",
+      country: "Germany",
+      teams: ["bayern-munich"]
     }
-      */
   ]
 };
