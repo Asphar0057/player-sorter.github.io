@@ -575,20 +575,39 @@
     return inAppBrowser() || isTouchDevice();
   }
 
-  function showSaveView(canvas, message) {
+  function isAndroid() {
+    return /Android/i.test(navigator.userAgent || "");
+  }
+
+  function needsBrowserEscape() {
+    return inAppBrowser() && isAndroid();
+  }
+
+  function browserIntent(href) {
+    const u = new URL(href);
+    return "intent://" + u.host + u.pathname + u.search +
+      "#Intent;scheme=" + u.protocol.replace(":", "") +
+      ";action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE" +
+      ";S.browser_fallback_url=" + encodeURIComponent(href) + ";end";
+  }
+
+  function showSaveView(canvas, message, escapeHref) {
     const old = document.querySelector(".save-view");
     if (old) old.remove();
     const view = document.createElement("div");
-    view.className = "save-view";
+    view.className = "save-view" + (escapeHref ? " has-escape" : "");
     view.setAttribute("role", "dialog");
     view.setAttribute("aria-modal", "true");
     view.innerHTML =
       '<button type="button" class="save-view-close" aria-label="Close">×</button>' +
       '<p class="save-view-tip"></p>' +
-      '<img class="save-view-img" alt="Your ranking">' +
-      '<p class="save-view-sub">Saves to your photos. Then post it from the app.</p>';
+      (escapeHref
+        ? '<p class="save-view-sub save-view-stuck">If press & hold isn\'t working, please open in your browser. Twitter browser is buggy and I can\'t figure out how to fix it. I\'m sorry.</p>'
+        : "") +
+      '<img class="save-view-img" alt="Your ranking">';
     view.querySelector(".save-view-tip").textContent = message || "Press and hold the image to save it";
     view.querySelector(".save-view-img").src = canvas.toDataURL("image/png");
+    if (escapeHref) view.querySelector(".save-view-open").href = browserIntent(escapeHref);
     const close = () => view.remove();
     view.querySelector(".save-view-close").addEventListener("click", close);
     view.addEventListener("click", e => { if (e.target === view) close(); });
@@ -596,5 +615,5 @@
     return view;
   }
 
-  window.ShareImage = { render, canvasToFile, canShareFiles, download, LIMITS, inAppBrowser, prefersSaveView, showSaveView };
+  window.ShareImage = { render, canvasToFile, canShareFiles, download, LIMITS, inAppBrowser, prefersSaveView, showSaveView, needsBrowserEscape, browserIntent };
 })();

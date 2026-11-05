@@ -735,3 +735,12 @@ body.modal-open { overflow: hidden; }
   padding: 4px 10px;
   cursor: pointer;
 }
+.save-view-tip { padding: 0 40px; }
+
+.save-view-stuck { margin-top: -4px; }
+
+.save-view-open { text-decoration: none; }
+
+.save-view.has-escape .save-view-img { max-height: calc(100vh - 290px); }
+
+.share-escape { color: inherit; font-weight: 700; text-decoration: underline; }
