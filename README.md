@@ -1,5 +1,6 @@
-# player-sorter
-A fun little side project to rank football players.
+# Squad Sorter
+
+Rank a football squad two players at a time until you have one definitive list. Static site, no build step, works on GitHub Pages and when opened straight from your computer.
 
 ## Folder layout
 
@@ -18,11 +19,23 @@ assets/teams/<club-id>/players/<player-id>.jpg
 
 Images are optional. Anything missing falls back to a club-coloured badge.
 
-- Crest: save as `assets/teams/atletico-madrid/crest.png`
-- Player photo: save as `assets/teams/atletico-madrid/players/<player-id>.jpg`, where `<player-id>` is the `id` in the team file (e.g. `oblak.jpg`, `alvarez.jpg`)
+- Crest: save as `assets/teams/atletico-madrid/crest.png` (.svg, .webp or .jpg also work)
+- Player photo: save as `assets/teams/atletico-madrid/players/<player-id>.jpg` (.jpeg, .png or .webp also work), where `<player-id>` is the `id` in the team file (e.g. `oblak.jpg`, `alvarez.png`). Names are case-sensitive once on GitHub Pages, so keep them lowercase.
 - Different file name or format? Add `crest: "path"` to the team or `photo: "path"` to a player.
 
 Portrait-ish photos cropped from the top work best on the cards.
+
+### Linking photos instead of downloading
+
+`photo` can be a full web address. Wikimedia Commons links work best: they're free to reuse with credit, they don't expire, and Commons allows them to be drawn into exported images. On a Commons file page, click the image and copy the address of the full image (it starts with `https://upload.wikimedia.org/`), then:
+
+```js
+{ id: "oblak", name: "Jan Oblak", number: 13, position: "GK", nation: "SVN",
+  photo: "https://upload.wikimedia.org/wikipedia/commons/...jpg",
+  credit: "Photographer Name, CC BY-SA 4.0", creditUrl: "https://commons.wikimedia.org/wiki/File:..." }
+```
+
+Images from sites that don't allow other sites to draw them still show on the page, but that player gets a number badge in exported images.
 
 ## Adding a club
 
@@ -37,9 +50,14 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `stripes`: vertical stripes (`base` plus one band colour)
 - `pinstripe`: thin vertical lines
 - `hoops`: horizontal bands (can alternate several colours)
+- `bolts`: plain `base` with two thin lightning-bolt stripes near the edges
+- `gradient`: `base` fading top to bottom into the band colour
+- `split`: `base` on the left, band colour on the right, divided by a vertical zigzag
+- `sleeves`: `base` body with band-coloured shoulders and sleeves (Arsenal home)
+- `zigzag`: horizontal zigzag lines across `base`, cycling through the band colours
 - `solid`: plain `base` colour
 
-Set `dark: true` (and a light `line` colour) for dark kits. A club with only one kit hides the colour switcher. The visitor's choice is remembered per club.
+Text sitting directly on the page background uses `onPaper`, `onPaperMuted` and `paperPrimary` / `paperOnPrimary` (for buttons and highlights). Set these when `paper` is a strong colour, like Atleti's red home mode; otherwise they default to the card colours. Set `dark: true` (and a light `line` colour) for dark kits. The club's card on the home page always uses its home kit (`paper`, `onPaper`, `onPaperMuted` and `pattern`). A club with only one kit hides the colour switcher. The visitor's choice is remembered per club.
 
 ## Photo credits
 

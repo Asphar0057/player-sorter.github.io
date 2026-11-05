@@ -3,6 +3,7 @@
   --club-on-primary: #FFFFFF;
   --club-on-accent: #FFFFFF;
   --club-pattern: #1F2937;
+  --row-tint: #1F2937;
   --club-accent: #111827;
   --card-ink: #111827;
   --card-muted: #5B6170;
@@ -77,7 +78,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
   color: var(--hi);
 }
 
-:root:not([data-club]) .eyebrow { color: #C2410C; }
+:root:not([data-club]) .eyebrow { color: #a55448; }
 
 .hero { padding: 16px 0 28px; }
 
@@ -99,7 +100,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
 
 .back-link:hover { color: var(--hi); }
 
-.hero-sub { max-width: 520px; color: var(--dim); font-size: 18px; margin: 14px 0 0; }
+.hero-sub { max-width: 520px; color: var(--dim); font-size: 16px; margin: 14px 0 0; }
 
 .league { margin-top: 18px; }
 
@@ -150,13 +151,13 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
 
 .team-tile-soon {
   justify-content: center;
-  background: color-mix(in srgb, var(--card) 40%, transparent);
   color: var(--dim);
   font-family: var(--display);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   min-height: 84px;
+  background: #cea49c;
 }
 
 .crest, .avatar {
@@ -420,7 +421,8 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
   align-items: center;
   gap: 14px;
   padding: calc(8px + 10px * var(--s)) 16px;
-  background: color-mix(in srgb, var(--hi) calc(var(--s) * 7%), var(--card));
+  --t: 0;
+  background: color-mix(in srgb, var(--row-tint) calc(var(--t) * 100%), var(--card));
   border-radius: calc(12px + 4px * var(--s));
 }
 
@@ -653,3 +655,27 @@ body.modal-open { overflow: hidden; }
   --on-hi: var(--club-on-primary);
   color: var(--ink);
 }
+
+.team-tile-club {
+  position: relative;
+  overflow: hidden;
+  background: var(--tile-bg);
+  color: var(--tile-fg);
+  isolation: isolate;
+}
+
+.team-tile-club::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 58%;
+  z-index: -1;
+  background: var(--tile-pattern);
+  background-size: 100% 100%;
+  opacity: 0.55;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 75%);
+  mask-image: linear-gradient(90deg, transparent, #000 75%);
+}
+
+.team-tile-club .team-tile-name { color: var(--tile-fg); }
+.team-tile-club .team-tile-meta { color: var(--tile-muted); }
+.team-tile-club:hover { box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18); }

@@ -80,6 +80,36 @@
     return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
   }
 
+  const ZIG = [[50, 0], [57, 12.5], [43, 25], [57, 37.5], [43, 50], [57, 62.5], [43, 75], [57, 87.5], [50, 100]];
+
+  function splitSvg(p) {
+    const color = (p.bands && p.bands[0]) || "#000000";
+    const pts = ZIG.map(pt => pt.join(",")).concat(["100,100", "100,0"]).join(" ");
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="' + pts + '" fill="' + color + '"/></svg>';
+    return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
+  }
+
+  const SLEEVE_L = [[0, 0], [30, 0], [22, 46], [0, 60]];
+
+  const ZZ_ROWS = [0.3, 0.46, 0.62, 0.78];
+  const ZZ_TEETH = 5;
+
+  function zigzagRow(y) {
+    const pts = [];
+    for (let i = 0; i <= ZZ_TEETH * 2; i++) pts.push([(i * 100) / (ZZ_TEETH * 2), y * 100 + (i % 2 ? -5 : 5)]);
+    return pts;
+  }
+
+  function zigzagSvg(p) {
+    const bands = p.bands && p.bands.length ? p.bands : ["#FFFFFF"];
+    const lines = ZZ_ROWS.map((y, i) =>
+      '<polyline points="' + zigzagRow(y).map(pt => pt.join(",")).join(" ") +
+      '" fill="none" stroke="' + bands[i % bands.length] + '" stroke-width="3.5" stroke-linejoin="miter"/>'
+    ).join("");
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">' + lines + "</svg>";
+    return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
+  }
+
   function pct(n) {
     return (n * 100).toFixed(2) + "%";
   }
@@ -94,6 +124,22 @@
     }
     if (p.type === "bolts") {
       return boltSvg(p) + " center / 100% 100% no-repeat, " + p.base;
+    }
+    if (p.type === "gradient") {
+      return "linear-gradient(180deg, " + p.base + ", " + (b[0] || p.base) + ")";
+    }
+    if (p.type === "sleeves") {
+      const c = b[0] || "#FFFFFF";
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">' +
+        '<polygon points="' + SLEEVE_L.map(pt => pt.join(",")).join(" ") + '" fill="' + c + '"/>' +
+        '<polygon points="' + SLEEVE_L.map(([px, py]) => [100 - px, py].join(",")).join(" ") + '" fill="' + c + '"/></svg>';
+      return "url('data:image/svg+xml," + encodeURIComponent(svg) + "') center / 100% 100% no-repeat, " + p.base;
+    }
+    if (p.type === "zigzag") {
+      return zigzagSvg(p) + " center / 100% 100% no-repeat, " + p.base;
+    }
+    if (p.type === "split") {
+      return splitSvg(p) + " center / 100% 100% no-repeat, " + p.base;
     }
     if (p.type === "hoops") {
       const stops = [];
@@ -142,6 +188,55 @@
         ctx.fillStyle = hp.color;
         ctx.fillRect(x, y + h * hp.from, w, h * (hp.to - hp.from));
       });
+    } else if (p.type === "sleeves") {
+      ctx.fillStyle = b[0] || "#FFFFFF";
+      [false, true].forEach(mirror => {
+        ctx.beginPath();
+        SLEEVE_L.forEach(([px, py], j) => {
+          const X = x + ((mirror ? 100 - px : px) / 100) * w;
+          const Y = y + (py / 100) * h;
+          if (j) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+        });
+        ctx.closePath();
+        ctx.fill();
+      });
+    } else if (p.type === "zigzag") {
+      const bands = b.length ? b : ["#FFFFFF"];
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+      ctx.clip();
+      ctx.lineWidth = 3.5 * (w + h) / 200;
+      ctx.lineJoin = "miter";
+      ZZ_ROWS.forEach((ry, i) => {
+        ctx.strokeStyle = bands[i % bands.length];
+        ctx.beginPath();
+        zigzagRow(ry).forEach(([px, py], j) => {
+          const X = x + (px / 100) * w;
+          const Y = y + (py / 100) * h;
+          if (j) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+        });
+        ctx.stroke();
+      });
+      ctx.restore();
+    } else if (p.type === "gradient") {
+      const g = ctx.createLinearGradient(x, y, x, y + h);
+      g.addColorStop(0, p.base);
+      g.addColorStop(1, b[0] || p.base);
+      ctx.fillStyle = g;
+      ctx.fillRect(x, y, w, h);
+    } else if (p.type === "split") {
+      ctx.fillStyle = b[0] || p.base;
+      ctx.beginPath();
+      ZIG.forEach(([px, py], j) => {
+        const X = x + (px / 100) * w;
+        const Y = y + (py / 100) * h;
+        if (j) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+      });
+      ctx.lineTo(x + w, y + h);
+      ctx.lineTo(x + w, y);
+      ctx.closePath();
+      ctx.fill();
     }
   }
 

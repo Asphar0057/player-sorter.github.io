@@ -98,7 +98,8 @@
       "--page-muted:" + k.onPaperMuted,
       "--page-hi:" + k.paperPrimary,
       "--page-on-hi:" + k.paperOnPrimary,
-      "--line:" + k.line
+      "--line:" + k.line,
+      "--row-tint:" + (k.rowTint || k.primary)
     ].join(";");
   }
 
@@ -126,6 +127,10 @@
     document.querySelectorAll('input[name="site-kit"][data-team="' + team.id + '"]').forEach(i => {
       i.checked = i.value === id;
     });
+    const kit = kitOf(team);
+    document.querySelectorAll(".rank-row[data-rank]").forEach(el => {
+      el.style.setProperty("--t", rowTint(kit, Number(el.dataset.rank)).toFixed(3));
+    });
   }
 
   function kitSwitch(team, name, current, attr) {
@@ -151,9 +156,9 @@
     return sw ? '<div class="kit-picker"><span class="kit-label">Colors</span>' + sw + "</div>" : "";
   }
 
-  function crestMarkup(team, cls) {
+  function crestMarkup(team, cls, kit) {
     return (
-      '<span class="crest ' + (cls || "") + '" data-team="' + team.id + '" style="' + themeVars(team) + '">' +
+      '<span class="crest ' + (cls || "") + '"' + (kit ? "" : ' data-team="' + team.id + '"') + ' style="' + themeVars(team, kit) + '">' +
         '<span class="crest-fallback">' + esc(team.monogram || team.shortName.slice(0, 3)) + "</span>" +
         imgTag(crestPaths(team)) +
       "</span>"
@@ -206,9 +211,16 @@
     const leagues = window.SQUAD_MANIFEST.leagues.map(league => {
       const tiles = league.teams.filter(id => TEAMS[id]).map(id => {
         const team = TEAMS[id];
+        const home = Kits.get(team, "home");
+        const tileVars = [
+          "--tile-bg:" + home.paper,
+          "--tile-fg:" + home.onPaper,
+          "--tile-muted:" + home.onPaperMuted,
+          "--tile-pattern:" + Kits.css(home.pattern)
+        ].join(";");
         return (
-          '<button type="button" class="team-tile" data-go="' + team.id + '" data-team="' + team.id + '" style="' + themeVars(team) + '">' +
-            crestMarkup(team, "crest-md") +
+          '<button type="button" class="team-tile team-tile-club" data-go="' + team.id + '" style="' + tileVars + '">' +
+            crestMarkup(team, "crest-md", home) +
             '<span class="team-tile-text">' +
               '<span class="team-tile-name">' + esc(team.name) + "</span>" +
               '<span class="team-tile-meta">' + team.players.length + " players · " + esc(team.season) + "</span>" +
@@ -218,11 +230,11 @@
       }).join("");
       return (
         '<section class="league">' +
-          '<h2 class="league-name">' + esc(league.name) + ' <small>' + esc(league.country) + "</small></h2>" +
+          '<h2 class="league-name">' + esc(league.name) + '</h2>' +
           '<div class="team-grid">' + tiles +
             '<div class="team-tile team-tile-soon">More clubs soon</div>' +
-          "</div>" +
-        "</section>"
+          '</div>' +
+        '</section>'
       );
     }).join("");
 
@@ -230,7 +242,7 @@
       '<section class="hero">' +
         '<p class="eyebrow">Player Sorter</p>' +
         "<h1>Pick a club &amp; start ranking</h1>" +
-        '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your ranking. Made with love, Nic.</p>' +
+        '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA.</p>' +
       "</section>" +
       leagues
     );
@@ -287,7 +299,7 @@
           kitPicker(team) +
         "</div>" +
         '<div class="setup-body">' +
-          '<p class="setup-label">Choose who to rank</p>' +
+          '<p class="setup-label">Choose who to include in your ranking:</p>' +
           '<div class="chips">' + chips + "</div>" +
           '<p class="setup-estimate" id="estimate"></p>' +
           '<div class="setup-actions">' +
@@ -386,7 +398,7 @@
         "</div>" +
         '<div class="battle-actions">' +
           '<button class="btn btn-ghost" data-act="undo"' + (state.history.length ? "" : " disabled") + ">Undo</button>" +
-          '<button class="btn btn-tie" data-pick="tie">Can\'t split them (tie)</button>' +
+          '<button class="btn btn-tie" data-pick="tie">Can\'t choose (tie)</button>' +
           '<button class="btn btn-ghost" data-act="quit">Save &amp; exit</button>' +
         "</div>" +
         '<div class="battle-kit">' + kitSwitch(team, "site-kit", kitOf(team).id, true) + "</div>" +
@@ -507,6 +519,7 @@
     const preview = modal.querySelector(".share-preview");
     const note = modal.querySelector("#shareNote");
     const fileShare = ShareImage.canShareFiles();
+
     const fileName = format => team.id + "-ranking-" + opts.mode + "-" + opts.kit + "-" + format + ".png";
 
     async function draw() {
@@ -527,6 +540,7 @@
       preview.appendChild(c);
       preview.classList.remove("busy");
       preview.dataset.format = opts.format;
+      if (c.photosDropped) toast("Photos can't go in the image when the page is opened as a file. They will once it's on a server or GitHub Pages.");
     }
 
     async function storyCanvas() {
@@ -608,8 +622,17 @@
     return Math.max(0, (4 - rank) / 3);
   }
 
+  function rowTint(kit, rank) {
+    const sc = rankScale(rank);
+    if (sc <= 0) return 0;
+    const strength = kit.rowTintStrength != null ? kit.rowTintStrength : 0.07;
+    const floor = kit.rowTintFloor || 0;
+    return strength * (floor + (1 - floor) * sc);
+  }
+
   function renderResults() {
     const { team, state } = session;
+    const kit = kitOf(team);
     applyTheme(team);
     const ranking = MergeSorter.ranking(state);
     const rows = [];
@@ -618,7 +641,7 @@
       if (!hit) return;
       const tied = row.ids.length > 1;
       rows.push(
-        '<li class="rank-row" style="--s:' + rankScale(row.rank).toFixed(3) + '">' +
+        '<li class="rank-row" data-rank="' + row.rank + '" style="--s:' + rankScale(row.rank).toFixed(3) + ";--t:" + rowTint(kit, row.rank).toFixed(3) + '">' +
           '<span class="rank-num">' + row.rank + (tied ? '<small>=</small>' : "") + "</span>" +
           '<span class="rank-slot">' + avatarMarkup(hit.team, hit.player, "avatar-rank") + "</span>" +
           '<span class="rank-text">' +
@@ -635,7 +658,7 @@
         '<div class="setup-head">' +
           crestMarkup(team, "crest-lg") +
           "<div>" +
-            '<p class="eyebrow">Your ranking · ' + state.choices + " matchups</p>" +
+            '<p class="eyebrow">Your ranking</p>' +
             "<h1>" + esc(team.name) + "</h1>" +
           "</div>" +
           kitPicker(team) +

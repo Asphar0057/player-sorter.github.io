@@ -8,22 +8,23 @@ registerTeam({
   kits: {
     home: {
       label: "Home",
-      paper: "#CB3524",
+      paper: "#CE3524",
       card: "#FFFFFF",
       onPaper: "#FFFFFF",
       onPaperMuted: "rgba(255,255,255,0.8)",
       paperPrimary: "#FFFFFF",
-      paperOnPrimary: "#CB3524",
+      paperOnPrimary: "#CE3524",
       line: "rgba(0,0,0,0.16)",
       ink: "#161A3D",
       muted: "#5B6170",
-      primary: "#CB3524",
+      primary: "#CE3524",
       onPrimary: "#FFFFFF",
-      accent: "#272E61",
+      accent: "#262F61",
       onAccent: "#FFFFFF",
-      header: "#CB3524",
+      header: "#CE3524",
       onHeader: "#FFFFFF",
-      headerBand: "#272E61",
+      headerBand: "#262F61",
+      rowTintStrength: 0.15,
       pattern: { type: "stripes", base: "#CB3524", bands: ["#FFFFFF"] }
     },
     away: {
@@ -56,6 +57,9 @@ registerTeam({
       header: "#8B8F96",
       onHeader: "#FFFFFF",
       headerBand: "#272E61",
+      rowTint: "#272E61",
+      rowTintStrength: 0.24,
+      rowTintFloor: 0.5,
       pattern: { type: "hoops", base: "#8B8F96", bands: ["#C8302A", "#272E61"] }
     }
   },

@@ -12,10 +12,20 @@
   const BODY = '"Barlow", system-ui, sans-serif';
   const cache = new Map();
 
+  function isRemote(src) {
+    try {
+      const url = new URL(src, location.href);
+      return /^https?:$/.test(url.protocol) && url.origin !== location.origin;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function loadOne(src) {
     if (cache.has(src)) return cache.get(src);
     const p = new Promise(resolve => {
       const img = new Image();
+      if (isRemote(src)) img.crossOrigin = "anonymous";
       img.onload = () => resolve(img.naturalWidth ? img : null);
       img.onerror = () => resolve(null);
       img.src = src;
@@ -122,8 +132,8 @@
     const h = f.head - 14;
     ctx.save();
     if (p.type === "stripes") {
-      ctx.globalAlpha = 0.1;
-      ctx.fillStyle = k.onHeader;
+      ctx.globalAlpha = k.headerPatternAlpha != null ? k.headerPatternAlpha : 0.1;
+      ctx.fillStyle = k.headerPatternAlpha != null ? band : k.onHeader;
       for (let x = 54; x < f.w; x += 108) ctx.fillRect(x, 0, 54, h);
     } else if (p.type === "pinstripe") {
       ctx.globalAlpha = 0.28;
@@ -143,6 +153,43 @@
         });
         ctx.stroke();
       });
+    } else if (p.type === "zigzag") {
+      const colors = p.bands && p.bands.length ? p.bands : [k.onHeader];
+      const teeth = 9;
+      const amp = 14;
+      ctx.lineWidth = 6;
+      ctx.lineJoin = "miter";
+      ctx.globalAlpha = 0.9;
+      [0.3, 0.55].forEach((fy, i) => {
+        ctx.strokeStyle = colors[i % colors.length];
+        ctx.beginPath();
+        for (let t = 0; t <= teeth * 2; t++) {
+          const X = f.w * 0.5 + (t * f.w * 0.5) / (teeth * 2);
+          const Y = h * fy + (t % 2 ? -amp : amp);
+          if (t) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+        }
+        ctx.stroke();
+      });
+    } else if (p.type === "gradient") {
+      const g = ctx.createLinearGradient(0, 0, f.w, 0);
+      g.addColorStop(0, p.base);
+      g.addColorStop(1, band);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, f.w, h);
+    } else if (p.type === "split") {
+      const amp = 26;
+      const steps = 6;
+      const cx = f.w * 0.72;
+      ctx.globalAlpha = k.headerPatternAlpha != null ? k.headerPatternAlpha : 0.9;
+      ctx.fillStyle = band;
+      ctx.beginPath();
+      ctx.moveTo(cx, 0);
+      for (let i = 1; i < steps; i++) ctx.lineTo(cx + (i % 2 ? amp : -amp), (h * i) / steps);
+      ctx.lineTo(cx, h);
+      ctx.lineTo(f.w, h);
+      ctx.lineTo(f.w, 0);
+      ctx.closePath();
+      ctx.fill();
     } else if (p.type === "hoops") {
       const colors = p.bands && p.bands.length ? p.bands : [k.onHeader];
       const bandH = Math.round(f.head * 0.028);
@@ -192,7 +239,7 @@
     ctx.globalAlpha = 0.85;
     ctx.font = font(600, eSize, DISPLAY);
     if (ctx.letterSpacing !== undefined) ctx.letterSpacing = "4px";
-    ctx.fillText("MY DEFINITIVE RANKING", textX, eBase);
+    ctx.fillText("MY RANKING", textX, eBase);
     if (ctx.letterSpacing !== undefined) ctx.letterSpacing = "0px";
     ctx.globalAlpha = 1;
 
@@ -223,7 +270,10 @@
 
   function drawRow(ctx, x, y, w, h, entry, img, theme, showPos, cols) {
     const m = cols || columns(h);
-    ctx.fillStyle = Kits.mix(theme.primary, theme.card, rankScale(entry.rank) * 0.07);
+    const sc = rankScale(entry.rank);
+    const floor = theme.rowTintFloor || 0;
+    const amount = sc > 0 ? (theme.rowTintStrength != null ? theme.rowTintStrength : 0.07) * (floor + (1 - floor) * sc) : 0;
+    ctx.fillStyle = Kits.mix(theme.rowTint || theme.primary, theme.card, amount);
     rr(ctx, x, y, w, h, Math.min(20, h * 0.24));
     ctx.fill();
 
@@ -333,7 +383,7 @@
     ctx.textAlign = "left";
     ctx.fillStyle = theme.onPaper;
     ctx.font = font(800, 34, DISPLAY, true);
-    ctx.fillText(siteUrl ? "RANK YOURS" : "MADE WITH LOVE, NIC", PAD, creditNote ? lineY - 14 : lineY);
+    ctx.fillText(siteUrl ? "RANK YOURS" : "bit.ly/player-sorter", PAD, creditNote ? lineY - 14 : lineY);
     if (siteUrl) {
       ctx.textAlign = "right";
       ctx.fillStyle = theme.paperPrimary;
