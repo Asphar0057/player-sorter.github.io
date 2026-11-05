@@ -63,34 +63,36 @@ registerTeam({
       pattern: { type: "hoops", base: "#8B8F96", bands: ["#C8302A", "#262F61"] }
     }
   },
-  players: [
-    { id: "musso", name: "Juan Musso", number: 1, position: "GK", nation: "ARG" },
-    { id: "oblak", name: "Jan Oblak", number: 13, position: "GK", nation: "SVN" },
-    { id: "esquivel", name: "Salvi Esquivel", number: 25, position: "GK", nation: "ESP" },
+players: [
+    { id: "Pope", name: "Nick Pope", number: 1, position: "GK", nation: "ENG" },
+    { id: "Horníček", name: "Lukáš Horníček", number: 21, position: "GK", nation: "CZE" },
+    { id: "Jaouen", name: "Ewan Jaouen", number: 24, position: "GK", nation: "FRA" },
+    { id: "Gillespie", name: "Mark Gillespie", number: 29, position: "GK", nation: "ENG" },
 
-    { id: "hancko", name: "Dávid Hancko", number: 17, position: "DF", nation: "SVK" },
-    { id: "pubill", name: "Marc Pubill", number: 18, position: "DF", nation: "ESP" },
-    { id: "romero", name: "Cristian Romero", number: 21, position: "DF", nation: "ARG" },
-    { id: "grimaldo", name: "Álex Grimaldo", number: 22, position: "DF", nation: "ESP" },
-    { id: "le-normand", name: "Robin Le Normand", number: 24, position: "DF", nation: "ESP" },
-    { id: "dominguez", name: "Jorge Domínguez", number: 27, position: "DF", nation: "ESP" },
-    { id: "dani-martinez", name: "Dani Martínez", number: 30, position: "DF", nation: "ESP" },
+    { id: "Dedić", name: "Amar Dedić", number: 37, position: "DF", nation: "BIH" },
+    { id: "Thiaw", name: "Malick Thiaw", number: 12, position: "DF", nation: "GER" },
+    { id: "Hall", name: "Lewis Hall", number: 3, position: "DF", nation: "ENG" },
+    { id: "Livramento", name: "Tino Livramento", number: 2, position: "DF", nation: "ENG" },
+    { id: "Burn", name: "Dan Burn", number: 33, position: "DF", nation: "ENG" },
+    { id: "Botman", name: "Sven Botman", number: 4, position: "DF", nation: "NED" },
+    { id: "Schär", name: "Fabian Schär", number: 5, position: "DF", nation: "SUI" },
 
-    { id: "obed-vargas", name: "Obed Vargas", number: 3, position: "MF", nation: "MEX" },
-    { id: "mendoza", name: "Rodri Mendoza", number: 4, position: "MF", nation: "ESP" },
-    { id: "cardoso", name: "Johnny Cardoso", number: 5, position: "MF", nation: "USA" },
-    { id: "koke", name: "Koke", number: 6, position: "MF", nation: "ESP" },
-    { id: "lee-kang-in", name: "Lee Kang-in", number: 7, position: "MF", nation: "KOR" },
-    { id: "barrios", name: "Pablo Barrios", number: 8, position: "MF", nation: "ESP" },
-    { id: "baena", name: "Álex Baena", number: 10, position: "MF", nation: "ESP" },
-    { id: "llorente", name: "Marcos Llorente", number: 14, position: "MF", nation: "ESP" },
-    { id: "hjulmand", name: "Morten Hjulmand", number: 23, position: "MF", nation: "DEN" },
+    { id: "González", name: "Nico González", number: 6, position: "MF", nation: "ESP" },
+    { id: "Joelinton", name: "Joelinton", number: 7, position: "MF", nation: "BRA" },
+    { id: "Touré", name: "Bazoumana Touré", number: 17, position: "MF", nation: "CIV" },
+    { id: "Barnes", name: "Harvey Barnes", number: 11, position: "MF", nation: "ENG" },
+    { id: "Miley", name: "Lewis Miley", number: 67, position: "MF", nation: "ENG" },
+    { id: "Murphy", name: "Jacob Murphy", number: 23, position: "MF", nation: "ENG" },
+    { id: "Ramsey", name: "Jacob Ramsey", number: 41, position: "MF", nation: "ENG" },
+    { id: "Willock", name: "Joe Willock", number: 28, position: "MF", nation: "ENG" },
+    { id: "Steur", name: "Sean Steur", number: 28, position: "MF", nation: "NED" },
 
-    { id: "sorloth", name: "Alexander Sørloth", number: 9, position: "FW", nation: "NOR" },
-    { id: "lookman", name: "Ademola Lookman", number: 11, position: "FW", nation: "NGA" },
-    { id: "jonathan-david", name: "Jonathan David", number: 15, position: "FW", nation: "CAN" },
-    { id: "arnau-ortiz", name: "Arnau Ortiz", number: 16, position: "FW", nation: "ESP" },
-    { id: "alvarez", name: "Julián Alvarez", number: 19, position: "FW", nation: "ARG" },
-    { id: "giuliano", name: "Giuliano Simeone", number: 20, position: "FW", nation: "ARG" }
+    { id: "Bamba", name: "Aladji Bamba", number: 8, position: "MF", nation: "FRA" },
+
+    { id: "Wissa", name: "Yoane Wissa", number: 9, position: "FW", nation: "COD" },
+    { id: "Elanga", name: "Anthony Elanga", number: 19, position: "FW", nation: "SWE" },
+    { id: "Osula", name: "William Osula", number: 10, position: "FW", nation: "DEN" },
+    { id: "Fernandez-Pardo", name: "Matias Fernandez-Pardo", number: 20, position: "FW", nation: "BEL" },
   ]
 });
+
