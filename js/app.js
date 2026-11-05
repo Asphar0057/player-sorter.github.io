@@ -530,6 +530,9 @@
     const preview = modal.querySelector(".share-preview");
     const note = modal.querySelector("#shareNote");
     const fileShare = ShareImage.canShareFiles();
+    if (ShareImage.inAppBrowser()) {
+      note.textContent = "Opened inside an app? Download still works (press and hold the image), but for one-tap sharing open this page in your browser: tap ⋯ then Open in browser.";
+    }
 
     const fileName = format => team.id + "-ranking-" + opts.mode + "-" + opts.kit + "-" + format + ".png";
 
@@ -569,13 +572,21 @@
       if (e.key === "Escape") close();
     }
 
-    async function shareFile(file, text) {
+    function deliver(c, file) {
+      if (ShareImage.prefersSaveView()) {
+        ShareImage.showSaveView(c);
+        return false;
+      }
+      ShareImage.download(file);
+      return true;
+    }
+
+    async function shareFile(file, text, c) {
       try {
         await navigator.share(text ? { files: [file], text } : { files: [file] });
       } catch (e) {
         if (e && e.name !== "AbortError") {
-          ShareImage.download(file);
-          toast("Sharing didn't open, so the image was downloaded instead.");
+          if (deliver(c || canvas, file)) toast("Sharing didn't open, so the image was downloaded instead.");
         }
       }
     }
@@ -597,7 +608,7 @@
       if (act.dataset.act === "close") return close();
 
       if (act.dataset.act === "download") {
-        ShareImage.download(ShareImage.canvasToFile(canvas, fileName(opts.format)));
+        deliver(canvas, ShareImage.canvasToFile(canvas, fileName(opts.format)));
       }
 
       if (act.dataset.act === "x") {
@@ -605,10 +616,14 @@
         if (fileShare) {
           await shareFile(ShareImage.canvasToFile(canvas, fileName(opts.format)), text + (url ? " " + url : ""));
         } else {
-          const intent = "https://x.com/intent/tweet?text=" + encodeURIComponent(text) + (url ? "&url=" + encodeURIComponent(url) : "");
-          window.open(intent, "_blank", "noopener");
-          ShareImage.download(ShareImage.canvasToFile(canvas, fileName(opts.format)));
-          toast("Image downloaded. Attach it to your post on X.");
+          if (ShareImage.prefersSaveView()) {
+            ShareImage.showSaveView(canvas, "Press and hold to save, then attach it to your post on X");
+          } else {
+            const intent = "https://x.com/intent/tweet?text=" + encodeURIComponent(text) + (url ? "&url=" + encodeURIComponent(url) : "");
+            window.open(intent, "_blank", "noopener");
+            ShareImage.download(ShareImage.canvasToFile(canvas, fileName(opts.format)));
+            toast("Image downloaded. Attach it to your post on X.");
+          }
         }
       }
 
@@ -616,7 +631,9 @@
         const c = await storyCanvas();
         const file = ShareImage.canvasToFile(c, fileName("story"));
         if (fileShare) {
-          await shareFile(file);
+          await shareFile(file, null, c);
+        } else if (ShareImage.prefersSaveView()) {
+          ShareImage.showSaveView(c, "Press and hold to save, then add it to your Instagram story");
         } else {
           ShareImage.download(file);
           toast("Story image downloaded. Send it to your phone and add it to your Instagram story.");
