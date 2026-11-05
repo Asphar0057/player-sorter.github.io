@@ -1,9 +1,9 @@
 registerTeam({
-  id: "Newcastle",
-  name: "Newcastle United",
-  shortName: "NUFC",
-  monogram: "NUFC",
-  league: "Premier Leauge",
+  id: "sheffield",
+  name: "sheffield United",
+  shortName: "SUFC",
+  monogram: "SUFC",
+  league: "Championship",
   season: "2026/27",
   kits: {
     home: {
@@ -63,35 +63,36 @@ registerTeam({
       pattern: { type: "hoops", base: "#8B8F96", bands: ["#C8302A", "#262F61"] }
     }
   },
-players: [
-    { id: "Pope", name: "Nick Pope", number: 1, position: "GK", nation: "ENG" },
-    { id: "Horníček", name: "Lukáš Horníček", number: 21, position: "GK", nation: "CZE" },
-    { id: "Jaouen", name: "Ewan Jaouen", number: 24, position: "GK", nation: "FRA" },
-    { id: "Gillespie", name: "Mark Gillespie", number: 29, position: "GK", nation: "ENG" },
+  players: [
+    { id: "Davies", name: "Adam Davies", number: 17, position: "GK", nation: "WAL" },
+    { id: "Cooper", name: "Michael Cooper", number: 1, position: "GK", nation: "ENG" },
 
-    { id: "Dedić", name: "Amar Dedić", number: 37, position: "DF", nation: "BIH" },
-    { id: "Thiaw", name: "Malick Thiaw", number: 12, position: "DF", nation: "GER" },
-    { id: "Hall", name: "Lewis Hall", number: 3, position: "DF", nation: "ENG" },
-    { id: "Livramento", name: "Tino Livramento", number: 2, position: "DF", nation: "ENG" },
-    { id: "Burn", name: "Dan Burn", number: 33, position: "DF", nation: "ENG" },
-    { id: "Botman", name: "Sven Botman", number: 4, position: "DF", nation: "NED" },
-    { id: "Schär", name: "Fabian Schär", number: 5, position: "DF", nation: "SUI" },
+    { id: "Baptiste", name: "Jamal Baptiste", number: 33, position: "DF", nation: "ENG" },
+    { id: "Norrington-Davies", name: "Rhys Norrington-Davies", number: 30, position: "DF", nation: "WAL" },
+    { id: "McCallum", name: "Sam McCallum", number: 3, position: "DF", nation: "ENG" },
+    { id: "Seriki", name: "Femi Seriki", number: 38, position: "DF", nation: "ENG" },
+    { id: "Shackleton", name: "Jamie Shackleton", number: 16, position: "DF", nation: "ENG" },
+    { id: "McGuinness", name: "Mark McGuinness", number: 25, position: "DF", nation: "IRL" },
+    { id: "Kitching", name: "Liam Kitching", number: 15, position: "DF", nation: "IRL" },
+    { id: "Burrows", name: "Harrison Burrows", number: 14, position: "DF", nation: "ENG" },
+    { id: "Tanganga", name: "Japhet Tanganga", number: 5, position: "DF", nation: "ENG" },
+    { id: "Doherty", name: "Matt Doherty", number: 2, position: "DF", nation: "IRL" },
 
-    { id: "González", name: "Nico González", number: 6, position: "MF", nation: "ESP" },
-    { id: "Joelinton", name: "Joelinton", number: 7, position: "MF", nation: "BRA" },
-    { id: "Touré", name: "Bazoumana Touré", number: 17, position: "MF", nation: "CIV" },
-    { id: "Barnes", name: "Harvey Barnes", number: 11, position: "MF", nation: "ENG" },
-    { id: "Miley", name: "Lewis Miley", number: 67, position: "MF", nation: "ENG" },
-    { id: "Murphy", name: "Jacob Murphy", number: 23, position: "MF", nation: "ENG" },
-    { id: "Ramsey", name: "Jacob Ramsey", number: 41, position: "MF", nation: "ENG" },
-    { id: "Willock", name: "Joe Willock", number: 28, position: "MF", nation: "ENG" },
-    { id: "Steur", name: "Sean Steur", number: 28, position: "MF", nation: "NED" },
+    { id: "Arblaster", name: "Oliver Arblaster", number: 4, position: "MF", nation: "ENG" },
+    { id: "Rothwell", name: "Joe Rothwell", number: 7, position: "MF", nation: "ENG" },
+    { id: "Peck", name: "Sydie Peck", number: 42, position: "MF", nation: "ENG" },
+    { id: "Donovan", name: "Romelle Donovan", number: 11, position: "MF", nation: "ENG" },
+    { id: "Riedwald", name: "Jaïro Riedewald", number: 44, position: "MF", nation: "NED" },
+    { id: "Chong", name: "Tahith Chong", number: 19, position: "MF", nation: "CUW" },
+    { id: "Diaz", name: "Ben Brereton Díaz", number: 22, position: "MF", nation: "CHI" },
+    { id: "Phillips", name: "Kalvin Phillips", number: 27, position: "MF", nation: "ENG" },
+    { id: "Choudhury", name: "Hamza Choudhury", number: 8, position: "MF", nation: "BAN" },
 
-    { id: "Bamba", name: "Aladji Bamba", number: 8, position: "MF", nation: "FRA" },
-
-    { id: "Wissa", name: "Yoane Wissa", number: 9, position: "FW", nation: "COD" },
-    { id: "Elanga", name: "Anthony Elanga", number: 19, position: "FW", nation: "SWE" },
-    { id: "Osula", name: "William Osula", number: 10, position: "FW", nation: "DEN" },
-    { id: "Fernandez-Pardo", name: "Matias Fernandez-Pardo", number: 20, position: "FW", nation: "BEL" },
+    { id: "One", name: "Ryan One", number: 26, position: "FW", nation: "SCO" },
+    { id: "Campbell", name: "Tyrese Campbell", number: 23, position: "FW", nation: "ENG" },
+    { id: "Cannon", name: "Thomas Cannon", number: 9, position: "FW", nation: "IRL" },
+    { id: "Bamford", name: "Patrick Bamford", number: 45, position: "FW", nation: "ENG" },
+    { id: "Ayew", name: "Jordan Ayew", number: 10, position: "FW", nation: "GHA" },
+   
   ]
 });
