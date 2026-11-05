@@ -85,7 +85,6 @@ registerTeam({
     { id: "guler", name: "Arda Güler", number: 15, position: "MF", nation: "TUR" },
     { id: "bernardo-silva", name: "Bernardo Silva", number: 20, position: "MF", nation: "POR" },
     { id: "diomande", name: "Yan Diomande", number: 25, position: "MF", nation: "CIV" },
-    { id: "sergio-martinez", name: "Sergio Martínez", number: 38, position: "MF", nation: "ESP" },
 
     { id: "vinicius", name: "Vinícius Júnior", number: 7, position: "FW", nation: "BRA" },
     { id: "endrick", name: "Endrick", number: 9, position: "FW", nation: "BRA" },

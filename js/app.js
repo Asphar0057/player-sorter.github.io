@@ -506,7 +506,12 @@
           '<div class="share-preview"><div class="share-loading">Drawing your ranking…</div></div>' +
           '<div class="share-controls">' +
             '<p class="setup-label">Shape</p>' +
-            segmented("format", [{ value: "story", label: "Story 9:16" }, { value: "post", label: "Post 4:5" }], opts.format) +
+            segmented("format", [
+              { value: "story", label: "Story 9:16" },
+              { value: "post", label: "Post 4:5" },
+              { value: "square", label: "Square 1:1" },
+              { value: "wide", label: "Wide 16:9" }
+            ], opts.format) +
             '<p class="setup-label">Show</p>' +
             segmented("mode", modes, opts.mode) +
             (Kits.ids(team).length > 1 ? '<p class="setup-label">Colors</p>' + kitSwitch(team, "kit", opts.kit, false) : "") +
