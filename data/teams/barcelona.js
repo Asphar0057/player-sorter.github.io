@@ -91,7 +91,6 @@ registerTeam({
     { id: "raphinha", name: "Raphinha", number: 11, position: "FW", nation: "BRA" },
     { id: "adeyemi", name: "Karim Adeyemi", number: 14, position: "FW", nation: "GER" },
     { id: "gordon", name: "Anthony Gordon", number: 17, position: "FW", nation: "ENG" },
-    { id: "bardghji", name: "Roony Bardghji", number: 19, position: "FW", nation: "SWE" },
     { id: "olmo", name: "Dani Olmo", number: 20, position: "FW", nation: "ESP" },
     { id: "bisiwu", name: "Jesse Bisiwu", number: 27, position: "FW", nation: "BEL" },
     { id: "abdelkarim", name: "Hamza Abdelkarim", number: 29, position: "FW", nation: "EGY" }
