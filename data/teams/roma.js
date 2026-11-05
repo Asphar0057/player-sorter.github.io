@@ -74,7 +74,7 @@ registerTeam({
     { id: "hermoso", name: "Mario Hermoso", number: 22, position: "DF", nation: "ESP" },
     { id: "mancini", name: "Gianluca Mancini", number: 23, position: "DF", nation: "ITA" },
     { id: "balerdi", name: "Leonardo Balerdi", number: 26, position: "DF", nation: "ARG" },
-    { id: "wesley", name: "Wesley", number: 43, position: "DF", nation: "BRA" },
+    { id: "wesley", name: "Wesley França", number: 43, position: "DF", nation: "BRA" },
     { id: "lulli", name: "Emanuele Lulli", number: 77, position: "DF", nation: "ITA" },
     { id: "ghilardi", name: "Daniele Ghilardi", number: 87, position: "DF", nation: "ITA" },
 
