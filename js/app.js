@@ -484,6 +484,35 @@
     );
   }
 
+  function rankingLink(team, state) {
+    const prefix = team.id + ":";
+    const groups = (state.queue[0] || []).map(g => g.map(key => key.slice(prefix.length)).join("~"));
+    return location.origin + location.pathname + "?club=" + encodeURIComponent(team.id) + "&r=" + groups.join(".");
+  }
+
+  function importRanking() {
+    const params = new URLSearchParams(location.search);
+    const team = TEAMS[params.get("club")];
+    const raw = params.get("r");
+    params.delete("club");
+    params.delete("r");
+    if (!team || !raw) return;
+    const known = new Set(team.players.map(p => p.id));
+    const groups = raw.split(".").map(g => g.split("~").filter(id => known.has(id)).map(id => team.id + ":" + id)).filter(g => g.length);
+    const count = groups.reduce((n, g) => n + g.length, 0);
+    if (count < 2) return;
+    storeSet(team.id, {
+      state: {
+        queue: [groups], left: null, right: null, merged: null, i: 0, j: 0,
+        placed: count, total: count, choices: 0, done: true, history: []
+      }
+    });
+    const rest = params.toString();
+    try {
+      history.replaceState(null, "", location.pathname + (rest ? "?" + rest : "") + "#/" + team.id + "/results");
+    } catch (e) {}
+  }
+
   function openShare(team, entries) {
     const n = entries.length;
     const modes = [{ value: "top3", label: "Top 3" }];
@@ -491,6 +520,7 @@
     if (n > 10) modes.push({ value: "full", label: "Full squad" });
     const opts = { format: "story", mode: n > 10 ? "full" : modes[modes.length - 1].value, kit: kitOf(team).id };
     const kitFor = t => (t.id === team.id ? kitOf(t, opts.kit) : kitOf(t));
+    const escapeHref = ShareImage.needsBrowserEscape() && session && session.state.done ? rankingLink(team, session.state) : null;
     const url = siteUrl();
     let canvas = null;
     let renderId = 0;
@@ -532,7 +562,10 @@
     const preview = modal.querySelector(".share-preview");
     const note = modal.querySelector("#shareNote");
     const fileShare = ShareImage.canShareFiles();
-    if (ShareImage.inAppBrowser()) {
+    if (escapeHref) {
+      note.innerHTML = 'This app blocks saving images. <a class="share-escape" target="_blank" rel="noopener">Open your ranking in your browser</a> to download or share it.';
+      note.querySelector(".share-escape").href = ShareImage.browserIntent(escapeHref);
+    } else if (ShareImage.inAppBrowser()) {
       note.textContent = "Opened inside an app? Download still works (press and hold the image), but for one-tap sharing open this page in your browser: tap ⋯ then Open in browser.";
     }
 
@@ -576,7 +609,7 @@
 
     function deliver(c, file) {
       if (ShareImage.prefersSaveView()) {
-        ShareImage.showSaveView(c);
+        ShareImage.showSaveView(c, null, escapeHref);
         return false;
       }
       ShareImage.download(file);
@@ -619,7 +652,7 @@
           await shareFile(ShareImage.canvasToFile(canvas, fileName(opts.format)), text + (url ? " " + url : ""));
         } else {
           if (ShareImage.prefersSaveView()) {
-            ShareImage.showSaveView(canvas, "Press and hold to save, then attach it to your post on X");
+            ShareImage.showSaveView(canvas, "Press and hold to save, then attach it to your post on X", escapeHref);
           } else {
             const intent = "https://x.com/intent/tweet?text=" + encodeURIComponent(text) + (url ? "&url=" + encodeURIComponent(url) : "");
             window.open(intent, "_blank", "noopener");
@@ -635,7 +668,7 @@
         if (fileShare) {
           await shareFile(file, null, c);
         } else if (ShareImage.prefersSaveView()) {
-          ShareImage.showSaveView(c, "Press and hold to save, then add it to your Instagram story");
+          ShareImage.showSaveView(c, "Press and hold to save, then add it to your Instagram story", escapeHref);
         } else {
           ShareImage.download(file);
           toast("Story image downloaded. Send it to your phone and add it to your Instagram story.");
@@ -732,12 +765,20 @@
   }
 
   function show(id) {
-    const team = TEAMS[id];
+    const parts = id.split("/");
+    const team = TEAMS[parts[0]];
     if (!team) {
       renderHome();
       return;
     }
-    if (!isValidSaved(team, storeGet(team.id))) storeDel(team.id);
+    const saved = storeGet(team.id);
+    if (!isValidSaved(team, saved)) {
+      storeDel(team.id);
+    } else if (parts[1] === "results" && saved.state.done) {
+      session = { team, state: saved.state };
+      renderResults();
+      return;
+    }
     renderTeamSetup(team);
   }
 
@@ -762,5 +803,8 @@
 
   window.addEventListener("popstate", route);
   window.addEventListener("hashchange", route);
-  loadTeams().then(route);
+  loadTeams().then(() => {
+    importRanking();
+    route();
+  });
 })();
