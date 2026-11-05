@@ -558,5 +558,43 @@
     setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
 
-  window.ShareImage = { render, canvasToFile, canShareFiles, download, LIMITS };
+  function inAppBrowser() {
+    const ua = navigator.userAgent || "";
+    return /Twitter|TwitterAndroid|FBAN|FBAV|FB_IAB|Instagram|Line\/|TikTok|musical_ly|Bytedance|Snapchat|LinkedInApp|Pinterest|; wv\)/i.test(ua);
+  }
+
+  function isTouchDevice() {
+    try {
+      return window.matchMedia("(pointer: coarse)").matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function prefersSaveView() {
+    return inAppBrowser() || isTouchDevice();
+  }
+
+  function showSaveView(canvas, message) {
+    const old = document.querySelector(".save-view");
+    if (old) old.remove();
+    const view = document.createElement("div");
+    view.className = "save-view";
+    view.setAttribute("role", "dialog");
+    view.setAttribute("aria-modal", "true");
+    view.innerHTML =
+      '<button type="button" class="save-view-close" aria-label="Close">×</button>' +
+      '<p class="save-view-tip"></p>' +
+      '<img class="save-view-img" alt="Your ranking">' +
+      '<p class="save-view-sub">Saves to your photos. Then post it from the app.</p>';
+    view.querySelector(".save-view-tip").textContent = message || "Press and hold the image to save it";
+    view.querySelector(".save-view-img").src = canvas.toDataURL("image/png");
+    const close = () => view.remove();
+    view.querySelector(".save-view-close").addEventListener("click", close);
+    view.addEventListener("click", e => { if (e.target === view) close(); });
+    document.body.appendChild(view);
+    return view;
+  }
+
+  window.ShareImage = { render, canvasToFile, canShareFiles, download, LIMITS, inAppBrowser, prefersSaveView, showSaveView };
 })();
