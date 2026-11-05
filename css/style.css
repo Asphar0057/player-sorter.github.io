@@ -132,6 +132,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
   display: flex;
   align-items: center;
   gap: 14px;
+  height: 108px;
   padding: 16px;
   background: var(--card);
   border: 0;
@@ -145,20 +146,19 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
 
 .team-tile-text { display: flex; flex-direction: column; }
 
-.team-tile-name { font-family: var(--display); font-weight: 800; font-size: 24px; text-transform: uppercase; line-height: 1; }
+.team-tile-name {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 24px;
+  text-transform: uppercase;
+  line-height: 1;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
 
 .team-tile-meta { color: var(--dim); font-size: 14px; margin-top: 4px; }
-
-.team-tile-soon {
-  justify-content: center;
-  color: var(--dim);
-  font-family: var(--display);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  min-height: 84px;
-  background: #cea49c;
-}
 
 .crest, .avatar {
   position: relative;
@@ -201,6 +201,13 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
 }
 
 .crest.has-img .crest-fallback { display: none; }
+
+.crest.has-img {
+  background: var(--crest-bg, transparent);
+  border-radius: var(--crest-radius, 0);
+}
+
+.crest.has-img .swap-img { transform: scale(var(--crest-scale, 1)); }
 
 .crest-md { width: 52px; height: 52px; }
 .crest-md .crest-fallback { font-size: 15px; }
@@ -679,3 +686,4 @@ body.modal-open { overflow: hidden; }
 .team-tile-club .team-tile-name { color: var(--tile-fg); }
 .team-tile-club .team-tile-meta { color: var(--tile-muted); }
 .team-tile-club:hover { box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18); }
+.results-actions { margin: 0 0 20px; }
