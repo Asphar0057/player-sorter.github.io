@@ -1,7 +1,7 @@
 # Squad Sorter
 
 Rank your favorite players from your favorite clubs.
-Note: Currently only Atleti, Bayern, and Arsenal available.
+Note: Currently only Atleti, Bayern, Arsenal, and Barcelona available.
 
 
 ## Folder layout
