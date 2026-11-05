@@ -242,7 +242,7 @@
       '<section class="hero">' +
         '<p class="eyebrow">Player Sorter</p>' +
         "<h1>Pick a club &amp; start ranking</h1>" +
-        '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA.</p>' +
+        '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA.</p>' +
       "</section>" +
       leagues
     );
