@@ -18,7 +18,7 @@
   function loadScript(src) {
     return new Promise(resolve => {
       const s = document.createElement("script");
-      s.src = src;
+      s.src = window.SITE_VERSION ? src + "?v=" + window.SITE_VERSION : src;
       s.onload = resolve;
       s.onerror = () => {
         console.warn("Could not load", src);
@@ -212,7 +212,9 @@
     session = null;
     applyTheme(null);
     const leagues = window.SQUAD_MANIFEST.leagues.map(league => {
-      const tiles = league.teams.filter(id => TEAMS[id]).map(id => {
+      const ids = league.teams.filter(id => TEAMS[id]);
+      if (!ids.length) return "";
+      const tiles = ids.map(id => {
         const team = TEAMS[id];
         const home = Kits.get(team, "home");
         const tile = Object.assign(
@@ -724,6 +726,8 @@
   }
 
   function route() {
+    document.querySelectorAll(".modal .modal-close").forEach(btn => btn.click());
+    document.querySelectorAll(".save-view").forEach(el => el.remove());
     show(location.hash.replace(/^#\/?/, ""));
   }
 
