@@ -152,12 +152,29 @@
   }
 
   function setKit(team, id) {
+    const ids = Kits.ids(team);
+    const from = ids.indexOf(kitOf(team).id);
+    const to = ids.indexOf(id);
+    if (!MOTION_OK || !document.startViewTransition || from === to) return applyKit(team, id);
+    const root = document.documentElement;
+    root.dataset.vt = to > from ? "kit-right" : "kit-left";
+    const t = document.startViewTransition(() => applyKit(team, id));
+    [t.ready, t.updateCallbackDone].forEach(pr => pr && pr.catch(() => {}));
+    const clear = () => {
+      if (root.dataset.vt && root.dataset.vt.indexOf("kit") === 0) delete root.dataset.vt;
+    };
+    t.finished.then(clear, clear);
+  }
+
+  function applyKit(team, id) {
     storeSet("kit:" + team.id, id);
     applyTheme(team);
     const vars = themeVars(team);
     document.querySelectorAll('[data-team="' + team.id + '"]').forEach(el => el.setAttribute("style", vars));
     document.querySelectorAll('input[name="site-kit"][data-team="' + team.id + '"]').forEach(i => {
       i.checked = i.value === id;
+      const seg = i.closest(".seg");
+      if (seg) placeSegPill(seg, false);
     });
     const kit = kitOf(team);
     document.querySelectorAll(".rank-row[data-rank]").forEach(el => {
@@ -234,7 +251,88 @@
   function render(html, keepScroll) {
     app.innerHTML = html;
     wireImages(app);
+    enhanceSegs(app);
     if (!keepScroll) window.scrollTo(0, 0);
+  }
+
+  const MOTION_OK = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  function viewTransition(update) {
+    const t = document.startViewTransition(update);
+    [t.ready, t.finished, t.updateCallbackDone].forEach(pr => pr && pr.catch(() => {}));
+  }
+
+  function swapScreen(update) {
+    if (!MOTION_OK) return update();
+    if (document.startViewTransition) {
+      viewTransition(update);
+      return;
+    }
+    update();
+    app.classList.remove("screen-enter");
+    void app.offsetWidth;
+    app.classList.add("screen-enter");
+  }
+
+  function placeSegPill(seg, animate) {
+    let pill = seg.querySelector(":scope > .seg-pill");
+    if (!pill) {
+      pill = document.createElement("span");
+      pill.className = "seg-pill";
+      pill.setAttribute("aria-hidden", "true");
+      seg.prepend(pill);
+      seg.classList.add("has-pill");
+      animate = false;
+    }
+    const checked = seg.querySelector("input:checked");
+    const target = checked && checked.nextElementSibling;
+    if (!target || !target.offsetWidth) {
+      pill.style.opacity = "0";
+      return;
+    }
+    const box = seg.getBoundingClientRect();
+    const r = target.getBoundingClientRect();
+    const scale = seg.offsetWidth ? box.width / seg.offsetWidth : 1;
+    const x = (r.left - box.left) / scale - seg.clientLeft;
+    const y = (r.top - box.top) / scale - seg.clientTop;
+    if (!animate || !MOTION_OK) pill.style.transition = "none";
+    pill.style.opacity = "1";
+    pill.style.width = r.width / scale + "px";
+    pill.style.height = r.height / scale + "px";
+    pill.style.transform = "translate(" + x + "px, " + y + "px)";
+    if (!animate || !MOTION_OK) {
+      void pill.offsetWidth;
+      pill.style.transition = "";
+    }
+  }
+
+  function enhanceSegs(scope) {
+    scope.querySelectorAll(".seg").forEach(seg => placeSegPill(seg, false));
+  }
+
+  document.addEventListener("change", e => {
+    const seg = e.target.closest && e.target.closest(".seg");
+    if (seg) placeSegPill(seg, true);
+  });
+
+  window.addEventListener("resize", () => enhanceSegs(document));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => enhanceSegs(document));
+
+  function openModal(modal) {
+    document.body.appendChild(modal);
+    document.body.classList.add("modal-open");
+    enhanceSegs(modal);
+  }
+
+  function closeModal(modal) {
+    if (modal.classList.contains("is-closing")) return;
+    const done = () => {
+      modal.remove();
+      if (!document.querySelector(".modal:not(.is-closing)")) document.body.classList.remove("modal-open");
+    };
+    if (!MOTION_OK) return done();
+    modal.classList.add("is-closing");
+    setTimeout(done, 190);
   }
 
   function teamTile(team) {
@@ -296,7 +394,7 @@
     const soon = section.soon || {};
     const live = SECTIONS.find(s => (s.groups || []).some(g => (g.teams || []).some(id => INDEX[id])));
     const back = live && live !== section
-      ? '<button type="button" class="btn soon-cta" data-go="' + live.id + '">Rank ' + esc(live.name.toLowerCase()) + " instead</button>"
+      ? '<button type="button" class="btn btn-solid soon-cta" data-go="' + live.id + '">Rank ' + esc(live.name.toLowerCase()) + " instead</button>"
       : "";
     const chips = (soon.preview || []).map(name => '<span class="soon-chip">' + esc(name) + "</span>").join("");
     return (
@@ -392,7 +490,9 @@
       const wait = animateSwitch ? Math.max(0, TAB_LEAVE_MS - (Date.now() - started)) : 0;
       setTimeout(() => {
         if (token !== navToken) return;
-        paintHome(section, groups, token, keepScroll, afterRender, mounted, switching, fromIndex);
+        const paint = () => paintHome(section, groups, token, keepScroll, afterRender, mounted, switching, fromIndex);
+        if (mounted || !app.firstElementChild) paint();
+        else swapScreen(paint);
       }, wait);
     });
   }
@@ -428,6 +528,7 @@
           '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
           "<h1>Pick a squad &amp; start ranking</h1>" +
           '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA.<br>More clubs coming soon.</p>' +
+          requestStrip() +
         "</section>" +
         tabs +
         '<div class="home-body" data-section="' + section.id + '">' + body + "</div>",
@@ -583,6 +684,7 @@
           "</div>" +
           kitPicker(team) +
         "</div>" +
+        missingLine(team, true) +
         '<div class="setup-body">' +
           '<p class="setup-label">Choose who to include in your ranking:</p>' +
           '<div class="chips">' + chips + "</div>" +
@@ -621,15 +723,15 @@
 
     startBtn.addEventListener("click", () => {
       const ids = pool().map(p => team.id + ":" + p.id);
-      startSession(team, MergeSorter.create(ids));
+      swapScreen(() => startSession(team, MergeSorter.create(ids)));
     });
     const resumeBtn = app.querySelector('[data-act="resume"]');
-    if (resumeBtn) resumeBtn.addEventListener("click", () => startSession(team, saved.state));
+    if (resumeBtn) resumeBtn.addEventListener("click", () => swapScreen(() => startSession(team, saved.state)));
     const lastBtn = app.querySelector('[data-act="last"]');
-    if (lastBtn) lastBtn.addEventListener("click", () => {
+    if (lastBtn) lastBtn.addEventListener("click", () => swapScreen(() => {
       session = { team, state: saved.state };
       renderResults();
-    });
+    }));
   }
 
   function startSession(team, state) {
@@ -663,7 +765,7 @@
     applyTheme(team);
     storeSet(team.id, { state });
     if (state.done) {
-      renderResults();
+      swapScreen(renderResults);
       return;
     }
     const pair = MergeSorter.current(state);
@@ -694,7 +796,7 @@
       el.addEventListener("click", () => pick(el.dataset.pick))
     );
     app.querySelector('[data-act="undo"]').addEventListener("click", doUndo);
-    app.querySelector('[data-act="quit"]').addEventListener("click", () => renderTeamSetup(team));
+    app.querySelector('[data-act="quit"]').addEventListener("click", () => swapScreen(() => renderTeamSetup(team)));
   }
 
   function pick(which) {
@@ -836,8 +938,7 @@
           "</div>" +
         "</div>" +
       "</div>";
-    document.body.appendChild(modal);
-    document.body.classList.add("modal-open");
+    openModal(modal);
 
     const preview = modal.querySelector(".share-preview");
     const note = modal.querySelector("#shareNote");
@@ -878,8 +979,7 @@
     }
 
     function close() {
-      modal.remove();
-      document.body.classList.remove("modal-open");
+      closeModal(modal);
       document.removeEventListener("keydown", onKey);
     }
 
@@ -961,6 +1061,387 @@
     draw();
   }
 
+  const REQUESTS_URL = MANIFEST.requestsUrl || "";
+  let lastRequestAt = 0;
+
+  function missingLine(team, top) {
+    if (!REQUESTS_URL) return "";
+    return (
+      '<p class="missing-line' + (top ? " missing-line-top" : "") + '">Someone missing from this squad? ' +
+        '<button type="button" class="link-btn" data-request="player" data-team="' + team.id + '">Let us know</button>' +
+      "</p>"
+    );
+  }
+
+  function requestStrip() {
+    if (!REQUESTS_URL) return "";
+    return (
+      '<div class="request-strip">' +
+        '<span class="request-strip-text">Missing a squad or a player?</span>' +
+        '<button type="button" class="btn btn-solid btn-sm" data-request="team">Make a request</button>' +
+      "</div>"
+    );
+  }
+
+  function normText(text) {
+    return String(text || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  }
+
+  function squadIndex() {
+    return SECTIONS.flatMap(section => (section.groups || []).flatMap(group => (group.teams || []).filter(id => INDEX[id]).map(id => {
+      const team = TEAMS[id];
+      const name = team ? team.name : id.replace(/-/g, " ");
+      return {
+        id,
+        name,
+        meta: group.name + " · " + section.name,
+        hay: normText([name, team && team.shortName, id, group.name].join(" "))
+      };
+    })));
+  }
+
+  function squadCombo(form, initialId) {
+    const input = form.querySelector('input[name="squadSearch"]');
+    const hidden = form.querySelector('input[name="squad"]');
+    const list = form.querySelector("#squadList");
+    const locked = input.readOnly;
+    let items = squadIndex();
+    let shown = [];
+    let active = -1;
+
+    const close = () => {
+      list.hidden = true;
+      input.setAttribute("aria-expanded", "false");
+      active = -1;
+    };
+    const open = () => {
+      if (locked) return;
+      list.hidden = false;
+      input.setAttribute("aria-expanded", "true");
+    };
+    const pickItem = item => {
+      hidden.value = item.id;
+      input.value = item.name;
+      close();
+      form.dispatchEvent(new Event("input"));
+    };
+    const paint = () => {
+      const q = normText(input.value);
+      const words = q ? q.split(" ") : [];
+      shown = items.filter(it => words.every(w => it.hay.includes(w)));
+      list.innerHTML = shown.length
+        ? shown.map((it, i) =>
+            '<li role="option" id="sq-' + it.id + '" data-i="' + i + '" class="' + (i === active ? "is-active" : "") + '" aria-selected="' + (it.id === hidden.value) + '">' +
+              '<span class="combo-name">' + esc(it.name) + "</span>" +
+              '<span class="combo-meta">' + esc(it.meta) + "</span>" +
+            "</li>"
+          ).join("")
+        : '<li class="combo-empty">No squad matches that. You can request it as a new squad instead.</li>';
+      if (active >= 0) input.setAttribute("aria-activedescendant", "sq-" + shown[active].id);
+      else input.removeAttribute("aria-activedescendant");
+    };
+
+    if (initialId && INDEX[initialId]) {
+      hidden.value = initialId;
+      const it = items.find(x => x.id === initialId);
+      input.value = it ? it.name : initialId;
+    }
+
+    input.addEventListener("focus", () => {
+      if (locked) return;
+      if (hidden.value) input.select();
+      paint();
+      open();
+    });
+    input.addEventListener("input", () => {
+      hidden.value = "";
+      active = -1;
+      paint();
+      open();
+      const exact = shown.find(it => normText(it.name) === normText(input.value));
+      if (exact) hidden.value = exact.id;
+    });
+    input.addEventListener("blur", () => setTimeout(close, 120));
+    input.addEventListener("keydown", e => {
+      if (locked) return;
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        open();
+        if (!shown.length) paint();
+        if (!shown.length) return;
+        active = e.key === "ArrowDown" ? (active + 1) % shown.length : (active <= 0 ? shown.length - 1 : active - 1);
+        paint();
+        const el = list.querySelector(".is-active");
+        if (el) el.scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter" && !list.hidden && active >= 0) {
+        e.preventDefault();
+        pickItem(shown[active]);
+      } else if (e.key === "Escape" && !list.hidden) {
+        e.stopPropagation();
+        close();
+      }
+    });
+    list.addEventListener("mousedown", e => e.preventDefault());
+    list.addEventListener("click", e => {
+      const li = e.target.closest("li[data-i]");
+      if (li) pickItem(shown[Number(li.dataset.i)]);
+    });
+
+    return {
+      refresh() {
+        items = squadIndex();
+        const it = items.find(x => x.id === hidden.value);
+        if (it && document.activeElement !== input) input.value = it.name;
+        if (!list.hidden) paint();
+      }
+    };
+  }
+
+  function pickerSelect(root) {
+    if (!root) return;
+    const trigger = root.querySelector(".select-trigger");
+    const label = root.querySelector("#catValue");
+    const hidden = root.querySelector('input[type="hidden"]');
+    const list = root.querySelector(".combo-list");
+    const options = Array.from(list.querySelectorAll("li[data-i]"));
+    let active = -1;
+
+    const mark = () => options.forEach((li, i) => li.classList.toggle("is-active", i === active));
+    const open = () => {
+      list.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      active = Math.max(0, options.findIndex(li => li.getAttribute("aria-selected") === "true"));
+      mark();
+    };
+    const close = () => {
+      list.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+    };
+    const choose = i => {
+      const li = options[i];
+      options.forEach(o => o.setAttribute("aria-selected", String(o === li)));
+      hidden.value = li.dataset.value;
+      label.textContent = li.dataset.value;
+      close();
+      trigger.focus();
+    };
+
+    trigger.addEventListener("click", () => (list.hidden ? open() : close()));
+    trigger.addEventListener("keydown", e => {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (list.hidden) return open();
+        active = e.key === "ArrowDown" ? (active + 1) % options.length : (active <= 0 ? options.length - 1 : active - 1);
+        mark();
+      } else if ((e.key === "Enter" || e.key === " ") && !list.hidden) {
+        e.preventDefault();
+        choose(active);
+      } else if (e.key === "Escape" && !list.hidden) {
+        e.stopPropagation();
+        close();
+      } else if (e.key === "Tab") {
+        close();
+      }
+    });
+    list.addEventListener("mousedown", e => e.preventDefault());
+    list.addEventListener("click", e => {
+      const li = e.target.closest("li[data-i]");
+      if (li) choose(Number(li.dataset.i));
+    });
+    document.addEventListener("mousedown", e => {
+      if (!root.contains(e.target)) close();
+    });
+  }
+
+  function openRequest(type, teamId) {
+    if (!REQUESTS_URL || document.querySelector(".request-modal:not(.is-closing)")) return;
+    const fromTeam = TEAMS[teamId] || null;
+    const modal = document.createElement("div");
+    modal.className = "modal request-modal";
+    if (fromTeam) modal.setAttribute("style", themeVars(fromTeam));
+
+    const categories = SECTIONS.map(s => s.name).concat(["Something else"]);
+
+    modal.innerHTML =
+      '<div class="modal-card request-card" role="dialog" aria-modal="true" aria-labelledby="reqTitle">' +
+        '<div class="modal-head">' +
+          '<h2 id="reqTitle">' + (fromTeam ? "Missing a player?" : "Make a request") + "</h2>" +
+          '<button type="button" class="modal-close" data-act="close" aria-label="Close">×</button>' +
+        "</div>" +
+        '<form class="req-form" novalidate>' +
+          (fromTeam ? "" :
+            '<div class="req-type">' + segmented("reqType", [
+              { value: "team", label: "A squad" },
+              { value: "player", label: "A missing player" }
+            ], type === "player" ? "player" : "team") + "</div>") +
+          '<div class="req-group" data-for="team">' +
+            '<label class="req-field"><span>Which squad?</span>' +
+              '<input name="teamName" maxlength="120" placeholder="e.g. Athletic Club, Chelsea Women, Brazil 2002" autocomplete="off"></label>' +
+            '<div class="req-field req-combo req-select"><label id="catLabel">Type</label>' +
+              '<button type="button" class="select-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="catLabel catValue">' +
+                '<span id="catValue">' + esc(categories[0]) + "</span>" +
+              "</button>" +
+              '<span class="combo-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
+              '<input type="hidden" name="category" value="' + esc(categories[0]) + '">' +
+              '<ul class="combo-list" role="listbox" aria-labelledby="catLabel" hidden>' +
+                categories.map((c, i) =>
+                  '<li role="option" data-i="' + i + '" data-value="' + esc(c) + '" aria-selected="' + (i === 0) + '"><span class="combo-name">' + esc(c) + "</span></li>"
+                ).join("") +
+              "</ul>" +
+            "</div>" +
+            '<label class="req-field"><span>League or competition <em>(optional)</em></span>' +
+              '<input name="league" maxlength="120" placeholder="e.g. LaLiga, WSL, World Cup" autocomplete="off"></label>' +
+          "</div>" +
+          '<div class="req-group" data-for="player">' +
+            '<div class="req-field req-combo"><label for="squadSearch">Squad</label>' +
+              '<input id="squadSearch" name="squadSearch" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="squadList" placeholder="Search squads…" autocomplete="off"' + (fromTeam ? " readonly" : "") + ">" +
+              (fromTeam ? "" : '<span class="combo-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>') +
+              '<input type="hidden" name="squad">' +
+              '<ul class="combo-list" id="squadList" role="listbox" hidden></ul>' +
+            "</div>" +
+            '<label class="req-field"><span>Who\'s missing?</span>' +
+              '<input name="playerName" maxlength="120" placeholder="Player name" autocomplete="off"></label>' +
+          "</div>" +
+          '<label class="req-field"><span>Anything else? <em>(optional)</em></span>' +
+            '<textarea name="notes" maxlength="500" rows="3" placeholder="Shirt number, position, a link…"></textarea></label>' +
+          '<label class="req-hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>' +
+          '<p class="req-status" role="status"></p>' +
+          '<div class="req-actions"><button type="submit" class="btn btn-primary">Send request</button></div>' +
+        "</form>" +
+      "</div>";
+    openModal(modal);
+
+    const form = modal.querySelector(".req-form");
+    const status = modal.querySelector(".req-status");
+    const submit = form.querySelector('[type="submit"]');
+    const currentType = () => fromTeam ? "player" : form.querySelector('input[name="reqType"]:checked').value;
+    const showGroup = () => {
+      const t = currentType();
+      form.querySelectorAll(".req-group").forEach(g => { g.hidden = g.dataset.for !== t; });
+      status.textContent = "";
+      return form.querySelector('.req-group[data-for="' + t + '"]');
+    };
+    const syncType = () => {
+      if (!MOTION_OK) return showGroup();
+      const before = form.offsetHeight;
+      const group = showGroup();
+      const after = form.offsetHeight;
+      group.classList.remove("req-enter");
+      void group.offsetWidth;
+      group.classList.add("req-enter");
+      form.style.height = before + "px";
+      form.style.overflow = "hidden";
+      void form.offsetHeight;
+      form.style.transition = "height 280ms cubic-bezier(0.22, 0.8, 0.24, 1)";
+      form.style.height = after + "px";
+      clearTimeout(syncType.timer);
+      syncType.timer = setTimeout(() => {
+        form.style.height = "";
+        form.style.overflow = "";
+        form.style.transition = "";
+      }, 300);
+    };
+    form.querySelectorAll('input[name="reqType"]').forEach(r => r.addEventListener("change", syncType));
+    form.addEventListener("input", () => {
+      if (!submit.disabled) status.textContent = "";
+    });
+    showGroup();
+    const combo = squadCombo(form, teamId);
+    pickerSelect(form.querySelector(".req-select"));
+
+    const missingNames = SECTIONS.flatMap(s => (s.groups || []).flatMap(g => g.teams || [])).filter(id => INDEX[id] && !TEAMS[id]);
+    if (missingNames.length) {
+      Promise.all(missingNames.map(ensureTeam)).then(() => combo.refresh());
+    }
+
+    const firstInput = form.querySelector(fromTeam ? 'input[name="playerName"]' : 'input[name="teamName"]');
+    setTimeout(() => (firstInput || modal.querySelector(".modal-close")).focus(), 30);
+
+    function close() {
+      closeModal(modal);
+      document.removeEventListener("keydown", onKey);
+    }
+    function onKey(e) {
+      if (e.key === "Escape") close();
+    }
+    document.addEventListener("keydown", onKey);
+    modal.addEventListener("click", e => {
+      if (e.target === modal || e.target.closest('[data-act="close"]')) close();
+      if (e.target.closest('[data-act="another"]')) {
+        modal.remove();
+        document.removeEventListener("keydown", onKey);
+        openRequest(currentType(), teamId);
+      }
+    });
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const t = currentType();
+      const val = name => (form.elements[name] ? form.elements[name].value.trim() : "");
+      const squadId = fromTeam ? fromTeam.id : val("squad");
+      const squadTeam = TEAMS[squadId];
+      const payload = {
+        type: t,
+        category: t === "team" ? val("category") : (INDEX[squadId] ? INDEX[squadId].section.name : ""),
+        squad: t === "team" ? val("teamName") : (squadTeam ? squadTeam.name : squadId),
+        squadId: t === "team" ? "" : squadId,
+        name: t === "team" ? val("league") : val("playerName"),
+        notes: val("notes"),
+        page: location.origin + location.pathname + location.hash,
+        website: val("website")
+      };
+      if (t === "team" && !payload.squad) {
+        status.textContent = "Add the name of the squad you'd like to see.";
+        form.elements.teamName.focus();
+        return;
+      }
+      if (t === "player" && !INDEX[squadId]) {
+        status.textContent = "Pick a squad from the list.";
+        form.elements.squadSearch.focus();
+        return;
+      }
+      if (t === "player" && !payload.name) {
+        status.textContent = "Add the name of the missing player.";
+        form.elements.playerName.focus();
+        return;
+      }
+      if (Date.now() - lastRequestAt < 15000) {
+        status.textContent = "Thanks! Give it a few seconds before sending another one.";
+        return;
+      }
+      submit.disabled = true;
+      status.textContent = "Sending…";
+      fetch(REQUESTS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        lastRequestAt = Date.now();
+        modal.querySelector(".modal-card").innerHTML =
+          '<div class="req-done">' +
+            '<span class="req-done-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
+            "<h2>Request sent</h2>" +
+            "<p>Thanks! " + (t === "team" ? esc(payload.squad) + " is on the list." : esc(payload.name) + " has been flagged for " + esc(payload.squad) + ".") + "</p>" +
+            '<div class="req-actions">' +
+              '<button type="button" class="btn btn-primary" data-act="close">Done</button>' +
+              '<button type="button" class="btn btn-ghost" data-act="another">Send another</button>' +
+            "</div>" +
+          "</div>";
+        const done = modal.querySelector('[data-act="close"]');
+        if (done) done.focus();
+      }).catch(() => {
+        submit.disabled = false;
+        status.textContent = "Couldn't send that. Check your connection and try again.";
+      });
+    });
+  }
+
+  document.addEventListener("click", e => {
+    const trigger = e.target.closest("[data-request]");
+    if (trigger) openRequest(trigger.dataset.request, trigger.dataset.team);
+  });
+
   function rankScale(rank) {
     return Math.max(0, (4 - rank) / 3);
   }
@@ -1006,6 +1487,7 @@
           "</div>" +
           kitPicker(team) +
         "</div>" +
+        missingLine(team, true) +
         '<div class="setup-actions results-actions">' +
           '<button class="btn btn-primary" data-act="share">Share ranking</button>' +
           '<button class="btn btn-ghost" data-act="again">Sort again</button>' +
@@ -1016,10 +1498,10 @@
     );
 
     app.querySelector('[data-act="share"]').addEventListener("click", () => openShare(team, shareEntries(ranking)));
-    app.querySelector('[data-act="again"]').addEventListener("click", () => {
+    app.querySelector('[data-act="again"]').addEventListener("click", () => swapScreen(() => {
       storeDel(team.id);
       renderTeamSetup(team);
-    });
+    }));
   }
 
   function isValidSaved(team, saved) {
@@ -1057,15 +1539,17 @@
         renderHome("", token);
         return;
       }
-      const saved = storeGet(team.id);
-      if (!isValidSaved(team, saved)) {
-        storeDel(team.id);
-      } else if (parts[1] === "results" && saved.state.done) {
-        session = { team, state: saved.state };
-        renderResults();
-        return;
-      }
-      renderTeamSetup(team);
+      swapScreen(() => {
+        const saved = storeGet(team.id);
+        if (!isValidSaved(team, saved)) {
+          storeDel(team.id);
+        } else if (parts[1] === "results" && saved.state.done) {
+          session = { team, state: saved.state };
+          renderResults();
+          return;
+        }
+        renderTeamSetup(team);
+      });
     });
   }
 
