@@ -1,0 +1,77 @@
+registerTeam({
+  id: "2018-france",
+  name: "France 2018",
+  shortName: "France",
+  monogram: "FRA",
+  league: "world-cup-2018",
+  season: "2018 World Cup",
+  kits: {
+    home: {
+      label: "Home",
+      paper: "#1F2A44",
+      card: "#FFFFFF",
+      onPaper: "#FFFFFF",
+      onPaperMuted: "rgba(255,255,255,0.82)",
+      paperPrimary: "#FFFFFF",
+      paperOnPrimary: "#1F2A44",
+      line: "rgba(0,0,0,0.16)",
+      ink: "#141B2E",
+      muted: "#5B6170",
+      primary: "#1F2A44",
+      onPrimary: "#FFFFFF",
+      accent: "#D6202C",
+      onAccent: "#FFFFFF",
+      header: "#1F2A44",
+      onHeader: "#FFFFFF",
+      headerBand: "#D6202C",
+      rowTintStrength: 0.15,
+      pattern: { type: "tipping", base: "#1F2A44", bands: ["#D6202C"] }
+    },
+    away: {
+      label: "Away",
+      paper: "#F5F6F8",
+      card: "#FFFFFF",
+      ink: "#141B2E",
+      muted: "#5B6170",
+      primary: "#1F2A44",
+      onPrimary: "#FFFFFF",
+      accent: "#D6202C",
+      onAccent: "#FFFFFF",
+      header: "#FFFFFF",
+      onHeader: "#1F2A44",
+      headerBand: "#D6202C",
+      rowTint: "#1F2A44",
+      rowTintStrength: 0.2,
+      rowTintFloor: 0.5,
+      pattern: { type: "tipping", base: "#FFFFFF", bands: ["#1F2A44", "#D6202C"] }
+    }
+  },
+  players: [
+    { id: "lloris", name: "Hugo Lloris", number: 1, position: "GK", nation: "Tottenham Hotspur" },
+    { id: "mandanda", name: "Steve Mandanda", number: 16, position: "GK", nation: "Marseille" },
+    { id: "areola", name: "Alphonse Areola", number: 23, position: "GK", nation: "Paris Saint-Germain" },
+
+    { id: "pavard", name: "Benjamin Pavard", number: 2, position: "DF", nation: "Stuttgart" },
+    { id: "kimpembe", name: "Presnel Kimpembe", number: 3, position: "DF", nation: "Paris Saint-Germain" },
+    { id: "varane", name: "Raphaël Varane", number: 4, position: "DF", nation: "Real Madrid" },
+    { id: "umtiti", name: "Samuel Umtiti", number: 5, position: "DF", nation: "FC Barcelona" },
+    { id: "rami", name: "Adil Rami", number: 17, position: "DF", nation: "Marseille" },
+    { id: "sidibe", name: "Djibril Sidibé", number: 19, position: "DF", nation: "Monaco" },
+    { id: "lucas-hernandez", name: "Lucas Hernández", number: 21, position: "DF", nation: "Atlético de Madrid" },
+    { id: "mendy", name: "Benjamin Mendy", number: 22, position: "DF", nation: "Manchester City" },
+
+    { id: "pogba", name: "Paul Pogba", number: 6, position: "MF", nation: "Manchester United" },
+    { id: "lemar", name: "Thomas Lemar", number: 8, position: "MF", nation: "Monaco" },
+    { id: "tolisso", name: "Corentin Tolisso", number: 12, position: "MF", nation: "Bayern Munich" },
+    { id: "kante", name: "N'Golo Kanté", number: 13, position: "MF", nation: "Chelsea" },
+    { id: "matuidi", name: "Blaise Matuidi", number: 14, position: "MF", nation: "Juventus" },
+    { id: "nzonzi", name: "Steven Nzonzi", number: 15, position: "MF", nation: "Sevilla" },
+    { id: "fekir", name: "Nabil Fekir", number: 18, position: "MF", nation: "Olympique Lyonnais" },
+
+    { id: "griezmann", name: "Antoine Griezmann", number: 7, position: "FW", nation: "Atlético de Madrid" },
+    { id: "giroud", name: "Olivier Giroud", number: 9, position: "FW", nation: "Chelsea" },
+    { id: "mbappe", name: "Kylian Mbappé", number: 10, position: "FW", nation: "Paris Saint-Germain" },
+    { id: "dembele", name: "Ousmane Dembélé", number: 11, position: "FW", nation: "FC Barcelona" },
+    { id: "thauvin", name: "Florian Thauvin", number: 20, position: "FW", nation: "Marseille" }
+  ]
+});
