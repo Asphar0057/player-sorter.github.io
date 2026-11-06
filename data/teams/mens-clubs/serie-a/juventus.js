@@ -87,12 +87,14 @@ registerTeam({
     { id: "pape-sarr", name: "Pape Sarr", number: 29, position: "MF", nation: "SEN" },
     { id: "nico-gonzalez", name: "Nicolás González", number: 31, position: "MF", nation: "ARG" },
     { id: "locatelli", name: "Manuel Locatelli", number: 5, position: "MF", nation: "ITA" },
+    { id: "thuram", name: "Khéphren Thuram", number: 19, position: "MF", nation: "FRA" },
 
     { id: "conceicao", name: "Francisco Conceição", number: 7, position: "FW", nation: "POR" },
     { id: "kolo-muani", name: "Randal Kolo Muani", number: 9, position: "FW", nation: "FRA" },
     { id: "yildiz", name: "Kenan Yıldız", number: 10, position: "FW", nation: "TUR" },
     { id: "boga", name: "Jeremie Boga", number: 13, position: "FW", nation: "CIV" },
     { id: "ekhator", name: "Jeff Ekhator", number: 18, position: "FW", nation: "ITA" },
-    { id: "woltemade", name: "Nick Woltemade", number: 27, position: "FW", nation: "GER" }
+    { id: "woltemade", name: "Nick Woltemade", number: 27, position: "FW", nation: "GER" },
+    { id: "zhegrova", name: "Edon Zhegrova", number: 11, position: "FW", nation: "KOS" }
   ]
 });
