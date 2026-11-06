@@ -66,6 +66,7 @@ registerTeam({
   players: [
     { id: "vasquez", name: "Devis Vásquez", number: 32, position: "GK", nation: "COL" },
     { id: "gollini", name: "Pierluigi Gollini", number: 95, position: "GK", nation: "ITA" },
+    { id: "svilar", name: "Mile Svilar", number: 99, position: "GK", nation: "SRB" },
 
     { id: "rensch", name: "Devyne Rensch", number: 2, position: "DF", nation: "NED" },
     { id: "koulierakis", name: "Konstantinos Koulierakis", number: 3, position: "DF", nation: "GRE" },

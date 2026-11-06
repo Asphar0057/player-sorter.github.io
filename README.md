@@ -1,7 +1,6 @@
 # Squad Sorter
 
 Rank your favorite players from your favorite clubs and national teams.
-Available teams: Atleti, Barcelona, Real Madrid, Bayern, Arsenal, Liverpool, Man City, Man United, PSG
 
 
 ## Folder layout

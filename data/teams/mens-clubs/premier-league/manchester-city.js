@@ -86,10 +86,12 @@ registerTeam({
     { id: "bouaddi", name: "Ayyoub Bouaddi", number: 32, position: "MF", nation: "MAR" },
     { id: "oreilly", name: "Nico O'Reilly", number: 33, position: "MF", nation: "ENG" },
     { id: "foden", name: "Phil Foden", number: 47, position: "MF", nation: "ENG" },
+    { id: "samba", name: "Floyd Samba", number: 75, position: "MF", nation: "FRA" },
 
     { id: "ndiaye", name: "Iliman Ndiaye", number: 7, position: "FW", nation: "SEN" },
     { id: "haaland", name: "Erling Haaland", number: 9, position: "FW", nation: "NOR" },
     { id: "elias", name: "Allan Elias", number: 37, position: "FW", nation: "BRA" },
-    { id: "semenyo", name: "Antoine Semenyo", number: 42, position: "FW", nation: "GHA" }
+    { id: "semenyo", name: "Antoine Semenyo", number: 42, position: "FW", nation: "GHA" },
+    { id: "mcaidoo", name: "Ryan McAidoo", number: 56, position: "FW", nation: "ENG" }
   ]
 });

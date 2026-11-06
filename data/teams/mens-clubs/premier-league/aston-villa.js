@@ -76,6 +76,7 @@ registerTeam({
     { id: "maatsen", name: "Ian Maatsen", number: 22, position: "DF", nation: "NED" },
     { id: "bogarde", name: "Lamare Bogarde", number: 26, position: "DF", nation: "NED" },
     { id: "wan-bissaka", name: "Aaron Wan-Bissaka", number: 29, position: "DF", nation: "COD" },
+    { id: "ruggeri", name: "Matteo Ruggeri", number: 13, position: "DF", nation: "ITA" },
 
     { id: "barkley", name: "Ross Barkley", number: 6, position: "MF", nation: "ENG" },
     { id: "mcginn", name: "John McGinn", number: 7, position: "MF", nation: "SCO" },
