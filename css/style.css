@@ -23,7 +23,11 @@
 
 html, body { margin: 0; }
 
-html { overflow-x: clip; }
+html { overflow-x: clip; scrollbar-gutter: stable; }
+
+@supports not (scrollbar-gutter: stable) {
+  html { overflow-y: scroll; }
+}
 
 [data-tone="dark"] { color-scheme: dark; }
 

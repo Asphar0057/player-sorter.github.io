@@ -87,6 +87,7 @@ function saveRanking_(data) {
     : null;
   if (hit) sheet.getRange(hit.getRow(), 1, 1, row.length).setValues([row]);
   else sheet.appendRow(row);
+  CacheService.getScriptCache().remove("stats-" + squad);
   return true;
 }
 

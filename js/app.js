@@ -1482,28 +1482,39 @@
     return ids.length === team.players.length && team.players.every(p => ids.includes(p.id));
   }
 
+  const SENDING = {};
+
   function submitRanking(team) {
-    if (!STATS_URL || !team) return;
+    if (!STATS_URL || !team) return Promise.resolve(false);
     const saved = storeGet(team.id);
-    if (!saved || !saved.state || !saved.state.done) return;
+    if (!saved || !saved.state || !saved.state.done) return Promise.resolve(false);
     let order;
     try {
-      if (!isValidSaved(team, saved) || !isFullSquad(team, saved.state)) return;
+      if (!isValidSaved(team, saved) || !isFullSquad(team, saved.state)) return Promise.resolve(false);
       order = rankingGroups(team, saved.state);
     } catch (e) {
-      return;
+      return Promise.resolve(false);
     }
     const signature = JSON.stringify(order);
-    if (storeGet("sent:" + team.id) === signature) return;
-    fetch(STATS_URL, {
+    if (storeGet("sent2:" + team.id) === signature) return Promise.resolve(true);
+    if (SENDING[team.id] && SENDING[team.id].signature === signature) return SENDING[team.id].promise;
+    const promise = fetch(STATS_URL, {
       method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({ type: "ranking", squadId: team.id, device: deviceId(), order, season: team.season })
-    }).then(() => {
-      storeSet("sent:" + team.id, signature);
-      delete STATS_CACHE[team.id];
-    }).catch(() => {});
+    })
+      .then(r => r.json())
+      .then(reply => {
+        if (!reply || reply.ok !== true) return false;
+        storeSet("sent2:" + team.id, signature);
+        delete STATS_CACHE[team.id];
+        return true;
+      })
+      .catch(() => false)
+      .finally(() => {
+        delete SENDING[team.id];
+      });
+    SENDING[team.id] = { signature, promise };
+    return promise;
   }
 
   function fetchStats(team) {
@@ -1609,7 +1620,10 @@
       "</section>"
     );
 
-    loadStats(team, navToken);
+    const token = navToken;
+    submitRanking(team).then(() => {
+      if (token === navToken) loadStats(team, token);
+    });
   }
 
   function loadStats(team, token) {
@@ -1793,10 +1807,12 @@
     );
 
     app.querySelector('[data-act="share"]').addEventListener("click", () => openShare(team, shareEntries(ranking)));
-    submitRanking(team);
     const entry = app.querySelector(".stats-entry .stats-entry-sub");
-    if (entry) fetchStats(team).then(data => {
-      if (app.contains(entry)) entry.textContent = statsTeaser(team, data);
+    submitRanking(team).then(() => {
+      if (!entry || !app.contains(entry)) return;
+      return fetchStats(team).then(data => {
+        if (app.contains(entry)) entry.textContent = statsTeaser(team, data);
+      });
     }).catch(() => {});
     app.querySelector('[data-act="again"]').addEventListener("click", () => swapScreen(() => {
       storeDel(team.id);
