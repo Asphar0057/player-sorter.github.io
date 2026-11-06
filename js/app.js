@@ -470,7 +470,7 @@
               '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             "</span>" +
             '<span class="team-tile-text">' +
-              '<span class="team-tile-name">' + (EXPANDED[group.id] ? "Show less" : "See all " + all.length) + "</span>" +
+              '<span class="team-tile-name">' + (EXPANDED[group.id] ? "Show less" : "Show all") + "</span>" +
               '<span class="team-tile-meta">' +
                 (EXPANDED[group.id] ? "Back to the first " + SHOW_FIRST : "+" + hiddenCount + " more") +
               "</span>" +
@@ -716,7 +716,7 @@
         '<section class="hero">' +
           '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
           "<h1>Pick a squad &amp; start ranking</h1>" +
-          '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA.<br>More clubs coming soon.</p>' +
+          '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA and official club sites.<br>More clubs coming soon.</p>' +
           requestStrip() +
         "</section>" +
         '<div class="home-bar' + (searching() ? " is-searching" : "") + '">' + searchBox() + tabs + "</div>" +
