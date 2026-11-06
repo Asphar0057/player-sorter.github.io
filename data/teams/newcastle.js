@@ -3,7 +3,7 @@ registerTeam({
   name: "Newcastle United",
   shortName: "NUFC",
   monogram: "NUFC",
-  league: "Premier Leauge",
+  league: "premier-leauge",
   season: "2026/27",
   kits: {
     home: {
