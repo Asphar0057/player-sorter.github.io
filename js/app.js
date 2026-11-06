@@ -426,7 +426,7 @@
               '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             "</span>" +
             '<span class="team-tile-text">' +
-              '<span class="team-tile-name">' + (EXPANDED[group.id] ? "Show less" : "See all " + all.length) + "</span>" +
+              '<span class="team-tile-name">' + (EXPANDED[group.id] ? "Show less" : "Show more") + "</span>" +
               '<span class="team-tile-meta">' +
                 (EXPANDED[group.id] ? "Back to the first " + SHOW_FIRST : "+" + hiddenCount + " more") +
               "</span>" +

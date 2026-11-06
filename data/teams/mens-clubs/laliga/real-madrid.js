@@ -77,6 +77,7 @@ registerTeam({
     { id: "carreras", name: "Álvaro Carreras", number: 18, position: "DF", nation: "ESP" },
     { id: "rudiger", name: "Antonio Rüdiger", number: 22, position: "DF", nation: "GER" },
     { id: "dumfries", name: "Denzel Dumfries", number: 24, position: "DF", nation: "NED" },
+    { id: "mendy", name: "Ferland Mendy", number: 23, position: "DF", nation: "FRA" },
 
     { id: "bellingham", name: "Jude Bellingham", number: 5, position: "MF", nation: "ENG" },
     { id: "camavinga", name: "Eduardo Camavinga", number: 6, position: "MF", nation: "FRA" },
@@ -85,6 +86,7 @@ registerTeam({
     { id: "guler", name: "Arda Güler", number: 15, position: "MF", nation: "TUR" },
     { id: "bernardo-silva", name: "Bernardo Silva", number: 20, position: "MF", nation: "POR" },
     { id: "diomande", name: "Yan Diomande", number: 25, position: "MF", nation: "CIV" },
+    { id: "pitarch", name: "Thiago Pitarch", number: 27, position: "MF", nation: "SPA" },
 
     { id: "vinicius", name: "Vinícius Júnior", number: 7, position: "FW", nation: "BRA" },
     { id: "endrick", name: "Endrick", number: 9, position: "FW", nation: "BRA" },

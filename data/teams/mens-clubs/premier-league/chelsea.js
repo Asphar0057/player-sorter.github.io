@@ -67,6 +67,7 @@ registerTeam({
     { id: "emiliano-martinez", name: "Emiliano Martínez", number: 1, position: "GK", nation: "ARG" },
     { id: "sharman-lowe", name: "Teddy Sharman-Lowe", number: 28, position: "GK", nation: "ENG" },
     { id: "slonina", name: "Gaga Slonina", number: 44, position: "GK", nation: "USA" },
+    { id: "penders", name: "Mike Penders", number: 39, position: "GK", nation: "BEL" },
 
     { id: "palestra", name: "Marco Palestra", number: 2, position: "DF", nation: "ITA" },
     { id: "fofana", name: "Wesley Fofana", number: 3, position: "DF", nation: "FRA" },
