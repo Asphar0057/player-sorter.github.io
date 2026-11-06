@@ -1513,7 +1513,12 @@
     const promise = fetch(url)
       .then(r => r.json())
       .then(data => {
-        if (!data || !data.ok) throw new Error("bad stats");
+        if (!data || data.ok === false) throw new Error("stats");
+        if (typeof data.count !== "number") {
+          const err = new Error("outdated");
+          err.outdated = true;
+          throw err;
+        }
         return data;
       });
     STATS_CACHE[team.id] = { at: Date.now(), promise };
@@ -1591,10 +1596,10 @@
         "<div>" +
           '<p class="eyebrow">Community ranking</p>' +
           "<h1>" + esc(team.name) + "</h1>" +
-          '<p class="st-sub" id="statsSub">Loading…</p>' +
         "</div>" +
         kitPicker(team) +
-      "</div>";
+      "</div>" +
+      '<p class="missing-line missing-line-top st-sub" id="statsSub">Loading…</p>';
 
     render(
       '<section class="stats" data-stats="' + team.id + '">' + head +
@@ -1604,22 +1609,36 @@
       "</section>"
     );
 
-    const token = navToken;
+    loadStats(team, navToken);
+  }
+
+  function loadStats(team, token) {
+    const body = app.querySelector(".st-body");
+    const sub = app.querySelector("#statsSub");
+    if (!body || !sub) return;
+    sub.textContent = "Loading…";
+    body.classList.remove("st-in");
+    body.innerHTML = '<div class="st-skeleton" aria-hidden="true"><span></span><span></span><span></span><span></span></div>';
     fetchStats(team).then(data => {
       if (token !== navToken || !app.querySelector('[data-stats="' + team.id + '"]')) return;
       paintStats(team, data);
-    }).catch(() => {
-      if (token !== navToken) return;
-      const body = app.querySelector(".st-body");
-      if (!body) return;
-      app.querySelector("#statsSub").textContent = "";
+    }).catch(err => {
+      if (token !== navToken || !app.contains(body)) return;
+      if (err && err.outdated) console.warn("Player Sorter: the stats script replied without stats. Publish a new version of the Apps Script deployment.");
+      else console.warn("Player Sorter: couldn't load stats", err);
+      sub.textContent = "Stats unavailable right now";
       body.innerHTML =
         '<div class="st-lock"><h2>Couldn\'t load the stats</h2>' +
-        "<p>Check your connection and try again in a moment.</p>" +
+        "<p>" + (err && err.outdated
+          ? "Community stats aren't switched on yet. Check back soon."
+          : "Check your connection and try again in a moment.") + "</p>" +
         '<button type="button" class="btn btn-primary" data-act="retry">Try again</button></div>';
+      body.classList.remove("st-in");
+      void body.offsetWidth;
+      body.classList.add("st-in");
       body.querySelector('[data-act="retry"]').addEventListener("click", () => {
         delete STATS_CACHE[team.id];
-        renderStats(team);
+        loadStats(team, token);
       });
     });
   }
@@ -1644,7 +1663,7 @@
       return;
     }
 
-    sub.textContent = "Based on " + data.count + " full-squad rankings · updated every 15 minutes";
+    sub.textContent = "Based on " + data.count + " rankings · updated every 15 min";
     const order = communityOrder(team, data);
     const used = new Set();
     const best = (score, avoid) => {

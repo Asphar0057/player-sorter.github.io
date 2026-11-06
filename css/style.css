@@ -1337,7 +1337,7 @@ html[data-vt="kit-left"]::view-transition-new(root) { animation: kit-slide-left 
 
 .stats-entry-arrow svg { width: 20px; height: 20px; }
 
-.st-sub { margin: 6px 0 0; color: var(--dim); font-size: 15px; }
+.st-sub { min-height: 1.45em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
 .st-body.st-in { animation: fade-up 0.32s cubic-bezier(0.22, 0.8, 0.24, 1) both; }
 
