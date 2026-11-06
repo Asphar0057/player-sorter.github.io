@@ -86,8 +86,6 @@ registerTeam({
     { id: "thuram", name: "Marcus Thuram", number: 9, position: "FW", nation: "FRA" },
     { id: "lautaro", name: "Lautaro Martínez", number: 10, position: "FW", nation: "ARG" },
     { id: "bonny", name: "Ange-Yoan Bonny", number: 14, position: "FW", nation: "CIV" },
-    { id: "mosconi", name: "Mattia Mosconi", number: 48, position: "FW", nation: "ITA" },
-    { id: "lavelli", name: "Matteo Lavelli", number: 53, position: "FW", nation: "ITA" },
     { id: "esposito", name: "Francesco Pio Esposito", number: 94, position: "FW", nation: "ITA" }
   ]
 });
