@@ -27,7 +27,6 @@ registerTeam({
     },
     away: {
       label: "Away",
-      crestBg: "#FFFFFF",
       dark: true,
       paper: "#0B1230",
       card: "#16204A",
@@ -45,7 +44,6 @@ registerTeam({
     },
     third: {
       label: "Third",
-      crestBg: "#FFFFFF",
       paper: "#6C4AB6",
       card: "#FFFFFF",
       onPaper: "#FFFFFF",
@@ -86,7 +84,7 @@ registerTeam({
     { id: "archie-gray", name: "Archie Gray", number: 14, position: "MF", nation: "ENG" },
     { id: "bergvall", name: "Lucas Bergvall", number: 15, position: "MF", nation: "SWE" },
     { id: "tonali", name: "Sandro Tonali", number: 16, position: "MF", nation: "ITA" },
-    { id: "mateus-fernandes", name: "Mateus Fernandes", number: 18, position: "MF", nation: "POR" },
+    { id: "fernandes", name: "Mateus Fernandes", number: 18, position: "MF", nation: "POR" },
     { id: "kulusevski", name: "Dejan Kulusevski", number: 21, position: "MF", nation: "SWE" },
     { id: "bentancur", name: "Rodrigo Bentancur", number: 30, position: "MF", nation: "URU" },
 

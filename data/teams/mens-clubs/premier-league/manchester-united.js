@@ -97,6 +97,7 @@ registerTeam({
     { id: "amad", name: "Amad Diallo", number: 16, position: "FW", nation: "CIV" },
     { id: "mbeumo", name: "Bryan Mbeumo", number: 19, position: "FW", nation: "CMR" },
     { id: "tynan-thompson", name: "Tynan Thompson", number: 27, position: "FW", nation: "ENG" },
-    { id: "sesko", name: "Benjamin Šeško", number: 30, position: "FW", nation: "SVN" }
+    { id: "sesko", name: "Benjamin Šeško", number: 30, position: "FW", nation: "SVN" },
+    { id: "shea-lacey", name: "Shea Lacey", number: 31, position: "FW", nation: "ENG" }
   ]
 });
