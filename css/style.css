@@ -106,7 +106,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
 
 .back-link:hover { color: var(--hi); }
 
-.hero-sub { color: var(--dim); font-size: 16px; margin: 14px 0 0; }
+.hero-sub { color: var(--dim); font-size: 14px; margin: 14px 0 0; }
 
 .league { margin-top: 18px; }
 

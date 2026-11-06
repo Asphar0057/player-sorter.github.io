@@ -17,7 +17,7 @@ window.SQUAD_MANIFEST = {
           id: "premier-league",
           name: "Premier League",
           country: "England",
-          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham"]
+          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle"]
         },
         {
           id: "bundesliga",
@@ -35,9 +35,15 @@ window.SQUAD_MANIFEST = {
           id: "serie-a",
           name: "Serie A",
           country: "Italy",
-          teams: ["roma", "juventus"]
+          teams: ["roma", "juventus", "ac-milan", "inter"]
         },
         /*
+        {
+          id: "championship",
+          name: "Championship",
+          country: "England",
+          teams: ["sheffield-united"]
+        },
         {
           id: "liga-profesional",
           name: "Liga Profesional de Futbol (LPF)",
