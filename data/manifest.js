@@ -35,7 +35,7 @@ window.SQUAD_MANIFEST = {
           id: "serie-a",
           name: "Serie A",
           country: "Italy",
-          teams: ["roma"]//, "juventus"]
+          teams: ["roma", "juventus"]
         },
         /*
         {
