@@ -1,5 +1,6 @@
 window.SQUAD_MANIFEST = {
   siteUrl: "player-sorter.github.io",
+  requestsUrl: "https://script.google.com/macros/s/AKfycbxfNGqxn7fo8MHxpZp5ewRqJ8ve0y1FL7AXEouRIdHx4UfLzygcPx58Ghj7vR9sXUOx/exec",
   showFirst: 5,
   sections: [
     {
