@@ -8,8 +8,19 @@
   };
   const STORE_PREFIX = "squadsorter:v1:";
   const app = document.getElementById("app");
+  const MANIFEST = window.SQUAD_MANIFEST;
+  const SECTIONS = MANIFEST.sections || [];
+  const SHOW_FIRST = MANIFEST.showFirst || 5;
+  const INDEX = {};
+  const LOADING = {};
+  const EXPANDED = {};
+
+  SECTIONS.forEach(section => (section.groups || []).forEach(group => (group.teams || []).forEach(id => {
+    INDEX[id] = { section, group, dir: section.id + "/" + group.id + "/" + id };
+  })));
 
   let session = null;
+  let navToken = 0;
 
   window.registerTeam = function (team) {
     TEAMS[team.id] = team;
@@ -28,9 +39,27 @@
     });
   }
 
-  function loadTeams() {
-    const ids = window.SQUAD_MANIFEST.leagues.flatMap(l => l.teams);
-    return Promise.all(ids.map(id => loadScript("data/teams/" + id + ".js")));
+  function ensureTeam(id) {
+    if (TEAMS[id]) return Promise.resolve(TEAMS[id]);
+    const entry = INDEX[id];
+    if (!entry) return Promise.resolve(null);
+    if (!LOADING[id]) {
+      LOADING[id] = loadScript("data/teams/" + entry.dir + ".js").then(() => {
+        if (!TEAMS[id]) delete LOADING[id];
+        return TEAMS[id] || null;
+      });
+    }
+    return LOADING[id];
+  }
+
+  function assetDir(team) {
+    const entry = INDEX[team.id];
+    return "assets/teams/" + (entry ? entry.dir : team.id) + "/";
+  }
+
+  function sectionOf(team) {
+    const entry = team && INDEX[team.id];
+    return entry ? entry.section.id : "";
   }
 
   function esc(str) {
@@ -60,21 +89,21 @@
     } catch (e) {}
   }
 
-  const PHOTO_EXTS = [".jpg", ".jpeg", ".png", ".webp", ".JPG", ".PNG"];
-  const CREST_EXTS = [".png", ".svg", ".webp", ".jpg", ".PNG", ".SVG"];
+  const PHOTO_EXTS = [".webp", ".jpg", ".png"];
+  const CREST_EXTS = [".png", ".svg", ".webp"];
 
   function crestPaths(team) {
     if (team.crest) return [team.crest];
-    return CREST_EXTS.map(ext => "assets/teams/" + team.id + "/crest" + ext);
+    return CREST_EXTS.map(ext => assetDir(team) + "crest" + ext);
   }
 
   function photoPaths(team, player) {
     if (player.photo) return [player.photo];
-    return PHOTO_EXTS.map(ext => "assets/teams/" + team.id + "/players/" + player.id + ext);
+    return PHOTO_EXTS.map(ext => assetDir(team) + "players/" + player.id + ext);
   }
 
   function imgTag(paths) {
-    return '<img class="swap-img" src="' + esc(paths[0]) + '" data-alts="' + esc(paths.slice(1).join("|")) + '" alt="">';
+    return '<img class="swap-img" src="' + esc(paths[0]) + '" data-alts="' + esc(paths.slice(1).join("|")) + '" alt="" decoding="async">';
   }
 
   function kitOf(team, id) {
@@ -202,58 +231,306 @@
     return player ? { team, player } : null;
   }
 
-  function render(html) {
+  function render(html, keepScroll) {
     app.innerHTML = html;
     wireImages(app);
-    window.scrollTo(0, 0);
+    if (!keepScroll) window.scrollTo(0, 0);
   }
 
-  function renderHome() {
-    session = null;
-    applyTheme(null);
-    const leagues = window.SQUAD_MANIFEST.leagues.map(league => {
-      const ids = league.teams.filter(id => TEAMS[id]);
-      if (!ids.length) return "";
-      const tiles = ids.map(id => {
-        const team = TEAMS[id];
-        const home = Kits.get(team, "home");
-        const tile = Object.assign(
-          { bg: home.paper, fg: home.onPaper, muted: home.onPaperMuted, pattern: home.pattern },
-          team.tile || {}
-        );
-        const tileVars = [
-          "--tile-bg:" + tile.bg,
-          "--tile-fg:" + tile.fg,
-          "--tile-muted:" + tile.muted,
-          "--tile-pattern:" + Kits.css(tile.pattern)
-        ].join(";");
-        return (
-          '<button type="button" class="team-tile team-tile-club" data-go="' + team.id + '" style="' + tileVars + '">' +
-            crestMarkup(team, "crest-md", home) +
+  function teamTile(team) {
+    const home = Kits.get(team, "home");
+    const tile = Object.assign(
+      { bg: home.paper, fg: home.onPaper, muted: home.onPaperMuted, pattern: home.pattern },
+      team.tile || {}
+    );
+    const tileVars = [
+      "--tile-bg:" + tile.bg,
+      "--tile-fg:" + tile.fg,
+      "--tile-muted:" + tile.muted,
+      "--tile-pattern:" + Kits.css(tile.pattern)
+    ].join(";");
+    return (
+      '<button type="button" class="team-tile team-tile-club" data-go="' + team.id + '" style="' + tileVars + '">' +
+        crestMarkup(team, "crest-md", home) +
+        '<span class="team-tile-text">' +
+          '<span class="team-tile-name">' + esc(team.name) + "</span>" +
+          '<span class="team-tile-meta">' + team.players.length + " players · " + esc(team.season) + "</span>" +
+        "</span>" +
+      "</button>"
+    );
+  }
+
+  function blobColours(group) {
+    const all = (group.teams || []).filter(id => INDEX[id]);
+    const hidden = all.slice(SHOW_FIRST).filter(id => TEAMS[id]);
+    const source = hidden.length ? hidden : all.slice(0, SHOW_FIRST).filter(id => TEAMS[id]);
+    const colours = [];
+    source.forEach(id => {
+      const kit = Kits.get(TEAMS[id], "home");
+      [kit.paper, kit.accent].forEach(c => {
+        if (c && colours.indexOf(c) < 0) colours.push(c);
+      });
+    });
+    return colours.concat(["#a55448", "#262f61", "#c8a24a"]).slice(0, 3);
+  }
+
+  function blobMarkup(colours, extraClass) {
+    return (
+      '<span class="glass-blobs' + (extraClass ? " " + extraClass : "") + '" aria-hidden="true">' +
+        colours.map(c => '<i style="background:' + esc(c) + '"></i>').join("") +
+      "</span>"
+    );
+  }
+
+  function visibleIds(group) {
+    const ids = (group.teams || []).filter(id => INDEX[id]);
+    return EXPANDED[group.id] ? ids : ids.slice(0, SHOW_FIRST);
+  }
+
+  const SOON_ICONS = {
+    shirt: '<svg viewBox="0 0 48 48"><path d="M17 6 6 11.5l4.5 9.5 5-2.2V42h17V18.8l5 2.2 4.5-9.5L31 6c-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5z" fill="currentColor"/></svg>',
+    trophy: '<svg viewBox="0 0 48 48"><path d="M14 6h20v9a10 10 0 0 1-20 0z" fill="currentColor"/><path d="M14 9H8v3.5a6.5 6.5 0 0 0 7 6.5M34 9h6v3.5a6.5 6.5 0 0 1-7 6.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h6v8h-6zM15 35h18v7H15z" fill="currentColor"/></svg>'
+  };
+
+  function comingSoon(section) {
+    const soon = section.soon || {};
+    const live = SECTIONS.find(s => (s.groups || []).some(g => (g.teams || []).some(id => INDEX[id])));
+    const back = live && live !== section
+      ? '<button type="button" class="btn soon-cta" data-go="' + live.id + '">Rank ' + esc(live.name.toLowerCase()) + " instead</button>"
+      : "";
+    const chips = (soon.preview || []).map(name => '<span class="soon-chip">' + esc(name) + "</span>").join("");
+    return (
+      '<section class="soon">' +
+        blobMarkup(soon.colours || ["#a55448", "#262f61", "#c8a24a"], "soon-blobs") +
+        '<div class="soon-card">' +
+          '<span class="soon-icon" aria-hidden="true">' + (SOON_ICONS[soon.icon] || SOON_ICONS.shirt) + "</span>" +
+          '<p class="soon-eyebrow">Coming soon</p>' +
+          '<h2 class="soon-title">' + esc(soon.title || section.name + " are on the way") + "</h2>" +
+          '<p class="soon-text">' + esc(soon.text || "New squads are being added. Check back soon.") + "</p>" +
+          (chips ? '<div class="soon-chips">' + chips + "</div>" : "") +
+          back +
+        "</div>" +
+        '<div class="soon-ghosts" aria-hidden="true"><span></span><span></span><span></span></div>' +
+      "</section>"
+    );
+  }
+
+  function homeBody(section, groups) {
+    const body = groups.map(group => {
+      const all = (group.teams || []).filter(id => INDEX[id]);
+      const tiles = visibleIds(group).filter(id => TEAMS[id]).map(id => teamTile(TEAMS[id])).join("");
+      if (!tiles) return "";
+      const hiddenCount = all.length - SHOW_FIRST;
+      const more = hiddenCount > 0
+        ? '<button type="button" class="team-tile see-more-tile" data-more="' + group.id + '" aria-expanded="' + !!EXPANDED[group.id] + '">' +
+            blobMarkup(blobColours(group)) +
+            '<span class="see-more-arrow' + (EXPANDED[group.id] ? " is-up" : "") + '" aria-hidden="true">' +
+              '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            "</span>" +
             '<span class="team-tile-text">' +
-              '<span class="team-tile-name">' + esc(team.name) + "</span>" +
-              '<span class="team-tile-meta">' + team.players.length + " players · " + esc(team.season) + "</span>" +
+              '<span class="team-tile-name">' + (EXPANDED[group.id] ? "Show less" : "See all " + all.length) + "</span>" +
+              '<span class="team-tile-meta">' +
+                (EXPANDED[group.id] ? "Back to the first " + SHOW_FIRST : "+" + hiddenCount + " more") +
+              "</span>" +
             "</span>" +
           "</button>"
-        );
-      }).join("");
+        : "";
       return (
         '<section class="league">' +
-          '<h2 class="league-name">' + esc(league.name) + '</h2>' +
-          '<div class="team-grid">' + tiles +
-          '</div>' +
-        '</section>'
+          '<h2 class="league-name">' + esc(group.name) + "</h2>" +
+          '<div class="team-grid">' + tiles + more + "</div>" +
+        "</section>"
       );
     }).join("");
+    return body || comingSoon(section);
+  }
 
-    render(
-      '<section class="hero">' +
-        '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
-        "<h1>Pick a club &amp; start ranking</h1>" +
-        '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA.<br>More clubs coming soon.</p>' +
-      "</section>" +
-      leagues
-    );
+  function placeIndicator(animate) {
+    const nav = app.querySelector(".tabs");
+    const pill = nav && nav.querySelector(".tab-indicator");
+    const active = nav && nav.querySelector('.tab[aria-selected="true"]');
+    if (!pill || !active) return;
+    if (!animate) pill.style.transition = "none";
+    pill.style.width = active.offsetWidth + "px";
+    pill.style.transform = "translateX(" + active.offsetLeft + "px)";
+    if (!animate) {
+      void pill.offsetWidth;
+      pill.style.transition = "";
+    }
+  }
+
+  function selectTab(section) {
+    app.querySelectorAll(".tabs .tab").forEach(tab => tab.setAttribute("aria-selected", String(tab.dataset.go === section.id)));
+    placeIndicator(true);
+  }
+
+  window.addEventListener("resize", () => placeIndicator(false));
+
+  function renderHome(sectionId, token, keepScroll, afterRender) {
+    session = null;
+    applyTheme(null);
+    const section = SECTIONS.find(s => s.id === sectionId) || SECTIONS[0];
+    if (!section) return;
+    const groups = section.groups || [];
+    const ids = groups.flatMap(visibleIds);
+
+    const mounted = app.querySelector(".home-body");
+    const fromIndex = mounted ? SECTIONS.findIndex(s => s.id === mounted.dataset.section) : -1;
+    const switching = !!mounted && fromIndex !== SECTIONS.indexOf(section);
+    const animateSwitch = switching && !REDUCE_MOTION;
+    const started = Date.now();
+    if (switching) {
+      selectTab(section);
+      if (animateSwitch) {
+        mounted.classList.remove("enter-left", "enter-right");
+        mounted.classList.add("is-leaving");
+      }
+    }
+
+    Promise.all(ids.map(ensureTeam)).then(() => {
+      if (token !== navToken) return;
+      const wait = animateSwitch ? Math.max(0, TAB_LEAVE_MS - (Date.now() - started)) : 0;
+      setTimeout(() => {
+        if (token !== navToken) return;
+        paintHome(section, groups, token, keepScroll, afterRender, mounted, switching, fromIndex);
+      }, wait);
+    });
+  }
+
+  function paintHome(section, groups, token, keepScroll, afterRender, mounted, switching, fromIndex) {
+    const body = homeBody(section, groups);
+
+    if (mounted && app.contains(mounted)) {
+      mounted.innerHTML = body;
+      mounted.dataset.section = section.id;
+      mounted.classList.remove("is-leaving", "enter-left", "enter-right");
+      wireImages(mounted);
+      if (switching) {
+        const hero = app.querySelector(".hero");
+        const heroBottom = hero ? hero.offsetTop + hero.offsetHeight : 0;
+        if (window.scrollY > heroBottom) window.scrollTo({ top: heroBottom, behavior: REDUCE_MOTION ? "auto" : "smooth" });
+        if (!REDUCE_MOTION) {
+          void mounted.offsetWidth;
+          mounted.classList.add(SECTIONS.indexOf(section) > fromIndex ? "enter-right" : "enter-left");
+        }
+      }
+    } else {
+      const tabs = SECTIONS.length > 1
+        ? '<nav class="tabs" role="tablist">' +
+            '<span class="tab-indicator" aria-hidden="true"></span>' +
+            SECTIONS.map(s =>
+              '<button type="button" class="tab" role="tab" data-go="' + s.id + '" aria-selected="' + (s === section) + '">' + esc(s.name) + "</button>"
+            ).join("") +
+          "</nav>"
+        : "";
+      render(
+        '<section class="hero">' +
+          '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
+          "<h1>Pick a squad &amp; start ranking</h1>" +
+          '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA.<br>More clubs coming soon.</p>' +
+        "</section>" +
+        tabs +
+        '<div class="home-body" data-section="' + section.id + '">' + body + "</div>",
+        keepScroll
+      );
+      placeIndicator(false);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => placeIndicator(false));
+    }
+
+    groups.forEach(group => {
+      const hidden = (group.teams || []).filter(id => INDEX[id]).slice(SHOW_FIRST);
+      if (EXPANDED[group.id] || !hidden.length || hidden.every(id => TEAMS[id])) return;
+      Promise.all(hidden.map(ensureTeam)).then(() => {
+        if (token !== navToken) return;
+        const blobs = app.querySelector('[data-more="' + group.id + '"] .glass-blobs');
+        if (blobs) blobs.outerHTML = blobMarkup(blobColours(group));
+      });
+    });
+
+    app.querySelectorAll("[data-more]").forEach(btn => btn.addEventListener("click", () => toggleGroup(btn, section)));
+    if (afterRender) afterRender();
+  }
+
+  const REDUCE_MOTION = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const MOVE_MS = 340;
+  const LEAVE_MS = 170;
+  const TAB_LEAVE_MS = 140;
+
+  function toggleGroup(btn, section) {
+    if (btn.dataset.busy) return;
+    btn.dataset.busy = "1";
+    const groupId = btn.dataset.more;
+    const collapsing = !!EXPANDED[groupId];
+    const league = btn.closest(".league");
+    const grid = league.querySelector(".team-grid");
+    const gridRect = grid.getBoundingClientRect();
+    const moreRect = btn.getBoundingClientRect();
+    const before = {
+      top: league.getBoundingClientRect().top,
+      height: gridRect.height,
+      dx: moreRect.left - gridRect.left,
+      dy: moreRect.top - gridRect.top
+    };
+    const rerender = () => {
+      EXPANDED[groupId] = !collapsing;
+      renderHome(section.id, navToken, true, () => animateGroup(groupId, before, collapsing));
+    };
+    if (collapsing && !REDUCE_MOTION) {
+      Array.from(grid.children)
+        .filter(el => !el.classList.contains("see-more-tile"))
+        .slice(SHOW_FIRST)
+        .forEach(el => el.classList.add("tile-leave"));
+      setTimeout(rerender, LEAVE_MS);
+    } else {
+      rerender();
+    }
+  }
+
+  function animateGroup(groupId, before, collapsing) {
+    const btn = app.querySelector('[data-more="' + groupId + '"]');
+    if (!btn) return;
+    const league = btn.closest(".league");
+    const grid = league.querySelector(".team-grid");
+    if (collapsing) window.scrollBy(0, league.getBoundingClientRect().top - before.top);
+    if (REDUCE_MOTION) return;
+
+    const gridRect = grid.getBoundingClientRect();
+    const moreRect = btn.getBoundingClientRect();
+    const shiftX = before.dx - (moreRect.left - gridRect.left);
+    const shiftY = before.dy - (moreRect.top - gridRect.top);
+    const ease = "cubic-bezier(0.22, 0.8, 0.24, 1)";
+
+    grid.style.height = before.height + "px";
+    grid.style.overflow = "hidden";
+    btn.style.transform = "translate(" + shiftX + "px, " + shiftY + "px)";
+    btn.style.transition = "none";
+
+    if (!collapsing) {
+      Array.from(grid.children)
+        .filter(el => !el.classList.contains("see-more-tile"))
+        .slice(SHOW_FIRST)
+        .forEach((el, i) => {
+          el.style.animationDelay = (60 + i * 45) + "ms";
+          el.classList.add("tile-enter");
+        });
+    }
+
+    void grid.offsetHeight;
+    grid.style.transition = "height " + MOVE_MS + "ms " + ease;
+    grid.style.height = gridRect.height + "px";
+    btn.style.transition = "transform " + MOVE_MS + "ms " + ease;
+    btn.style.transform = "";
+
+    setTimeout(() => {
+      grid.style.height = "";
+      grid.style.overflow = "";
+      grid.style.transition = "";
+      btn.style.transition = "";
+    }, MOVE_MS + 40);
+    grid.querySelectorAll(".tile-enter").forEach(el => el.addEventListener("animationend", () => {
+      el.classList.remove("tile-enter");
+      el.style.animationDelay = "";
+    }, { once: true }));
   }
 
   function creditsMarkup(team) {
@@ -297,7 +574,7 @@
 
     render(
       '<section class="setup">' +
-        '<button type="button" class="back-link" data-go="">← All clubs</button>' +
+        '<button type="button" class="back-link" data-go="' + sectionOf(team) + '">← All squads</button>' +
         '<div class="setup-head">' +
           crestMarkup(team, "crest-lg") +
           "<div>" +
@@ -431,7 +708,7 @@
   }
 
   function siteUrl() {
-    if (window.SQUAD_MANIFEST.siteUrl) return window.SQUAD_MANIFEST.siteUrl;
+    if (MANIFEST.siteUrl) return MANIFEST.siteUrl;
     const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
     return location.protocol.startsWith("http") && !local ? location.origin + location.pathname : "";
   }
@@ -492,25 +769,28 @@
 
   function importRanking() {
     const params = new URLSearchParams(location.search);
-    const team = TEAMS[params.get("club")];
+    const club = params.get("club");
     const raw = params.get("r");
+    if (!club || !raw) return Promise.resolve();
     params.delete("club");
     params.delete("r");
-    if (!team || !raw) return;
-    const known = new Set(team.players.map(p => p.id));
-    const groups = raw.split(".").map(g => g.split("~").filter(id => known.has(id)).map(id => team.id + ":" + id)).filter(g => g.length);
-    const count = groups.reduce((n, g) => n + g.length, 0);
-    if (count < 2) return;
-    storeSet(team.id, {
-      state: {
-        queue: [groups], left: null, right: null, merged: null, i: 0, j: 0,
-        placed: count, total: count, choices: 0, done: true, history: []
-      }
+    return ensureTeam(club).then(team => {
+      if (!team) return;
+      const known = new Set(team.players.map(p => p.id));
+      const groups = raw.split(".").map(g => g.split("~").filter(id => known.has(id)).map(id => team.id + ":" + id)).filter(g => g.length);
+      const count = groups.reduce((n, g) => n + g.length, 0);
+      if (count < 2) return;
+      storeSet(team.id, {
+        state: {
+          queue: [groups], left: null, right: null, merged: null, i: 0, j: 0,
+          placed: count, total: count, choices: 0, done: true, history: []
+        }
+      });
+      const rest = params.toString();
+      try {
+        history.replaceState(null, "", location.pathname + (rest ? "?" + rest : "") + "#/" + team.id + "/results");
+      } catch (e) {}
     });
-    const rest = params.toString();
-    try {
-      history.replaceState(null, "", location.pathname + (rest ? "?" + rest : "") + "#/" + team.id + "/results");
-    } catch (e) {}
   }
 
   function openShare(team, entries) {
@@ -717,7 +997,7 @@
 
     render(
       '<section class="results">' +
-        '<button type="button" class="back-link" data-go="">← All clubs</button>' +
+        '<button type="button" class="back-link" data-go="' + sectionOf(team) + '">← All squads</button>' +
         '<div class="setup-head">' +
           crestMarkup(team, "crest-lg") +
           "<div>" +
@@ -729,7 +1009,7 @@
         '<div class="setup-actions results-actions">' +
           '<button class="btn btn-primary" data-act="share">Share ranking</button>' +
           '<button class="btn btn-ghost" data-act="again">Sort again</button>' +
-          '<button type="button" class="btn btn-ghost" data-go="">All clubs</button>' +
+          '<button type="button" class="btn btn-ghost" data-go="' + sectionOf(team) + '">All squads</button>' +
         "</div>" +
         '<ol class="rank-list">' + rows.join("") + "</ol>" +
       "</section>"
@@ -765,21 +1045,28 @@
   }
 
   function show(id) {
+    const token = ++navToken;
     const parts = id.split("/");
-    const team = TEAMS[parts[0]];
-    if (!team) {
-      renderHome();
+    if (!INDEX[parts[0]]) {
+      renderHome(parts[0], token);
       return;
     }
-    const saved = storeGet(team.id);
-    if (!isValidSaved(team, saved)) {
-      storeDel(team.id);
-    } else if (parts[1] === "results" && saved.state.done) {
-      session = { team, state: saved.state };
-      renderResults();
-      return;
-    }
-    renderTeamSetup(team);
+    ensureTeam(parts[0]).then(team => {
+      if (token !== navToken) return;
+      if (!team) {
+        renderHome("", token);
+        return;
+      }
+      const saved = storeGet(team.id);
+      if (!isValidSaved(team, saved)) {
+        storeDel(team.id);
+      } else if (parts[1] === "results" && saved.state.done) {
+        session = { team, state: saved.state };
+        renderResults();
+        return;
+      }
+      renderTeamSetup(team);
+    });
   }
 
   document.addEventListener("keydown", e => {
@@ -803,8 +1090,5 @@
 
   window.addEventListener("popstate", route);
   window.addEventListener("hashchange", route);
-  loadTeams().then(() => {
-    importRanking();
-    route();
-  });
+  importRanking().then(route);
 })();
