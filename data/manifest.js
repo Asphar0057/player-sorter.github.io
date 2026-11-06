@@ -29,7 +29,7 @@ window.SQUAD_MANIFEST = {
           id: "ligue-1",
           name: "Ligue 1",
           country: "France",
-          teams: ["psg"]
+          teams: ["psg", "monaco"]
         },
         {
           id: "serie-a",
