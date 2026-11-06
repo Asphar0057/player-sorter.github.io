@@ -470,7 +470,7 @@
               '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             "</span>" +
             '<span class="team-tile-text">' +
-              '<span class="team-tile-name">' + (EXPANDED[group.id] ? "Show less" : "Show all") + "</span>" +
+              '<span class="team-tile-name">' + (EXPANDED[group.id] ? "Show less" : "See all " + all.length) + "</span>" +
               '<span class="team-tile-meta">' +
                 (EXPANDED[group.id] ? "Back to the first " + SHOW_FIRST : "+" + hiddenCount + " more") +
               "</span>" +
@@ -714,7 +714,7 @@
         '<section class="hero">' +
           '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
           "<h1>Pick a squad &amp; start ranking</h1>" +
-          '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA and official club sites.<br>More clubs coming soon.</p>' +
+          '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA.<br>More clubs coming soon.</p>' +
           requestStrip() +
         "</section>" +
         '<div class="home-bar' + (searching() ? " is-searching" : "") + '">' + searchBox() + tabs + "</div>" +
@@ -1879,7 +1879,14 @@
     };
     const fav = best(e => e.top1 / e.n);
     const reg = best(e => e.top3 / e.n, true);
-    const div = best(e => (e.n >= data.count * 0.5 ? e.sd : -1), true);
+    const hasSplit = order.some(e => typeof e.topQ === "number");
+    const split = e => Math.min(e.topQ || 0, e.bottomQ || 0) / e.n;
+    const divPool = order.filter(e => e.n >= data.count * 0.5 && !used.has(e.player.id) && split(e) >= 0.1);
+    const div = hasSplit
+      ? divPool.sort((a, b) => split(b) - split(a) || ((b.topQ + b.bottomQ) - (a.topQ + a.bottomQ)))[0] || null
+      : best(e => (e.n >= data.count * 0.5 ? e.sd : -1), true);
+    if (div) used.add(div.player.id);
+    const quarter = Math.max(1, Math.round(team.players.length / 4));
     const last = best(e => e.bottom3 / e.n, true);
 
     const card = (label, e, statHtml) =>
@@ -1937,7 +1944,9 @@
       '<div class="st-cards">' +
         card("Fan favourite", fav, "<b>" + pct(fav.top1, fav.n) + "%</b> ranked #1") +
         card("Top 3 regular", reg, "In <b>" + pct(reg.top3, reg.n) + "%</b> of top 3s") +
-        card("Most divisive", div, "Ranked anywhere from <b>" + ordinal(div.min) + "</b> to <b>" + ordinal(div.max) + "</b>") +
+        (div ? card("Most divisive", div, hasSplit
+          ? "<b>" + pct(div.topQ, div.n) + "%</b> rank them top " + quarter + " · <b>" + pct(div.bottomQ, div.n) + "%</b> bottom " + quarter
+          : "Ranked anywhere from <b>" + ordinal(div.min) + "</b> to <b>" + ordinal(div.max) + "</b>") : "") +
         card("Usually last", last, "In <b>" + pct(last.bottom3, last.n) + "%</b> of bottom 3s") +
       "</div>" +
       '<div class="st-cols">' +
