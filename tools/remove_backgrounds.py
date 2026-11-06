@@ -11,8 +11,9 @@ try:
 except ImportError:
     sys.exit('rembg is not installed. Run: pip install "rembg[cpu]" pillow numpy')
 
-SOURCE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
+SOURCE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
 PHOTO_MAX = 512
+WORK_MAX = 640
 QUALITY = 85
 
 
@@ -49,19 +50,25 @@ def defringe(cut, bg):
 def process(path, session, backup_root, dry_run):
     with Image.open(path) as src:
         rgb_img = src.convert("RGB")
+    if max(rgb_img.size) > WORK_MAX:
+        rgb_img.thumbnail((WORK_MAX, WORK_MAX), Image.LANCZOS)
     bg = background_colour(np.asarray(rgb_img).astype(np.float32))
     if dry_run:
         print(f"would process {path}")
         return
-    cut = remove(
-        rgb_img,
-        session=session,
-        post_process_mask=True,
-        alpha_matting=True,
-        alpha_matting_foreground_threshold=240,
-        alpha_matting_background_threshold=10,
-        alpha_matting_erode_size=10,
-    )
+    try:
+        cut = remove(
+            rgb_img,
+            session=session,
+            post_process_mask=True,
+            alpha_matting=True,
+            alpha_matting_foreground_threshold=240,
+            alpha_matting_background_threshold=10,
+            alpha_matting_erode_size=10,
+        )
+    except MemoryError:
+        print(f"note  {path}: not enough memory for fine edges, using standard edges")
+        cut = remove(rgb_img, session=session, post_process_mask=True)
     cut = defringe(cut.convert("RGBA"), bg)
     if max(cut.size) > PHOTO_MAX:
         cut.thumbnail((PHOTO_MAX, PHOTO_MAX), Image.LANCZOS)

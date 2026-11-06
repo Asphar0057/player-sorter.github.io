@@ -113,19 +113,22 @@ function stats_(squad) {
       return;
     }
     const total = order.reduce((n, g) => n + g.length, 0);
+    const quarter = Math.max(1, Math.round(total / 4));
     let before = 0;
     count++;
     order.forEach(group => {
       const rank = before + 1;
       const after = total - before - group.length;
       group.forEach(id => {
-        const p = players[id] || (players[id] = { n: 0, sum: 0, sq: 0, top1: 0, top3: 0, bottom3: 0, min: rank, max: rank });
+        const p = players[id] || (players[id] = { n: 0, sum: 0, sq: 0, top1: 0, top3: 0, bottom3: 0, topQ: 0, bottomQ: 0, min: rank, max: rank });
         p.n++;
         p.sum += rank;
         p.sq += rank * rank;
         if (rank === 1) p.top1++;
         if (rank <= 3) p.top3++;
         if (after < 3) p.bottom3++;
+        if (rank <= quarter) p.topQ++;
+        if (after < quarter) p.bottomQ++;
         p.min = Math.min(p.min, rank);
         p.max = Math.max(p.max, rank);
       });
@@ -146,6 +149,8 @@ function stats_(squad) {
         top1: p.top1,
         top3: p.top3,
         bottom3: p.bottom3,
+        topQ: p.topQ,
+        bottomQ: p.bottomQ,
         min: p.min,
         max: p.max
       };

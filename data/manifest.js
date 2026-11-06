@@ -1,6 +1,6 @@
 window.SQUAD_MANIFEST = {
   siteUrl: "player-sorter.github.io",
-  requestsUrl: "https://script.google.com/macros/s/AKfycbxDJDrMChg31e9o48ndTL3Ys8kKMLPHECqJYcW2rh-LcYJ2XO-KmjWCEzhkoNSVRwIB/exec",
+  requestsUrl: "https://script.google.com/macros/s/AKfycbyOk-IQ6VX5IgwKEGdJUy6M2oQ9zOmopCBxr7bHtb4JriwA3CB_m_UczgFQVeM_uaan/exec",
   showFirst: 5,
   sections: [
     {
@@ -42,7 +42,14 @@ window.SQUAD_MANIFEST = {
     {
       id: "womens-clubs",
       name: "Women's clubs",
-      groups: []
+      groups: [
+        {
+          id: "wsl",
+          name: "WSL",
+          country: "England",
+          teams: ["arsenal-women"]
+        }
+      ]
     },
     {
       id: "wcs",
@@ -51,7 +58,7 @@ window.SQUAD_MANIFEST = {
         {
           id: "world-cup",
           name: "World Cup winners",
-          teams: []
+          teams: ["2026-spain"]
         }
       ]
     }
