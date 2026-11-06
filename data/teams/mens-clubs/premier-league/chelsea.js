@@ -86,6 +86,8 @@ registerTeam({
     { id: "rogers", name: "Morgan Rogers", number: 17, position: "MF", nation: "ENG" },
     { id: "caicedo", name: "Moisés Caicedo", number: 25, position: "MF", nation: "ECU" },
     { id: "lavia", name: "Roméo Lavia", number: 45, position: "MF", nation: "BEL" },
+    { id: "reggie-watson", name: "Reggie Watson", number: 31, position: "MF", nation: "ENG" },
+    { id: "nicoll-jazuli", name: "Mahdi Nicoll-Jazuli", number: 32, position: "MF", nation: "ENG" },
 
     { id: "neto", name: "Pedro Neto", number: 7, position: "FW", nation: "POR" },
     { id: "joao-pedro", name: "João Pedro", number: 9, position: "FW", nation: "BRA" },

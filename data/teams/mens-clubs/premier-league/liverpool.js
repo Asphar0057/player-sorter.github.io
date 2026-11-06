@@ -88,6 +88,8 @@ registerTeam({
     { id: "gravenberch", name: "Ryan Gravenberch", number: 38, position: "MF", nation: "NED" },
     { id: "nyoni", name: "Trey Nyoni", number: 42, position: "MF", nation: "ENG" },
     { id: "mcconnell", name: "James McConnell", number: 53, position: "MF", nation: "ENG" },
+    { id: "endo", name: "Wataru Endo", number: 3, position: "MF", nation: "JPN" },
+    { id: "koumas", name: "Lewis Koumas", number: 67, position: "MF", nation: "WAL" },
 
     { id: "isak", name: "Alexander Isak", number: 9, position: "FW", nation: "SWE" },
     { id: "gakpo", name: "Cody Gakpo", number: 18, position: "FW", nation: "NED" },

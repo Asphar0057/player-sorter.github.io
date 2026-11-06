@@ -76,6 +76,7 @@ registerTeam({
     { id: "lucas-hernandez", name: "Lucas Hernández", number: 21, position: "DF", nation: "FRA" },
     { id: "nuno-mendes", name: "Nuno Mendes", number: 25, position: "DF", nation: "POR" },
     { id: "pacho", name: "Willian Pacho", number: 51, position: "DF", nation: "ECU" },
+    { id: "boly", name: "David Boly", number: 42, position: "DF", nation: "FRA" },
 
     { id: "fabian-ruiz", name: "Fabián Ruiz", number: 8, position: "MF", nation: "ESP" },
     { id: "akliouche", name: "Maghnes Akliouche", number: 11, position: "MF", nation: "FRA" },
@@ -89,6 +90,7 @@ registerTeam({
     { id: "ferran-torres", name: "Ferran Torres", number: 9, position: "FW", nation: "ESP" },
     { id: "dembele", name: "Ousmane Dembélé", number: 10, position: "FW", nation: "FRA" },
     { id: "doue", name: "Désiré Doué", number: 14, position: "FW", nation: "FRA" },
-    { id: "godts", name: "Mika Godts", number: 22, position: "FW", nation: "BEL" }
+    { id: "godts", name: "Mika Godts", number: 22, position: "FW", nation: "BEL" },
+    { id: "ndjantou", name: "Quentin Ndjantou", number: 47, position: "FW", nation: "FRA" }
   ]
 });

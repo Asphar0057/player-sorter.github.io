@@ -84,6 +84,7 @@ registerTeam({
     { id: "rodri", name: "Rodri", number: 16, position: "MF", nation: "ESP" },
     { id: "de-jong", name: "Frenkie de Jong", number: 21, position: "MF", nation: "NED" },
     { id: "bernal", name: "Marc Bernal", number: 22, position: "MF", nation: "ESP" },
+    { id: "orian-goren", name: "Orian Goren", number: 32, position: "MF", nation: "ISR" },
 
     { id: "fermin", name: "Fermín López", number: 7, position: "FW", nation: "ESP" },
     { id: "gabriel-jesus", name: "Gabriel Jesus", number: 9, position: "FW", nation: "BRA" },
@@ -93,6 +94,7 @@ registerTeam({
     { id: "gordon", name: "Anthony Gordon", number: 17, position: "FW", nation: "ENG" },
     { id: "olmo", name: "Dani Olmo", number: 20, position: "FW", nation: "ESP" },
     { id: "bisiwu", name: "Jesse Bisiwu", number: 27, position: "FW", nation: "BEL" },
-    { id: "abdelkarim", name: "Hamza Abdelkarim", number: 29, position: "FW", nation: "EGY" }
+    { id: "abdelkarim", name: "Hamza Abdelkarim", number: 29, position: "FW", nation: "EGY" },
+    { id: "roony", name: "Roony Bardghji", number: 19, position: "FW", nation: "SWE" }
   ]
 });

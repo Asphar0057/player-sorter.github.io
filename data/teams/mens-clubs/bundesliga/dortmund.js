@@ -95,6 +95,7 @@ registerTeam({
     { id: "guirassy", name: "Serhou Guirassy", number: 9, position: "FW", nation: "GUI" },
     { id: "beier", name: "Maximilian Beier", number: 14, position: "FW", nation: "GER" },
     { id: "karetsas", name: "Konstantinos Karetsas", number: 19, position: "FW", nation: "GRE" },
-    { id: "fabio-silva", name: "Fábio Silva", number: 21, position: "FW", nation: "POR" }
+    { id: "fabio-silva", name: "Fábio Silva", number: 21, position: "FW", nation: "POR" },
+    { id: "samuele-inacio", name: "Samuele Inácio", number: 40, position: "FW", nation: "ITA" }
   ]
 });
