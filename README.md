@@ -1,39 +1,63 @@
 # Squad Sorter
 
-Rank your favorite players from your favorite clubs.
-Note: Currently only Atleti, Bayern, Arsenal, and Barcelona available.
+Rank your favorite players from your favorite clubs and national teams.
+Available teams: Atleti, Barcelona, Real Madrid, Bayern, Arsenal, Liverpool, Man City, Man United, PSG
 
 
 ## Folder layout
 
 ```
 index.html
+version.json                    bump together with SITE_VERSION in index.html on every push
 css/style.css
-js/sorter.js              ranking engine (merge sort with ties and undo)
-js/app.js                 screens, theming, saving progress
-data/manifest.js          which leagues and clubs appear on the home page
-data/teams/<club-id>.js   one file per club: colours + players
-assets/teams/<club-id>/crest.png
-assets/teams/<club-id>/players/<player-id>.jpg
+js/sorter.js                    ranking engine (merge sort with ties and undo)
+js/app.js                       screens, theming, saving progress
+data/manifest.js                tabs, leagues/tournaments and which squads appear
+data/teams/<tab>/<group>/<id>.js
+assets/teams/<tab>/<group>/<id>/crest.png
+assets/teams/<tab>/<group>/<id>/players/<player-id>.webp
+tools/optimize_photos.py        shrinks and converts photos before you commit them
 ```
+
+`<tab>` is a section id from the manifest (`clubs`, `womens`, `nts`) and `<group>` is a league or tournament id (`laliga`, `world-cup`). Example: `data/teams/clubs/laliga/atletico-madrid.js`.
+
+The folder only tells the site where to find a file. Links and saved rankings use the squad id alone (`#/atletico-madrid`), so ids must be unique across the whole site, and moving a squad to another group never breaks anything as long as the id stays the same.
 
 
 ## Adding images
 
 Images are optional. Anything missing falls back to a club-coloured badge.
 
-- Crest: save as `assets/teams/<team-name>/crest.png` (.svg, .webp or .jpg also work)
-- Player photo: save as `assets/teams/<team-name>/players/<player-id>.jpg` (.jpeg, .png or .webp also work), where `<player-id>` is the `id` in the team file (e.g. `oblak.jpg`, `alvarez.png`). Names are case-sensitive once on GitHub Pages, so keep them lowercase.
-- Different file name or format? Add `crest: "path"` to the team or `photo: "path"` to a player.
+- Crest: `assets/teams/<tab>/<group>/<id>/crest.png` (.svg or .webp also work)
+- Player photo: `assets/teams/<tab>/<group>/<id>/players/<player-id>.webp`, where `<player-id>` is the `id` in the team file. Keep names lowercase.
 
-Portrait-ish photos cropped from the top work best on the cards.
+Before committing new photos, run:
+
+```
+pip install pillow
+python tools/optimize_photos.py
+```
+
+Photos with a plain (white) background can be cut out automatically first:
+
+```
+pip install "rembg[cpu]" numpy
+python tools/remove_backgrounds.py --dry-run
+python tools/remove_backgrounds.py
+```
+
+The dry run lists which photos still have a solid background. The real run cuts out the player, cleans the white fringe off the edges and saves a transparent .webp in place of the original, copying originals to `bg-backup/` (ignored by git) first. The first run downloads the cut-out model (about 170 MB) once. Use `--only-jpg` to limit it to .jpg files.
+
+`optimize_photos.py` then converts any .jpg/.png/.webp in a `players` folder to a 512px .webp (about 25 KB instead of 100+ KB) and shrinks crests to 256px. Files that are already optimised are skipped, so it is safe to run every time.
 
 
-## Adding a club
+## Adding a squad
 
-1. Copy `data/teams/atletico-madrid.js` to `data/teams/<new-id>.js` and edit the id, names, theme colours and players.
-2. Add `"<new-id>"` to the right league in `data/manifest.js` (or add a new league block).
-3. Drop images into `assets/teams/<new-id>/`.
+1. Copy an existing team file into `data/teams/<tab>/<group>/<new-id>.js` and edit the id, names, colours and players.
+2. Add `"<new-id>"` to that group's `teams` list in `data/manifest.js`. Teams after `//` stay hidden.
+3. Drop images into `assets/teams/<tab>/<group>/<new-id>/` and run the optimiser.
+
+Each group shows its first 5 squads on the home page, with a "See all" button when there are more (change `showFirst` in the manifest). A tab with no visible squads shows "Coming soon"; to hide a tab completely, remove or comment out its block in the manifest.
 
 
 ## Colour modes (kits)
@@ -60,3 +84,22 @@ The results page has a Share button that builds a PNG (story 9:16 or post 4:5; t
 
 - Download image saves the PNG.
 - Instagram story and Post on X open the phone's share sheet with the image attached. On a computer they download the image instead (X also opens a pre-written post).
+
+
+## Releasing an update
+
+Browsers (especially in-app ones like X's) keep old copies of the site. Every time you push, bump the number in both `window.SITE_VERSION` (top of `index.html`) and `version.json`, keeping them identical. A new number makes every script, stylesheet and team file load fresh, and visitors with an old cached page are reloaded once onto the new version.
+
+
+## Requests (Google Sheet)
+
+Visitors can request a new squad (home page) or report a missing player (squad page before sorting, and under the final ranking). Each request becomes a row in a Google Sheet you own. The buttons only appear once `requestsUrl` is set in `data/manifest.js`.
+
+
+## Community stats
+
+Every finished full-squad ranking is sent anonymously to the same Apps Script as requests and saved in a "Rankings" tab (one row per device per squad; sorting again replaces that row). Rankings made with a position filter are not sent. Finished rankings already saved in someone's browser are sent the next time they visit.
+
+Each squad gets a stats page at `#/<squad-id>/stats`, linked from the squad page ("Community ranking") and the results page. It shows fan favourite, top 3 regular, most divisive, usually last, most often top 3 / bottom 3, where your ranking differs most from everyone else's, and the community's top 10. Until a squad has 20 rankings the page shows a progress bar instead.
+
+Stats are recalculated at most every 15 minutes (`STATS_CACHE_SECONDS` in the script) and unlock at `STATS_MIN` (20). Stats use `requestsUrl` unless you set a separate `statsUrl` in the manifest.
