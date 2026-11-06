@@ -128,11 +128,22 @@
     }
   }
 
-  function headerPattern(ctx, f, k) {
+  function headerPattern(ctx, f, k, clearX) {
     const p = k.pattern || {};
     const band = (p.bands && p.bands[0]) || k.onHeader;
     const h = f.head - 14;
+    const from = Math.max(clearX || 0, 0);
+    const room = f.w - from;
     ctx.save();
+    if (["zigzag", "hoops", "split"].indexOf(p.type) >= 0) {
+      if (room < 150) {
+        ctx.restore();
+        return;
+      }
+      ctx.beginPath();
+      ctx.rect(from, 0, room, h);
+      ctx.clip();
+    }
     if (p.type === "stripes") {
       ctx.globalAlpha = k.headerPatternAlpha != null ? k.headerPatternAlpha : 0.1;
       ctx.fillStyle = k.headerPatternAlpha != null ? band : k.onHeader;
@@ -157,7 +168,9 @@
       });
     } else if (p.type === "zigzag") {
       const colors = p.bands && p.bands.length ? p.bands : [k.onHeader];
-      const teeth = 9;
+      const start = Math.max(f.w * 0.5, from + 12);
+      const span = f.w - start;
+      const teeth = Math.max(3, Math.round(span / 60));
       const amp = 14;
       ctx.lineWidth = 6;
       ctx.lineJoin = "miter";
@@ -166,7 +179,7 @@
         ctx.strokeStyle = colors[i % colors.length];
         ctx.beginPath();
         for (let t = 0; t <= teeth * 2; t++) {
-          const X = f.w * 0.5 + (t * f.w * 0.5) / (teeth * 2);
+          const X = start + (t * span) / (teeth * 2);
           const Y = h * fy + (t % 2 ? -amp : amp);
           if (t) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
         }
@@ -216,14 +229,26 @@
 
   function drawHeader(ctx, f, k, team, crestImg, subtitle) {
     const t = { secondary: k.onHeader };
+    let textX = PAD;
+    const crestSize = f.head * 0.52;
+    if (crestImg) textX = PAD + crestSize + 36;
+    const title = team.name.toUpperCase();
+    const eSize = f.head * 0.075;
+    const sSize = f.head * 0.07;
+    const tSize = fitSize(ctx, title, f.w - textX - PAD, 800, f.head * 0.26, 40, DISPLAY, true);
+    const titleW = ctx.measureText(title).width;
+    ctx.font = font(500, sSize, BODY);
+    const subW = ctx.measureText(subtitle).width;
+    ctx.font = font(600, eSize, DISPLAY);
+    const eyebrowW = ctx.measureText("MY RANKING").width + 40;
+    const clearX = textX + Math.max(titleW, subW, eyebrowW) + 36;
+
     ctx.fillStyle = k.header;
     ctx.fillRect(0, 0, f.w, f.head);
-    headerPattern(ctx, f, k);
+    headerPattern(ctx, f, k, clearX);
     ctx.fillStyle = k.headerBand;
     ctx.fillRect(0, f.head - 14, f.w, 14);
 
-    let textX = PAD;
-    const crestSize = f.head * 0.52;
     if (crestImg) {
       const inner = k.crestBg ? crestSize * 0.68 : crestSize;
       const s = Math.min(inner / crestImg.naturalWidth, inner / crestImg.naturalHeight);
@@ -236,14 +261,8 @@
         ctx.fill();
       }
       ctx.drawImage(crestImg, PAD + (crestSize - w) / 2, (f.head - 14 - h) / 2, w, h);
-      textX = PAD + crestSize + 36;
     }
-    const maxW = f.w - textX - PAD;
     const mid = (f.head - 14) / 2;
-    const title = team.name.toUpperCase();
-    const eSize = f.head * 0.075;
-    const sSize = f.head * 0.07;
-    const tSize = fitSize(ctx, title, maxW, 800, f.head * 0.26, 40, DISPLAY, true);
     const blockH = eSize + tSize * 0.95 + sSize * 1.7;
     const eBase = mid - blockH / 2 + eSize;
     const tBase = eBase + tSize * 0.95;

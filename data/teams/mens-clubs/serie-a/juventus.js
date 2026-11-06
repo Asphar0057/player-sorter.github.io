@@ -86,6 +86,7 @@ registerTeam({
     { id: "mckennie", name: "Weston McKennie", number: 22, position: "MF", nation: "USA" },
     { id: "pape-sarr", name: "Pape Sarr", number: 29, position: "MF", nation: "SEN" },
     { id: "nico-gonzalez", name: "Nicolás González", number: 31, position: "MF", nation: "ARG" },
+    { id: "locatelli", name: "Manuel Locatelli", number: 5, position: "MF", nation: "ITA" },
 
     { id: "conceicao", name: "Francisco Conceição", number: 7, position: "FW", nation: "POR" },
     { id: "kolo-muani", name: "Randal Kolo Muani", number: 9, position: "FW", nation: "FRA" },

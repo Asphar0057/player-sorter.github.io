@@ -1186,6 +1186,7 @@ body.modal-open { overflow: hidden; }
 .req-group { display: grid; gap: 14px; }
 
 .req-group[hidden] { display: none; }
+.req-notes[hidden] { display: none; }
 
 .req-field { display: grid; gap: 6px; }
 

@@ -716,7 +716,7 @@
         '<section class="hero">' +
           '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
           "<h1>Pick a squad &amp; start ranking</h1>" +
-          '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA and official club sites.<br> <br>Creator: Nicole (@nicsginthings on IG, X, TikTok) <br> Collaborators: Alejo</p>' +
+          '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA and official club sites.<br> <br>Creator: Nicole (@nicsginthings on IG, X, TikTok) <br> Collaborators: Alejo (@thatoneatletico on X)</p>' +
           requestStrip() +
         "</section>" +
         '<div class="home-bar' + (searching() ? " is-searching" : "") + '">' + searchBox() + tabs + "</div>" +
@@ -1466,8 +1466,9 @@
           (fromTeam ? "" :
             '<div class="req-type">' + segmented("reqType", [
               { value: "team", label: "A squad" },
-              { value: "player", label: "A missing player" }
-            ], type === "player" ? "player" : "team") + "</div>") +
+              { value: "player", label: "A missing player" },
+              { value: "other", label: "Other" }
+            ], type === "player" || type === "other" ? type : "team") + "</div>") +
           '<div class="req-group" data-for="team">' +
             '<label class="req-field"><span>Which squad?</span>' +
               '<input name="teamName" maxlength="120" placeholder="e.g. Athletic Club, Chelsea Women, Brazil 2002" autocomplete="off"></label>' +
@@ -1496,7 +1497,11 @@
             '<label class="req-field"><span>Who\'s missing?</span>' +
               '<input name="playerName" maxlength="120" placeholder="Player name" autocomplete="off"></label>' +
           "</div>" +
-          '<label class="req-field"><span>Anything else? <em>(optional)</em></span>' +
+          '<div class="req-group" data-for="other">' +
+            '<label class="req-field"><span>Your message</span>' +
+              '<textarea name="message" maxlength="1000" rows="5" placeholder="An idea, a bug, or if you just wanna say hi to me :)"></textarea></label>' +
+          "</div>" +
+          '<label class="req-field req-notes"><span>Anything else? <em>(optional)</em></span>' +
             '<textarea name="notes" maxlength="500" rows="3" placeholder="Shirt number, position, a link…"></textarea></label>' +
           '<label class="req-hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>' +
           '<p class="req-status" role="status"></p>' +
@@ -1512,6 +1517,8 @@
     const showGroup = () => {
       const t = currentType();
       form.querySelectorAll(".req-group").forEach(g => { g.hidden = g.dataset.for !== t; });
+      form.querySelector(".req-notes").hidden = t === "other";
+      form.querySelector('[type="submit"]').textContent = t === "other" ? "Send message" : "Send request";
       status.textContent = "";
       return form.querySelector('.req-group[data-for="' + t + '"]');
     };
@@ -1548,7 +1555,7 @@
       Promise.all(missingNames.map(ensureTeam)).then(() => combo.refresh());
     }
 
-    const firstInput = form.querySelector(fromTeam ? 'input[name="playerName"]' : 'input[name="teamName"]');
+    const firstInput = form.querySelector(fromTeam ? 'input[name="playerName"]' : type === "other" ? 'textarea[name="message"]' : 'input[name="teamName"]');
     setTimeout(() => (firstInput || modal.querySelector(".modal-close")).focus(), 30);
 
     function close() {
@@ -1574,7 +1581,16 @@
       const val = name => (form.elements[name] ? form.elements[name].value.trim() : "");
       const squadId = fromTeam ? fromTeam.id : val("squad");
       const squadTeam = TEAMS[squadId];
-      const payload = {
+      const payload = t === "other" ? {
+        type: t,
+        category: "",
+        squad: "",
+        squadId: "",
+        name: "",
+        notes: val("message"),
+        page: location.origin + location.pathname + location.hash,
+        website: val("website")
+      } : {
         type: t,
         category: t === "team" ? val("category") : (INDEX[squadId] ? INDEX[squadId].section.name : ""),
         squad: t === "team" ? val("teamName") : (squadTeam ? squadTeam.name : squadId),
@@ -1584,6 +1600,11 @@
         page: location.origin + location.pathname + location.hash,
         website: val("website")
       };
+      if (t === "other" && !payload.notes) {
+        status.textContent = "Write your message first.";
+        form.elements.message.focus();
+        return;
+      }
       if (t === "team" && !payload.squad) {
         status.textContent = "Add the name of the squad you'd like to see.";
         form.elements.teamName.focus();
@@ -1615,8 +1636,8 @@
         modal.querySelector(".modal-card").innerHTML =
           '<div class="req-done">' +
             '<span class="req-done-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
-            "<h2>Request sent</h2>" +
-            "<p>Thanks! " + (t === "team" ? esc(payload.squad) + " is on the list." : esc(payload.name) + " has been flagged for " + esc(payload.squad) + ".") + "</p>" +
+            "<h2>" + (t === "other" ? "Message sent" : "Request sent") + "</h2>" +
+            "<p>Thanks! " + (t === "other" ? "Your message is on its way." : t === "team" ? esc(payload.squad) + " is on the list." : esc(payload.name) + " has been flagged for " + esc(payload.squad) + ".") + "</p>" +
             '<div class="req-actions">' +
               '<button type="button" class="btn btn-primary" data-act="close">Done</button>' +
               '<button type="button" class="btn btn-ghost" data-act="another">Send another</button>' +
