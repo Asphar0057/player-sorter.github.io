@@ -8,7 +8,6 @@ registerTeam({
   kits: {
     home: {
       label: "Home",
-      crestBg: "#FFFFFF",
       paper: "#111111",
       card: "#FFFFFF",
       onPaper: "#FFFFFF",
@@ -31,6 +30,7 @@ registerTeam({
     },
     away: {
       label: "Away",
+      crest: "crest-black.svg",
       paper: "#F7DCE4",
       card: "#FFFFFF",
       ink: "#111111",
@@ -49,7 +49,6 @@ registerTeam({
     },
     third: {
       label: "Third",
-      crestBg: "#FFFFFF",
       dark: true,
       paper: "#0B0B0B",
       card: "#1A1A1A",
@@ -67,6 +66,7 @@ registerTeam({
     }
   },
   players: [
+    { id: "grabara", name: "Kamil Grabara", number: 1, position: "GK", nation: "POL" },
     { id: "pinsoglio", name: "Carlo Pinsoglio", number: 23, position: "GK", nation: "ITA" },
     { id: "vicario", name: "Guglielmo Vicario", number: 25, position: "GK", nation: "ITA" },
     { id: "neto", name: "Neto", number: 33, position: "GK", nation: "BRA" },
@@ -85,13 +85,13 @@ registerTeam({
     { id: "alajbegovic", name: "Kerim Alajbegović", number: 17, position: "MF", nation: "BIH" },
     { id: "mckennie", name: "Weston McKennie", number: 22, position: "MF", nation: "USA" },
     { id: "pape-sarr", name: "Pape Sarr", number: 29, position: "MF", nation: "SEN" },
+    { id: "nico-gonzalez", name: "Nicolás González", number: 31, position: "MF", nation: "ARG" },
 
     { id: "conceicao", name: "Francisco Conceição", number: 7, position: "FW", nation: "POR" },
     { id: "kolo-muani", name: "Randal Kolo Muani", number: 9, position: "FW", nation: "FRA" },
     { id: "yildiz", name: "Kenan Yıldız", number: 10, position: "FW", nation: "TUR" },
     { id: "boga", name: "Jeremie Boga", number: 13, position: "FW", nation: "CIV" },
     { id: "ekhator", name: "Jeff Ekhator", number: 18, position: "FW", nation: "ITA" },
-    { id: "woltemade", name: "Nick Woltemade", number: 27, position: "FW", nation: "GER" },
-    { id: "nico-gonzalez", name: "Nicolás González", number: 31, position: "FW", nation: "ARG" }
+    { id: "woltemade", name: "Nick Woltemade", number: 27, position: "FW", nation: "GER" }
   ]
 });
