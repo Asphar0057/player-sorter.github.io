@@ -9,7 +9,7 @@ registerTeam({
     home: {
       label: "Home",
       paper: "#C8102E",
-      crestBg: "#FFFFFF",
+      crest: "crest-white.svg",
       card: "#FFFFFF",
       onPaper: "#FFFFFF",
       onPaperMuted: "rgba(255,255,255,0.82)",

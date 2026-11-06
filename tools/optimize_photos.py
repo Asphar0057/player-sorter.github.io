@@ -85,6 +85,8 @@ def photo_done(path):
 
 
 def crest_done(path):
+    if path.stem != path.stem.lower():
+        return False
     if path.suffix.lower() not in (".png", ".svg"):
         return False
     if path.suffix.lower() == ".svg":
@@ -109,8 +111,8 @@ def optimize_crest(path):
     before = path.stat().st_size
     with Image.open(path) as src:
         img = shrink(src.convert("RGBA"), CREST_MAX)
-    target = path.with_name("crest.png")
-    tmp = path.with_name("crest.tmp.png")
+    target = path.with_name(path.stem.lower() + ".png")
+    tmp = path.with_name(path.stem.lower() + ".tmp.png")
     img.save(tmp, "PNG", optimize=True)
     swap_in(tmp, target, path)
     return before, target.stat().st_size
@@ -131,7 +133,7 @@ def main(root):
             continue
         if path.parent.name == "players" and not photo_done(path):
             todo.append((path, optimize_photo, photo_reason(path)))
-        elif path.stem.lower() == "crest" and path.parent.name != "players" and not crest_done(path):
+        elif path.stem.lower().startswith("crest") and path.parent.name != "players" and not crest_done(path):
             todo.append((path, optimize_crest, crest_reason(path)))
     if not todo:
         print("Everything is already optimised.")

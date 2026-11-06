@@ -92,15 +92,19 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="list the photos that would change, change nothing")
     parser.add_argument("--no-backup", action="store_true", help="do not copy originals to bg-backup/")
     parser.add_argument("--model", default="u2net_human_seg", help="rembg model (default: u2net_human_seg)")
+    parser.add_argument("--skip", action="append", default=[], metavar="NAME", help="skip any folder with this name, e.g. --skip spain-2026 (repeatable)")
     args = parser.parse_args()
 
     root = Path(args.root)
     if not root.exists():
         sys.exit(f"{root} not found. Run this from the root of the site.")
 
+    skip = {name.lower() for name in args.skip}
     todo = []
     for path in sorted(root.rglob("*")):
         if not path.is_file() or path.parent.name != "players" or path.suffix.lower() not in SOURCE_EXTS or ".tmp." in path.name:
+            continue
+        if skip and any(part.lower() in skip for part in path.relative_to(root).parts):
             continue
         with Image.open(path) as img:
             if has_background(img, args.only_jpg, path):

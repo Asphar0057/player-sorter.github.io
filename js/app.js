@@ -92,9 +92,50 @@
   const PHOTO_EXTS = [".webp", ".jpg", ".png"];
   const CREST_EXTS = [".png", ".svg", ".webp"];
 
-  function crestPaths(team) {
-    if (team.crest) return [team.crest];
-    return CREST_EXTS.map(ext => assetDir(team) + "crest" + ext);
+  function crestPaths(team, kit) {
+    const base = team.crest ? [team.crest] : CREST_EXTS.map(ext => assetDir(team) + "crest" + ext);
+    if (!kit || !kit.crest) return base;
+    const own = kit.crest.indexOf("/") >= 0 ? kit.crest : assetDir(team) + kit.crest;
+    return [own].concat(base);
+  }
+
+  function loadFirst(paths) {
+    return new Promise(resolve => {
+      const attempt = i => {
+        if (i >= paths.length) return resolve(null);
+        const probe = new Image();
+        probe.onload = () => resolve(paths[i]);
+        probe.onerror = () => attempt(i + 1);
+        probe.src = paths[i];
+      };
+      attempt(0);
+    });
+  }
+
+  const CREST_PRELOADED = {};
+
+  function preloadCrests(team) {
+    if (CREST_PRELOADED[team.id]) return;
+    CREST_PRELOADED[team.id] = true;
+    Kits.ids(team).forEach(id => {
+      const kit = Kits.get(team, id);
+      if (kit.crest) loadFirst(crestPaths(team, kit));
+    });
+  }
+
+  function swapCrests(team) {
+    const paths = crestPaths(team, kitOf(team));
+    document.querySelectorAll('.crest[data-team="' + team.id + '"]').forEach(el => {
+      if (el.dataset.crest === paths[0]) return;
+      el.dataset.crest = paths[0];
+      loadFirst(paths).then(src => {
+        const img = el.querySelector("img.swap-img");
+        if (!src || !img || el.dataset.crest !== paths[0]) return;
+        img.dataset.alts = "";
+        img.src = src;
+        el.classList.add("has-img");
+      });
+    });
   }
 
   function photoPaths(team, player) {
@@ -139,6 +180,7 @@
     const root = document.documentElement;
     if (team) {
       const kit = kitOf(team);
+      preloadCrests(team);
       root.setAttribute("style", themeVars(team, kit));
       root.dataset.club = team.id;
       root.dataset.kit = kit.id;
@@ -177,6 +219,7 @@
       if (seg) placeSegPill(seg, false);
     });
     const kit = kitOf(team);
+    swapCrests(team);
     document.querySelectorAll(".rank-row[data-rank]").forEach(el => {
       el.style.setProperty("--t", rowTint(kit, Number(el.dataset.rank)).toFixed(3));
     });
@@ -206,10 +249,11 @@
   }
 
   function crestMarkup(team, cls, kit) {
+    const paths = crestPaths(team, kit || kitOf(team));
     return (
-      '<span class="crest ' + (cls || "") + '"' + (kit ? "" : ' data-team="' + team.id + '"') + ' style="' + themeVars(team, kit) + '">' +
+      '<span class="crest ' + (cls || "") + '"' + (kit ? "" : ' data-team="' + team.id + '" data-crest="' + esc(paths[0]) + '"') + ' style="' + themeVars(team, kit) + '">' +
         '<span class="crest-fallback">' + esc(team.monogram || team.shortName.slice(0, 3)) + "</span>" +
-        imgTag(crestPaths(team)) +
+        imgTag(paths) +
       "</span>"
     );
   }
@@ -335,7 +379,7 @@
     setTimeout(done, 190);
   }
 
-  function teamTile(team) {
+  function teamTile(team, meta) {
     const home = Kits.get(team, "home");
     const tile = Object.assign(
       { bg: home.paper, fg: home.onPaper, muted: home.onPaperMuted, pattern: home.pattern },
@@ -352,7 +396,7 @@
         crestMarkup(team, "crest-md", home) +
         '<span class="team-tile-text">' +
           '<span class="team-tile-name">' + esc(team.name) + "</span>" +
-          '<span class="team-tile-meta">' + team.players.length + " players · " + esc(team.season) + "</span>" +
+          '<span class="team-tile-meta">' + esc(meta || team.players.length + " players · " + team.season) + "</span>" +
         "</span>" +
       "</button>"
     );
@@ -426,7 +470,7 @@
               '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             "</span>" +
             '<span class="team-tile-text">' +
-              '<span class="team-tile-name">' + (EXPANDED[group.id] ? "Show less" : "Show more") + "</span>" +
+              '<span class="team-tile-name">' + (EXPANDED[group.id] ? "Show less" : "See all " + all.length) + "</span>" +
               '<span class="team-tile-meta">' +
                 (EXPANDED[group.id] ? "Back to the first " + SHOW_FIRST : "+" + hiddenCount + " more") +
               "</span>" +
@@ -441,6 +485,148 @@
       );
     }).join("");
     return body || comingSoon(section);
+  }
+
+  let searchQuery = "";
+  let allTeamsLoaded = null;
+
+  function loadAllTeams() {
+    if (!allTeamsLoaded) allTeamsLoaded = Promise.all(Object.keys(INDEX).map(ensureTeam));
+    return allTeamsLoaded;
+  }
+
+  function wordStarts(text, token) {
+    return (" " + text).indexOf(" " + token) >= 0;
+  }
+
+  function searchTeams(query) {
+    const q = normText(query);
+    const tokens = q.split(" ").filter(Boolean);
+    if (!tokens.length) return [];
+    return Object.keys(INDEX).map((id, i) => {
+      const entry = INDEX[id];
+      const team = TEAMS[id];
+      if (!team) return null;
+      const name = normText(team.name);
+      const alt = normText([team.shortName, team.monogram, id.replace(/-/g, " ")].concat(team.aliases || []).join(" "));
+      const context = normText([entry.group.name, entry.group.country, entry.section.name, team.season].join(" "));
+      const all = name + " " + alt + " " + context;
+      if (!tokens.every(t => wordStarts(all, t))) return null;
+      let score = 3;
+      if (name.indexOf(q) === 0) score = 0;
+      else if (tokens.every(t => wordStarts(name, t))) score = 1;
+      else if (tokens.every(t => wordStarts(name + " " + alt, t))) score = 2;
+      return { id, score, i };
+    }).filter(Boolean).sort((a, b) => a.score - b.score || a.i - b.i).map(r => r.id);
+  }
+
+  function searchMeta(team) {
+    const group = INDEX[team.id].group;
+    const season = team.season || "";
+    return normText(season).indexOf(normText(group.name)) >= 0 ? season : group.name + " · " + season;
+  }
+
+  function searchBody(query) {
+    const ids = searchTeams(query);
+    const shown = query.trim();
+    if (!ids.length) {
+      return (
+        '<section class="search-empty">' +
+          '<p class="search-empty-title">No squads match “' + esc(shown) + "”</p>" +
+          '<p class="search-empty-text">Try a club, country, league or nickname.</p>' +
+          (REQUESTS_URL ? '<button type="button" class="btn btn-solid btn-sm" data-request="team" data-prefill="' + esc(shown) + '">Request this squad</button>' : "") +
+        "</section>"
+      );
+    }
+    return (
+      '<section class="league search-results">' +
+        '<h2 class="league-name">Results <small>' + ids.length + (ids.length === 1 ? " squad" : " squads") + "</small></h2>" +
+        '<div class="team-grid">' + ids.map(id => teamTile(TEAMS[id], searchMeta(TEAMS[id]))).join("") + "</div>" +
+      "</section>"
+    );
+  }
+
+  function searching() {
+    return !!searchQuery.trim();
+  }
+
+  function searchBox() {
+    return (
+      '<div class="search" role="search">' +
+        '<svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m15.5 15.5 5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' +
+        '<input type="search" class="search-input" placeholder="Search squads" aria-label="Search squads" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" value="' + esc(searchQuery) + '">' +
+        '<button type="button" class="search-clear" aria-label="Clear search"' + (searchQuery ? "" : " hidden") + ">" +
+          '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>' +
+        "</button>" +
+      "</div>"
+    );
+  }
+
+  function bindMore(section) {
+    app.querySelectorAll("[data-more]").forEach(btn => btn.addEventListener("click", () => toggleGroup(btn, section)));
+  }
+
+  function updateSearch(value) {
+    searchQuery = value;
+    const bar = app.querySelector(".home-bar");
+    const clear = app.querySelector(".search-clear");
+    const active = searching();
+    if (clear) clear.hidden = !value;
+    if (bar) bar.classList.toggle("is-searching", active);
+    const token = navToken;
+    const paint = () => {
+      const mounted = app.querySelector(".home-body");
+      if (token !== navToken || !mounted || value !== searchQuery) return;
+      const section = SECTIONS.find(s => s.id === mounted.dataset.section) || SECTIONS[0];
+      mounted.innerHTML = active ? searchBody(value) : homeBody(section, section.groups || []);
+      wireImages(mounted);
+      if (!active) bindMore(section);
+      const hero = app.querySelector(".hero");
+      const heroBottom = hero ? hero.offsetTop + hero.offsetHeight : 0;
+      if (window.scrollY > heroBottom) window.scrollTo({ top: heroBottom });
+    };
+    if (active) loadAllTeams().then(paint);
+    else paint();
+  }
+
+  function clearSearch() {
+    searchQuery = "";
+    const input = app.querySelector(".search-input");
+    const clear = app.querySelector(".search-clear");
+    const bar = app.querySelector(".home-bar");
+    if (input) input.value = "";
+    if (clear) clear.hidden = true;
+    if (bar) bar.classList.remove("is-searching");
+  }
+
+  function wireSearch() {
+    const input = app.querySelector(".search-input");
+    if (!input) return;
+    input.addEventListener("focus", loadAllTeams, { once: true });
+    input.addEventListener("input", () => updateSearch(input.value));
+    input.addEventListener("keydown", e => {
+      if (e.key === "Escape" && input.value) {
+        e.preventDefault();
+        input.value = "";
+        updateSearch("");
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        const first = app.querySelector(".search-results [data-go]");
+        if (first) {
+          input.blur();
+          go(first.dataset.go);
+        }
+      }
+    });
+    app.querySelector(".search-clear").addEventListener("click", () => {
+      input.value = "";
+      updateSearch("");
+      input.focus();
+    });
+    const tabs = app.querySelector(".tabs");
+    if (tabs) tabs.addEventListener("click", e => {
+      if (e.target.closest(".tab") && searchQuery) clearSearch();
+    });
   }
 
   function placeIndicator(animate) {
@@ -471,6 +657,7 @@
     if (!section) return;
     const groups = section.groups || [];
     const ids = groups.flatMap(visibleIds);
+    const ready = searching() ? loadAllTeams() : Promise.all(ids.map(ensureTeam));
 
     const mounted = app.querySelector(".home-body");
     const fromIndex = mounted ? SECTIONS.findIndex(s => s.id === mounted.dataset.section) : -1;
@@ -485,7 +672,7 @@
       }
     }
 
-    Promise.all(ids.map(ensureTeam)).then(() => {
+    ready.then(() => {
       if (token !== navToken) return;
       const wait = animateSwitch ? Math.max(0, TAB_LEAVE_MS - (Date.now() - started)) : 0;
       setTimeout(() => {
@@ -498,7 +685,7 @@
   }
 
   function paintHome(section, groups, token, keepScroll, afterRender, mounted, switching, fromIndex) {
-    const body = homeBody(section, groups);
+    const body = searching() ? searchBody(searchQuery) : homeBody(section, groups);
 
     if (mounted && app.contains(mounted)) {
       mounted.innerHTML = body;
@@ -530,10 +717,11 @@
           '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA.<br>More clubs coming soon.</p>' +
           requestStrip() +
         "</section>" +
-        tabs +
+        '<div class="home-bar' + (searching() ? " is-searching" : "") + '">' + searchBox() + tabs + "</div>" +
         '<div class="home-body" data-section="' + section.id + '">' + body + "</div>",
         keepScroll
       );
+      wireSearch();
       placeIndicator(false);
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => placeIndicator(false));
     }
@@ -548,7 +736,7 @@
       });
     });
 
-    app.querySelectorAll("[data-more]").forEach(btn => btn.addEventListener("click", () => toggleGroup(btn, section)));
+    bindMore(section);
     groups.forEach(group => (group.teams || []).forEach(id => {
       if (TEAMS[id]) submitRanking(TEAMS[id]);
     }));
@@ -965,7 +1153,7 @@
         team,
         entries,
         siteUrl: url,
-        crestSrc: crestPaths(team),
+        crestSrc: crestPaths(team, kitFor(team)),
         kitFor
       });
       if (id !== renderId) return;
@@ -979,7 +1167,7 @@
 
     async function storyCanvas() {
       if (opts.format === "story" && canvas) return canvas;
-      return ShareImage.render({ format: "story", mode: opts.mode, team, entries, siteUrl: url, crestSrc: crestPaths(team), kitFor });
+      return ShareImage.render({ format: "story", mode: opts.mode, team, entries, siteUrl: url, crestSrc: crestPaths(team, kitFor(team)), kitFor });
     }
 
     function close() {
@@ -1443,7 +1631,10 @@
 
   document.addEventListener("click", e => {
     const trigger = e.target.closest("[data-request]");
-    if (trigger) openRequest(trigger.dataset.request, trigger.dataset.team);
+    if (!trigger) return;
+    openRequest(trigger.dataset.request, trigger.dataset.team);
+    const field = trigger.dataset.prefill && document.querySelector('.request-modal:not(.is-closing) input[name="teamName"]');
+    if (field) field.value = trigger.dataset.prefill;
   });
 
   function rankScale(rank) {
@@ -1688,11 +1879,7 @@
     };
     const fav = best(e => e.top1 / e.n);
     const reg = best(e => e.top3 / e.n, true);
-    const split = e => Math.min(e.topQ || 0, e.bottomQ || 0) / e.n;
-    const divPool = order.filter(e => e.n >= data.count * 0.5 && !used.has(e.player.id) && split(e) >= 0.1);
-    const div = divPool.sort((a, b) => split(b) - split(a) || ((b.topQ + b.bottomQ) - (a.topQ + a.bottomQ)))[0] || null;
-    if (div) used.add(div.player.id);
-    const quarter = Math.max(1, Math.round(team.players.length / 4));
+    const div = best(e => (e.n >= data.count * 0.5 ? e.sd : -1), true);
     const last = best(e => e.bottom3 / e.n, true);
 
     const card = (label, e, statHtml) =>
@@ -1750,7 +1937,7 @@
       '<div class="st-cards">' +
         card("Fan favourite", fav, "<b>" + pct(fav.top1, fav.n) + "%</b> ranked #1") +
         card("Top 3 regular", reg, "In <b>" + pct(reg.top3, reg.n) + "%</b> of top 3s") +
-        (div ? card("Most divisive", div, "<b>" + pct(div.topQ, div.n) + "%</b> rank them top " + quarter + " · <b>" + pct(div.bottomQ, div.n) + "%</b> bottom " + quarter) : "") +
+        card("Most divisive", div, "Ranked anywhere from <b>" + ordinal(div.min) + "</b> to <b>" + ordinal(div.max) + "</b>") +
         card("Usually last", last, "In <b>" + pct(last.bottom3, last.n) + "%</b> of bottom 3s") +
       "</div>" +
       '<div class="st-cols">' +
