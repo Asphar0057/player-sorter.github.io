@@ -523,7 +523,9 @@
   function searchMeta(team) {
     const group = INDEX[team.id].group;
     const season = team.season || "";
-    return normText(season).indexOf(normText(group.name)) >= 0 ? season : group.name + " · " + season;
+    const seasonWords = normText(season).split(" ");
+    const covered = normText(group.name).split(" ").every(w => seasonWords.indexOf(w) >= 0);
+    return covered ? season : group.name + " · " + season;
   }
 
   function searchBody(query) {

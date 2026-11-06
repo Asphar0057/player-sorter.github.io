@@ -36,7 +36,21 @@ window.SQUAD_MANIFEST = {
           name: "Serie A",
           country: "Italy",
           teams: ["roma"]//, "juventus"]
+        },
+        /*
+        {
+          id: "liga-profesional",
+          name: "Liga Profesional de Futbol (LPF)",
+          country: "Argentina",
+          teams: ["river-plate", "boca-juniors"]
+        },
+        {
+          id: "brasileiro",
+          name: "Campeonato Brasileiro Série A",
+          country: "Brazil",
+          teams: ["flamengo"]
         }
+          */
       ]
     },
     {
@@ -48,18 +62,44 @@ window.SQUAD_MANIFEST = {
           name: "WSL",
           country: "England",
           teams: ["arsenal-women"]
+        },
+        /*
+        {
+          id: "liga-f",
+          name: "Liga F",
+          country: "Spain",
+          teams: ["barcelona-femeni"]
+        },
+        {
+          id: "premiere-ligue",
+          name: "Première Ligue",
+          country: "France",
+          teams: ["ol-lyonnes"]
         }
+          */
       ]
     },
     {
       id: "wcs",
-      name: "World Cup squads",
+      name: "National teams",
       groups: [
         {
-          id: "world-cup",
-          name: "World Cup winners",
+          id: "world-cup-2026",
+          name: "World Cup 2026",
           teams: ["2026-spain"]
+        },
+        /*
+        {
+          id: "world-cup-2022",
+          name: "World Cup 2022",
+          teams: ["2022-argentina"]
+        },
+        {
+          id: "world-cup-2018",
+          name: "World Cup 2018",
+          teams: ["2018-france"]
         }
+          */
       ]
     }
   ]

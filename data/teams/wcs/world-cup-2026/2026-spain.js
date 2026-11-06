@@ -1,9 +1,9 @@
 registerTeam({
   id: "2026-spain",
-  name: "Spain",
+  name: "Spain 2026",
   shortName: "Spain",
   monogram: "ESP",
-  league: "world-cup",
+  league: "world-cup-2026",
   season: "2026 World Cup",
   kits: {
     home: {
