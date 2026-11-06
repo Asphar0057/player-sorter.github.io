@@ -716,7 +716,7 @@
         '<section class="hero">' +
           '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
           "<h1>Pick a squad &amp; start ranking</h1>" +
-          '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA and official club sites.<br> <br>Creator: Nicole (@nicsginthings on IG, X, TikTok) <br> Collaborators: Alejo</p>' +
+          '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA and official club sites.<br> <br>Creator: Nicole (@nicsginthings on IG, X, TikTok) <br> Collaborators: Alejo (@thatoneatletico on X)</p>' +
           requestStrip() +
         "</section>" +
         '<div class="home-bar' + (searching() ? " is-searching" : "") + '">' + searchBox() + tabs + "</div>" +
