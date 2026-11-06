@@ -549,6 +549,9 @@
     });
 
     app.querySelectorAll("[data-more]").forEach(btn => btn.addEventListener("click", () => toggleGroup(btn, section)));
+    groups.forEach(group => (group.teams || []).forEach(id => {
+      if (TEAMS[id]) submitRanking(TEAMS[id]);
+    }));
     if (afterRender) afterRender();
   }
 
@@ -691,6 +694,7 @@
           '<p class="setup-estimate" id="estimate"></p>' +
           '<div class="setup-actions">' +
             '<button class="btn btn-primary" data-act="start">Start sorting</button>' +
+            (STATS_URL ? '<button type="button" class="btn btn-ghost" data-go="' + team.id + '/stats">Community ranking</button>' : "") +
             resume +
           "</div>" +
         "</div>" +
@@ -1454,6 +1458,310 @@
     return strength * (floor + (1 - floor) * sc);
   }
 
+  const STATS_URL = MANIFEST.statsUrl || MANIFEST.requestsUrl || "";
+  const STATS_CACHE = {};
+
+  function deviceId() {
+    let id = storeGet("device");
+    if (!id || !/^[A-Za-z0-9-]{8,64}$/.test(id)) {
+      id = (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 12);
+      storeSet("device", id);
+    }
+    return id;
+  }
+
+  function rankingGroups(team, state) {
+    const prefix = team.id + ":";
+    return MergeSorter.ranking(state).map(row => row.ids.map(key => key.slice(prefix.length)));
+  }
+
+  function isFullSquad(team, state) {
+    const ids = MergeSorter.allIds(state).map(key => key.split(":")[1]);
+    return ids.length === team.players.length && team.players.every(p => ids.includes(p.id));
+  }
+
+  const SENDING = {};
+
+  function submitRanking(team) {
+    if (!STATS_URL || !team) return Promise.resolve(false);
+    const saved = storeGet(team.id);
+    if (!saved || !saved.state || !saved.state.done) return Promise.resolve(false);
+    let order;
+    try {
+      if (!isValidSaved(team, saved) || !isFullSquad(team, saved.state)) return Promise.resolve(false);
+      order = rankingGroups(team, saved.state);
+    } catch (e) {
+      return Promise.resolve(false);
+    }
+    const signature = JSON.stringify(order);
+    if (storeGet("sent2:" + team.id) === signature) return Promise.resolve(true);
+    if (SENDING[team.id] && SENDING[team.id].signature === signature) return SENDING[team.id].promise;
+    const promise = fetch(STATS_URL, {
+      method: "POST",
+      body: JSON.stringify({ type: "ranking", squadId: team.id, device: deviceId(), order, season: team.season })
+    })
+      .then(r => r.json())
+      .then(reply => {
+        if (!reply || reply.ok !== true) return false;
+        storeSet("sent2:" + team.id, signature);
+        delete STATS_CACHE[team.id];
+        return true;
+      })
+      .catch(() => false)
+      .finally(() => {
+        delete SENDING[team.id];
+      });
+    SENDING[team.id] = { signature, promise };
+    return promise;
+  }
+
+  function fetchStats(team) {
+    const hit = STATS_CACHE[team.id];
+    if (hit && Date.now() - hit.at < 5 * 60 * 1000) return hit.promise;
+    const url = STATS_URL + (STATS_URL.indexOf("?") < 0 ? "?" : "&") + "action=stats&squad=" + encodeURIComponent(team.id);
+    const promise = fetch(url)
+      .then(r => r.json())
+      .then(data => {
+        if (!data || data.ok === false) throw new Error("stats");
+        if (typeof data.count !== "number") {
+          const err = new Error("outdated");
+          err.outdated = true;
+          throw err;
+        }
+        return data;
+      });
+    STATS_CACHE[team.id] = { at: Date.now(), promise };
+    promise.catch(() => delete STATS_CACHE[team.id]);
+    return promise;
+  }
+
+  function ordinal(n) {
+    const v = n % 100;
+    const suffix = v >= 11 && v <= 13 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[n % 10] || "th");
+    return n + suffix;
+  }
+
+  function pct(part, whole) {
+    return whole ? Math.round((part / whole) * 100) : 0;
+  }
+
+  function communityOrder(team, data) {
+    return team.players
+      .filter(p => data.players[p.id])
+      .map(p => Object.assign({ player: p }, data.players[p.id]))
+      .sort((a, b) => a.avg - b.avg || b.top1 - a.top1);
+  }
+
+  function yourRanks(team) {
+    const saved = storeGet(team.id);
+    if (!saved || !saved.state || !saved.state.done || !isFullSquad(team, saved.state)) return null;
+    const ranks = {};
+    MergeSorter.ranking(saved.state).forEach(row => row.ids.forEach(key => {
+      ranks[key.split(":")[1]] = row.rank;
+    }));
+    return ranks;
+  }
+
+  function statsTeaser(team, data) {
+    if (data.count < data.min) {
+      return data.count + " of " + data.min + " rankings so far · stats unlock at " + data.min;
+    }
+    const mine = yourRanks(team);
+    const order = communityOrder(team, data);
+    if (!mine) return data.count + " rankings so far";
+    const crowdTop = new Set(order.slice(0, 10).map(e => e.player.id));
+    const yoursTop = Object.keys(mine).filter(id => mine[id] <= 10);
+    const shared = yoursTop.filter(id => crowdTop.has(id)).length;
+    return data.count + " rankings · you agree with the crowd on " + shared + " of your top " + Math.min(10, yoursTop.length);
+  }
+
+  function statsEntry(team) {
+    if (!STATS_URL) return "";
+    return (
+      '<button type="button" class="stats-entry" data-go="' + team.id + '/stats">' +
+        '<span class="stats-entry-text">' +
+          '<b>See how everyone else ranked ' + esc(team.shortName || team.name) + "</b>" +
+          '<span class="stats-entry-sub">Community ranking</span>' +
+        "</span>" +
+        '<span class="stats-entry-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
+      "</button>"
+    );
+  }
+
+  function statsAvatar(team, player, size) {
+    return '<span class="avatar st-avatar st-av-' + size + '" data-team="' + team.id + '" style="' + themeVars(team) + '">' +
+      '<span class="avatar-fallback"><span>' + esc(player.number != null ? player.number : "") + "</span></span>" +
+      imgTag(photoPaths(team, player)) +
+    "</span>";
+  }
+
+  function renderStats(team) {
+    session = null;
+    applyTheme(team);
+    const head =
+      '<button type="button" class="back-link" data-go="' + team.id + '">← ' + esc(team.name) + "</button>" +
+      '<div class="setup-head">' +
+        crestMarkup(team, "crest-lg") +
+        "<div>" +
+          '<p class="eyebrow">Community ranking</p>' +
+          "<h1>" + esc(team.name) + "</h1>" +
+        "</div>" +
+        kitPicker(team) +
+      "</div>" +
+      '<p class="missing-line missing-line-top st-sub" id="statsSub">Loading…</p>';
+
+    render(
+      '<section class="stats" data-stats="' + team.id + '">' + head +
+        '<div class="st-body">' +
+          '<div class="st-skeleton" aria-hidden="true"><span></span><span></span><span></span><span></span></div>' +
+        "</div>" +
+      "</section>"
+    );
+
+    const token = navToken;
+    submitRanking(team).then(() => {
+      if (token === navToken) loadStats(team, token);
+    });
+  }
+
+  function loadStats(team, token) {
+    const body = app.querySelector(".st-body");
+    const sub = app.querySelector("#statsSub");
+    if (!body || !sub) return;
+    sub.textContent = "Loading…";
+    body.classList.remove("st-in");
+    body.innerHTML = '<div class="st-skeleton" aria-hidden="true"><span></span><span></span><span></span><span></span></div>';
+    fetchStats(team).then(data => {
+      if (token !== navToken || !app.querySelector('[data-stats="' + team.id + '"]')) return;
+      paintStats(team, data);
+    }).catch(err => {
+      if (token !== navToken || !app.contains(body)) return;
+      if (err && err.outdated) console.warn("Player Sorter: the stats script replied without stats. Publish a new version of the Apps Script deployment.");
+      else console.warn("Player Sorter: couldn't load stats", err);
+      sub.textContent = "Stats unavailable right now";
+      body.innerHTML =
+        '<div class="st-lock"><h2>Couldn\'t load the stats</h2>' +
+        "<p>" + (err && err.outdated
+          ? "Community stats aren't switched on yet. Check back soon."
+          : "Check your connection and try again in a moment.") + "</p>" +
+        '<button type="button" class="btn btn-primary" data-act="retry">Try again</button></div>';
+      body.classList.remove("st-in");
+      void body.offsetWidth;
+      body.classList.add("st-in");
+      body.querySelector('[data-act="retry"]').addEventListener("click", () => {
+        delete STATS_CACHE[team.id];
+        loadStats(team, token);
+      });
+    });
+  }
+
+  function paintStats(team, data) {
+    const body = app.querySelector(".st-body");
+    const sub = app.querySelector("#statsSub");
+    if (data.count < data.min) {
+      const left = data.min - data.count;
+      sub.textContent = "";
+      body.innerHTML =
+        '<div class="st-lock">' +
+          '<p class="eyebrow">Community ranking</p>' +
+          "<h2>Stats unlock at " + data.min + " rankings</h2>" +
+          "<p>" + data.count + (data.count === 1 ? " person has" : " people have") + " ranked the full " + esc(team.name) + " squad so far. " +
+            left + " more and you'll see how everyone ranks them.</p>" +
+          '<div class="st-prog"><i style="width:' + pct(data.count, data.min) + '%"></i></div>' +
+          '<p class="st-prog-label">' + data.count + " / " + data.min + "</p>" +
+          '<button type="button" class="btn btn-primary" data-go="' + team.id + '">Rank the squad</button>' +
+        "</div>";
+      wireImages(body);
+      return;
+    }
+
+    sub.textContent = "Based on " + data.count + " rankings · updated every 15 min";
+    const order = communityOrder(team, data);
+    const used = new Set();
+    const best = (score, avoid) => {
+      const pool = order.filter(e => !(avoid && used.has(e.player.id)));
+      const pick = pool.slice().sort((a, b) => score(b) - score(a))[0] || order[0];
+      used.add(pick.player.id);
+      return pick;
+    };
+    const fav = best(e => e.top1 / e.n);
+    const reg = best(e => e.top3 / e.n, true);
+    const div = best(e => (e.n >= data.count * 0.5 ? e.sd : -1), true);
+    const last = best(e => e.bottom3 / e.n, true);
+
+    const card = (label, e, statHtml) =>
+      '<div class="st-card">' +
+        '<p class="eyebrow">' + label + "</p>" +
+        '<div class="st-card-who">' + statsAvatar(team, e.player, 44) + '<span class="st-card-name">' + esc(e.player.name) + "</span></div>" +
+        '<p class="st-card-stat">' + statHtml + "</p>" +
+      "</div>";
+
+    const bars = (key, cls) => order.slice().sort((a, b) => b[key] / b.n - a[key] / a.n).slice(0, 5).map(e => {
+      const v = pct(e[key], e.n);
+      return '<li class="st-bar-row">' + statsAvatar(team, e.player, 36) +
+        '<span class="st-bar-name">' + esc(e.player.name) + "</span>" +
+        '<span class="st-bar"><i class="' + cls + '" style="--w:' + v + '%"></i></span>' +
+        "<b>" + v + "%</b></li>";
+    }).join("");
+
+    const mine = yourRanks(team);
+    let you = "";
+    if (mine) {
+      const crowdRank = {};
+      order.forEach((e, i) => { crowdRank[e.player.id] = i + 1; });
+      const diffs = order
+        .filter(e => mine[e.player.id])
+        .map(e => ({ e, yours: mine[e.player.id], theirs: crowdRank[e.player.id], d: crowdRank[e.player.id] - mine[e.player.id] }))
+        .filter(x => x.d !== 0)
+        .sort((a, b) => Math.abs(b.d) - Math.abs(a.d))
+        .slice(0, 3);
+      if (diffs.length) {
+        you =
+          '<h2 class="st-h">Where you differ most</h2>' +
+          '<div class="st-you">' + diffs.map(x =>
+            '<div class="st-diff">' + statsAvatar(team, x.e.player, 40) +
+              "<p><b>" + esc(x.e.player.name) + "</b><br>You: " + ordinal(x.yours) + " · Everyone: " + ordinal(x.theirs) + "</p>" +
+              '<span class="st-chip ' + (x.d > 0 ? "is-up" : "is-down") + '">' + (x.d > 0 ? "+" : "−") + Math.abs(x.d) + "</span>" +
+            "</div>"
+          ).join("") + "</div>";
+      }
+    }
+
+    const kit = kitOf(team);
+    const top = order.slice(0, 10).map((e, i) => {
+      const r = i + 1;
+      return '<li class="rank-row" data-rank="' + r + '" style="--s:' + rankScale(r).toFixed(3) + ";--t:" + rowTint(kit, r).toFixed(3) + '">' +
+        '<span class="rank-num">' + r + "</span>" +
+        '<span class="rank-slot">' + avatarMarkup(team, e.player, "avatar-rank") + "</span>" +
+        '<span class="rank-text">' +
+          '<span class="rank-name">' + esc(e.player.name) + "</span>" +
+          '<span class="rank-meta">Average position ' + e.avg.toFixed(1) + "</span>" +
+        "</span>" +
+      "</li>";
+    }).join("");
+
+    body.innerHTML =
+      '<div class="st-cards">' +
+        card("Fan favourite", fav, "<b>" + pct(fav.top1, fav.n) + "%</b> ranked #1") +
+        card("Top 3 regular", reg, "In <b>" + pct(reg.top3, reg.n) + "%</b> of top 3s") +
+        card("Most divisive", div, "Ranked anywhere from <b>" + ordinal(div.min) + "</b> to <b>" + ordinal(div.max) + "</b>") +
+        card("Usually last", last, "In <b>" + pct(last.bottom3, last.n) + "%</b> of bottom 3s") +
+      "</div>" +
+      '<div class="st-cols">' +
+        '<div class="st-panel"><h2>Most often top 3</h2><ul>' + bars("top3", "up") + "</ul></div>" +
+        '<div class="st-panel"><h2>Most often bottom 3</h2><ul>' + bars("bottom3", "down") + "</ul></div>" +
+      "</div>" +
+      you +
+      '<h2 class="st-h">The community\'s top 10</h2>' +
+      '<ol class="rank-list">' + top + "</ol>" +
+      '<p class="st-foot">Only full-squad rankings count, one per device. Sorting the squad again replaces your previous ranking. Nothing personal is collected.</p>';
+    body.classList.add("st-in");
+    wireImages(body);
+    requestAnimationFrame(() => body.querySelectorAll(".st-bar i").forEach(i => i.classList.add("is-on")));
+  }
+
   function renderResults() {
     const { team, state } = session;
     const kit = kitOf(team);
@@ -1488,6 +1796,7 @@
           kitPicker(team) +
         "</div>" +
         missingLine(team, true) +
+        statsEntry(team) +
         '<div class="setup-actions results-actions">' +
           '<button class="btn btn-primary" data-act="share">Share ranking</button>' +
           '<button class="btn btn-ghost" data-act="again">Sort again</button>' +
@@ -1498,6 +1807,13 @@
     );
 
     app.querySelector('[data-act="share"]').addEventListener("click", () => openShare(team, shareEntries(ranking)));
+    const entry = app.querySelector(".stats-entry .stats-entry-sub");
+    submitRanking(team).then(() => {
+      if (!entry || !app.contains(entry)) return;
+      return fetchStats(team).then(data => {
+        if (app.contains(entry)) entry.textContent = statsTeaser(team, data);
+      });
+    }).catch(() => {});
     app.querySelector('[data-act="again"]').addEventListener("click", () => swapScreen(() => {
       storeDel(team.id);
       renderTeamSetup(team);
@@ -1543,9 +1859,16 @@
         const saved = storeGet(team.id);
         if (!isValidSaved(team, saved)) {
           storeDel(team.id);
-        } else if (parts[1] === "results" && saved.state.done) {
-          session = { team, state: saved.state };
-          renderResults();
+        } else {
+          submitRanking(team);
+          if (parts[1] === "results" && saved.state.done) {
+            session = { team, state: saved.state };
+            renderResults();
+            return;
+          }
+        }
+        if (parts[1] === "stats" && STATS_URL) {
+          renderStats(team);
           return;
         }
         renderTeamSetup(team);

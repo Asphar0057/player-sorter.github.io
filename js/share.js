@@ -607,7 +607,8 @@
       '<img class="save-view-img" alt="Your ranking">';
     view.querySelector(".save-view-tip").textContent = message || "Press and hold the image to save it";
     view.querySelector(".save-view-img").src = canvas.toDataURL("image/png");
-    if (escapeHref) view.querySelector(".save-view-open").href = browserIntent(escapeHref);
+    const openLink = view.querySelector(".save-view-open");
+    if (escapeHref && openLink) openLink.href = browserIntent(escapeHref);
     const close = () => view.remove();
     view.querySelector(".save-view-close").addEventListener("click", close);
     view.addEventListener("click", e => { if (e.target === view) close(); });
