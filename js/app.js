@@ -194,8 +194,7 @@
       "--crest-bg:" + (k.crestBg || "transparent"),
       "--crest-scale:" + (k.crestBg ? "0.68" : "1"),
       "--crest-radius:" + (k.crestBg ? "50%" : "0"),
-      "--card-media:" + (k.cardMedia || k.accent),
-      "--card-on-media:" + (k.cardOnMedia || k.onAccent)
+      "--photo-ink:" + (k.photoInk || k.onAccent)
     ].join(";");
   }
 
