@@ -72,6 +72,7 @@ registerTeam({
     { id: "henrique", name: "Caio Henrique", number: 12, position: "DF", nation: "BRA" },
     { id: "baas", name: "Youri Baas", number: 15, position: "DF", nation: "NED" },
     { id: "jofre", name: "Jofre Torrents", number: 21, position: "DF", nation: "ESP" },
+    { id: "blind", name: "Daley Blind", number: 17, position: "DF", nation: "NED" },
     { id: "bouwman", name: "Aaron Bouwman", number: 30, position: "DF", nation: "NED" },
     { id: "janse", name: "Dies Janse", number: 36, position: "DF", nation: "NED" },
 
@@ -80,9 +81,15 @@ registerTeam({
     { id: "oscar", name: "Oscar Gloukh", number: 10, position: "MF", nation: "ISR" },
     { id: "klaassen", name: "Davy Klaassen", number: 18, position: "MF", nation: "NED" },
     { id: "mokio", name: "Jorthy Mokio", number: 24, position: "MF", nation: "BEL" },
+    { id: "bounida", name: "Rayane Bounida", number: 43, position: "MF", nation: "BEL" },
     { id: "bissouma", name: "Yves Bissouma", number: 28, position: "MF", nation: "MLI" },
 
     { id: "adingra", name: "Simon Adingra", number: 7, position: "FW", nation: "CIV" },
-    { id: "dolberg", name: "Kasper Dolberg", number: 9, position: "FW", nation: "DEN" }
+    { id: "dolberg", name: "Kasper Dolberg", number: 9, position: "FW", nation: "DEN" },
+    { id: "tsygankov", name: "Viktor Tsygankov", number: 11, position: "FW", nation: "UKR" },
+    { id: "edvardsen", name: "Oliver Edvardsen", number: 20, position: "FW", nation: "NOR" },
+    { id: "berghuis", name: "Steven Berghuis", number: 23, position: "FW", nation: "NED" },
+    { id: "leonardo", name: "Marcos Leonardo", number: 38, position: "FW", nation: "BRA" },
+    { id: "tolu", name: "Tolu Arokodare", number: 99, position: "FW", nation: "NGA" }
   ]
 });
