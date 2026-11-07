@@ -716,7 +716,8 @@
         '<section class="hero">' +
           '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
           "<h1>Pick a squad &amp; start ranking</h1>" +
-          '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA and official club sites.<br> <br>Creator: Nicole (@nicsginthings on IG, X, TikTok) <br> Collaborators: Alejo (@thatoneatletico on X)</p>' +
+          '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA and official club sites.<br><br>Creator: <strong>Nicole</strong>! Find me as @nicsginthings on: <a href="https://x.com/nicsginthings" target="_blank" rel="noopener">X</a>, <a href="https://www.instagram.com/nicsginthings" target="_blank" rel="noopener">IG</a>, <a href="https://www.tiktok.com/@nicsginthings" target="_blank" rel="noopener">TikTok</a>, or <a href="https://www.instagram.com/nicolepanggabeann" target="_blank" rel="noopener">my personal Instagram</a>' +
+          '<br><br>Special thanks to my collaborators: Alejo (<a href="https://x.com/thatoneatletico" target="_blank" rel="noopener">@thatoneatletico</a> on X) and Kingston (<a href="https://x.com/Kingstonsmj" target="_blank" rel="noopener">@Kingstonsmj</a> on X, <a href="https://github.com/Kingston-smj/" target"_blank" rel="noopener">GitHub</a>)</p>' +
           requestStrip() +
         "</section>" +
         '<div class="home-bar' + (searching() ? " is-searching" : "") + '">' + searchBox() + tabs + "</div>" +
