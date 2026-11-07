@@ -80,6 +80,8 @@ registerTeam({
 
     { id: "barkley", name: "Ross Barkley", number: 6, position: "MF", nation: "ENG" },
     { id: "mcginn", name: "John McGinn", number: 7, position: "MF", nation: "SCO" },
+    { id: "onana", name: "Amadou Onana", number: 24, position: "MF", nation: "BEL" },
+    { id: "hemmings", name: "George Hemmings", number: 53, position: "MF", nation: "ENG" },
     { id: "kamara", name: "Boubacar Kamara", number: 8, position: "MF", nation: "FRA" },
     { id: "goretzka", name: "Leon Goretzka", number: 27, position: "MF", nation: "GER" },
     { id: "joao-gomes", name: "João Gomes", number: 35, position: "MF", nation: "BRA" },
@@ -91,6 +93,7 @@ registerTeam({
     { id: "abraham", name: "Tammy Abraham", number: 18, position: "FW", nation: "ENG" },
     { id: "mbaye", name: "Ibrahim Mbaye", number: 19, position: "FW", nation: "SEN" },
     { id: "jimoh-aloba", name: "Jamaldeen Jimoh-Aloba", number: 20, position: "FW", nation: "ENG" },
+    { id: "madjo", name: "Brian Madjo", number: 39, position: "FW", nation: "ENG" },
     { id: "alysson", name: "Alysson", number: 47, position: "FW", nation: "BRA" }
   ]
 });

@@ -86,6 +86,7 @@ registerTeam({
     { id: "sapoko-ndiaye", name: "Bara Sapoko Ndiaye", number: 39, position: "MF", nation: "SEN" },
     { id: "karl", name: "Lennart Karl", number: 42, position: "MF", nation: "GER" },
     { id: "pavlovic", name: "Aleksandar Pavlović", number: 45, position: "MF", nation: "GER" },
+    { id: "daiber", name: "David Santos Daiber", number: 47, position: "MF", nation: "POR" },
 
     { id: "gnabry", name: "Serge Gnabry", number: 7, position: "FW", nation: "GER" },
     { id: "kane", name: "Harry Kane", number: 9, position: "FW", nation: "ENG" },

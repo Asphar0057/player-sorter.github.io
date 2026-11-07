@@ -77,6 +77,8 @@ registerTeam({
     { id: "prior", name: "Gracie Prior", number: 28, position: "DF", nation: "ENG" },
     { id: "wamser", name: "Carlotta Wamser", number: 37, position: "DF", nation: "GER" },
     { id: "lewis", name: "Sacha Lewis", number: 47, position: "DF", nation: "ENG" },
+    { id: "wienroither", name: "Laura Wienroither", number: 13, position: "DF", nation: "AUT" },
+    { id: "davies", name: "Mayzee Davies", number: 53, position: "DF", nation: "WAL" },
 
     { id: "clinton", name: "Grace Clinton", number: 6, position: "MF", nation: "ENG" },
     { id: "coffey", name: "Sam Coffey", number: 17, position: "MF", nation: "USA" },

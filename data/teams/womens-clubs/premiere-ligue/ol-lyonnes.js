@@ -93,6 +93,7 @@ registerTeam({
     { id: "rytting-kaneryd", name: "Johanna Rytting Kaneryd", number: 19, position: "FW", nation: "SWE" },
     { id: "brand", name: "Jule Brand", number: 29, position: "FW", nation: "GER" },
     { id: "waksman", name: "Giovanna Waksman", number: 30, position: "FW", nation: "BRA" },
+    { id: "joseph", name: "Liana Joseph", number: 31, position: "FW", nation: "FRA" },
     { id: "paralluelo", name: "Salma Paralluelo", number: 77, position: "FW", nation: "ESP" }
   ]
 });

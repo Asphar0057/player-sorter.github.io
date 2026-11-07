@@ -233,7 +233,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
 .crest-card { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; z-index: 2; }
 .crest-card .crest-fallback { font-size: 12px; border-width: 2px; }
 
-.avatar { border-radius: 50%; background: var(--club-accent); }
+.avatar { border-radius: 50%; background: var(--photo-bg, var(--club-accent)); }
 
 .avatar-fallback {
   color: var(--club-on-accent);
@@ -362,7 +362,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
   border: 0;
   border-radius: 18px;
   overflow: hidden;
-  background: var(--card);
+  background: var(--pick-bg, var(--card));
   color: var(--ink);
   cursor: pointer;
   text-align: left;
@@ -384,7 +384,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
   aspect-ratio: 4 / 4.2;
   max-height: max(200px, calc(100vh - 470px));
   width: 100%;
-  background: var(--club-accent);
+  background: var(--photo-bg, var(--club-accent));
 }
 
 .avatar-card {

@@ -158,6 +158,8 @@
       "--club-primary:" + k.primary,
       "--club-on-primary:" + k.onPrimary,
       "--club-accent:" + k.accent,
+      "--photo-bg:" + (k.photoBg || k.accent),
+      "--pick-bg:" + (k.labelBg || k.card),
       "--club-on-accent:" + k.onAccent,
       "--club-pattern:" + Kits.css(k.pattern),
       "--paper:" + k.paper,
