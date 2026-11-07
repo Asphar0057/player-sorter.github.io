@@ -55,7 +55,7 @@ registerTeam({
     { id: "tagliafico", name: "Nicolás Tagliafico", number: 3, position: "DF", nation: "Olympique Lyonnais" },
     { id: "montiel", name: "Gonzalo Montiel", number: 4, position: "DF", nation: "River Plate" },
     { id: "lisandro-martinez", name: "Lisandro Martínez", number: 6, position: "DF", nation: "Manchester United" },
-    { id: "cuti-romero", name: "Cristian Romero", number: 13, position: "DF", nation: "Tottenham Hotspur" },
+    { id: "romero", name: "Cristian Romero", number: 13, position: "DF", nation: "Tottenham Hotspur" },
     { id: "otamendi", name: "Nicolás Otamendi", number: 19, position: "DF", nation: "Benfica" },
     { id: "medina", name: "Facundo Medina", number: 25, position: "DF", nation: "Marseille" },
     { id: "molina", name: "Nahuel Molina", number: 26, position: "DF", nation: "Atlético de Madrid" },
@@ -65,15 +65,15 @@ registerTeam({
     { id: "barco", name: "Valentín Barco", number: 8, position: "MF", nation: "Strasbourg" },
     { id: "lo-celso", name: "Giovani Lo Celso", number: 11, position: "MF", nation: "Real Betis" },
     { id: "palacios", name: "Exequiel Palacios", number: 14, position: "MF", nation: "Bayer Leverkusen" },
-    { id: "nico-gonzalez", name: "Nicolás González", number: 15, position: "MF", nation: "Atlético de Madrid" },
+    { id: "gonzalez", name: "Nicolás González", number: 15, position: "MF", nation: "Atlético de Madrid" },
     { id: "mac-allister", name: "Alexis Mac Allister", number: 20, position: "MF", nation: "Liverpool" },
-    { id: "enzo-fernandez", name: "Enzo Fernández", number: 24, position: "MF", nation: "Chelsea" },
+    { id: "fernandez", name: "Enzo Fernández", number: 24, position: "MF", nation: "Chelsea" },
 
-    { id: "julian-alvarez", name: "Julián Álvarez", number: 9, position: "FW", nation: "Atlético de Madrid" },
+    { id: "alvarez", name: "Julián Álvarez", number: 9, position: "FW", nation: "Atlético de Madrid" },
     { id: "messi", name: "Lionel Messi", number: 10, position: "FW", nation: "Inter Miami" },
     { id: "almada", name: "Thiago Almada", number: 16, position: "FW", nation: "Atlético de Madrid" },
     { id: "simeone", name: "Giuliano Simeone", number: 17, position: "FW", nation: "Atlético de Madrid" },
-    { id: "nico-paz", name: "Nico Paz", number: 18, position: "FW", nation: "Como" },
+    { id: "paz", name: "Nico Paz", number: 18, position: "FW", nation: "Como" },
     { id: "lopez", name: "José Manuel López", number: 21, position: "FW", nation: "Palmeiras" },
     { id: "lautaro-martinez", name: "Lautaro Martínez", number: 22, position: "FW", nation: "Inter" }
   ]

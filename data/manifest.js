@@ -6,6 +6,7 @@ window.SQUAD_MANIFEST = {
     {
       id: "mens-clubs",
       name: "Men's clubs",
+      tab: "Men",
       groups: [
         {
           id: "laliga",
@@ -23,7 +24,7 @@ window.SQUAD_MANIFEST = {
           id: "bundesliga",
           name: "Bundesliga",
           country: "Germany",
-          teams: ["bayern-munich", "dortmund", "schalke"]//, "stuttgart"]
+          teams: ["bayern-munich", "dortmund", "schalke", "stuttgart"]
         },
         {
           id: "ligue-1",
@@ -68,6 +69,7 @@ window.SQUAD_MANIFEST = {
     {
       id: "womens-clubs",
       name: "Women's clubs",
+      tab: "Women",
       groups: [
         {
           id: "liga-f",
@@ -92,11 +94,12 @@ window.SQUAD_MANIFEST = {
     {
       id: "wcs",
       name: "National teams",
+      tab: "Nations",
       groups: [
         {
           id: "world-cup-2026",
           name: "World Cup 2026",
-          teams: ["2026-spain", "2026-argentina", "2026-france", "2026-england", "2026-uruguay"]
+          teams: ["2026-spain", "2026-argentina", "2026-france", "2026-england", "2026-uruguay", "2026-norway"]
         },
         /*
         {
@@ -110,6 +113,18 @@ window.SQUAD_MANIFEST = {
           teams: ["2018-france"]
         }
           */
+      ]
+    },
+    {
+      id: "specials",
+      name: "Specials",
+      tab: "Specials",
+      groups: [
+        {
+          id: "ballon-dor",
+          name: "Ballon d'Or",
+          teams: ["2026-ballon-dor-men", "2026-ballon-dor-women"]
+        }
       ]
     }
   ]
