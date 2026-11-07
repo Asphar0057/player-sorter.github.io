@@ -1,0 +1,88 @@
+registerTeam({
+  id: "ajax",
+  name: "Ajax",
+  shortName: "Ajax",
+  monogram: "AJX",
+  league: "eredivisie",
+  season: "2026/27",
+  kits: {
+    home: {
+      label: "Home",
+      paper: "#F6F4F2",
+      card: "#FFFFFF",
+      ink: "#1A1A1A",
+      muted: "#5B6170",
+      primary: "#D2122E",
+      onPrimary: "#FFFFFF",
+      accent: "#1A1A1A",
+      onAccent: "#FFFFFF",
+      header: "#FFFFFF",
+      onHeader: "#D2122E",
+      headerBand: "#D2122E",
+      rowTint: "#D2122E",
+      rowTintStrength: 0.2,
+      rowTintFloor: 0.5,
+      pattern: { type: "centreband", base: "#FFFFFF", bands: ["#D2122E"] }
+    },
+    away: {
+      label: "Away",
+      dark: true,
+      paper: "#111111",
+      card: "#1D1D1D",
+      ink: "#F3F1EE",
+      muted: "#A8A5A0",
+      line: "rgba(255,255,255,0.12)",
+      primary: "#E59A5E",
+      onPrimary: "#111111",
+      accent: "#F3F1EE",
+      onAccent: "#111111",
+      header: "#141414",
+      onHeader: "#E59A5E",
+      headerBand: "#E59A5E",
+      pattern: { type: "solid", base: "#141414", bands: [] }
+    },
+    third: {
+      label: "Third",
+      paper: "#EAF3FB",
+      card: "#FFFFFF",
+      ink: "#0F2A55",
+      muted: "#5B6170",
+      primary: "#163E7A",
+      onPrimary: "#FFFFFF",
+      accent: "#163E7A",
+      onAccent: "#FFFFFF",
+      header: "#9CCBEB",
+      onHeader: "#0F2A55",
+      headerBand: "#163E7A",
+      rowTint: "#163E7A",
+      rowTintStrength: 0.2,
+      rowTintFloor: 0.5,
+      pattern: { type: "solid", base: "#9CCBEB", bands: [] }
+    }
+  },
+  players: [
+    { id: "ter-stegen", name: "Marc-André ter Stegen", number: 1, position: "GK", nation: "GER" },
+    { id: "heerkens", name: "Joeri Heerkens", number: 22, position: "GK", nation: "NED" },
+    { id: "paes", name: "Maarten Paes", number: 26, position: "GK", nation: "IDN" },
+
+    { id: "rosa", name: "Lucas Rosa", number: 2, position: "DF", nation: "BRA" },
+    { id: "gaaei", name: "Anton Gaaei", number: 3, position: "DF", nation: "DEN" },
+    { id: "wijndal", name: "Owen Wijndal", number: 5, position: "DF", nation: "NED" },
+    { id: "kehrer", name: "Thilo Kehrer", number: 6, position: "DF", nation: "GER" },
+    { id: "henrique", name: "Caio Henrique", number: 12, position: "DF", nation: "BRA" },
+    { id: "baas", name: "Youri Baas", number: 15, position: "DF", nation: "NED" },
+    { id: "jofre", name: "Jofre Torrents", number: 21, position: "DF", nation: "ESP" },
+    { id: "bouwman", name: "Aaron Bouwman", number: 30, position: "DF", nation: "NED" },
+    { id: "janse", name: "Dies Janse", number: 36, position: "DF", nation: "NED" },
+
+    { id: "amrabat", name: "Sofyan Amrabat", number: 4, position: "MF", nation: "MAR" },
+    { id: "brandt", name: "Julian Brandt", number: 8, position: "MF", nation: "GER" },
+    { id: "oscar", name: "Oscar Gloukh", number: 10, position: "MF", nation: "ISR" },
+    { id: "klaassen", name: "Davy Klaassen", number: 18, position: "MF", nation: "NED" },
+    { id: "mokio", name: "Jorthy Mokio", number: 24, position: "MF", nation: "BEL" },
+    { id: "bissouma", name: "Yves Bissouma", number: 28, position: "MF", nation: "MLI" },
+
+    { id: "adingra", name: "Simon Adingra", number: 7, position: "FW", nation: "CIV" },
+    { id: "dolberg", name: "Kasper Dolberg", number: 9, position: "FW", nation: "DEN" }
+  ]
+});

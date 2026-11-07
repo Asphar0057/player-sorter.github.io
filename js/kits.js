@@ -126,6 +126,8 @@
     return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
   }
 
+  const CHECKS = 6;
+
   function pct(n) {
     return (n * 100).toFixed(2) + "%";
   }
@@ -186,6 +188,15 @@
     }
     if (p.type === "split") {
       return splitSvg(p) + " center / 100% 100% no-repeat, " + p.base;
+    }
+    if (p.type === "checks") {
+      const c = b[0] || "#000000";
+      let cells = "";
+      for (let r = 0; r < CHECKS; r++) {
+        for (let q = r % 2; q < CHECKS; q += 2) cells += '<rect x="' + q + '" y="' + r + '" width="1" height="1"/>';
+      }
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + CHECKS + " " + CHECKS + '" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges"><g fill="' + c + '">' + cells + "</g></svg>";
+      return "url('data:image/svg+xml," + encodeURIComponent(svg) + "') center / cover no-repeat, " + p.base;
     }
     if (p.type === "hoops") {
       const stops = [];
@@ -309,6 +320,14 @@
       g.addColorStop(1, b[0] || p.base);
       ctx.fillStyle = g;
       ctx.fillRect(x, y, w, h);
+    } else if (p.type === "checks") {
+      const cell = Math.max(w, h) / CHECKS;
+      const cols = Math.ceil(w / cell);
+      const rows = Math.ceil(h / cell);
+      ctx.fillStyle = b[0] || "#000000";
+      for (let r = 0; r < rows; r++) {
+        for (let q = r % 2; q < cols; q += 2) ctx.fillRect(x + q * cell, y + r * cell, cell, cell);
+      }
     } else if (p.type === "split") {
       ctx.fillStyle = b[0] || p.base;
       ctx.beginPath();

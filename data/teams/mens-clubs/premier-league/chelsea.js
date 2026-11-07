@@ -60,7 +60,7 @@ registerTeam({
       rowTint: "#153D8A",
       rowTintStrength: 0.2,
       rowTintFloor: 0.5,
-      pattern: { type: "pinstripe", base: "#F2F3F7", bands: ["#F2A9AE"] }
+      pattern: { type: "pinstripe", base: "#F2F3F7", bands: ["#E30613"] }
     }
   },
   players: [

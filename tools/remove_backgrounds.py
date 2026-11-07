@@ -15,6 +15,7 @@ SOURCE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
 PHOTO_MAX = 512
 WORK_MAX = 640
 QUALITY = 85
+ALWAYS_SKIP = ("2026-spain",)
 
 
 def has_background(img, only_jpg, path):
@@ -92,24 +93,28 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="list the photos that would change, change nothing")
     parser.add_argument("--no-backup", action="store_true", help="do not copy originals to bg-backup/")
     parser.add_argument("--model", default="u2net_human_seg", help="rembg model (default: u2net_human_seg)")
-    parser.add_argument("--skip", action="append", default=[], metavar="NAME", help="skip any folder with this name, e.g. --skip spain-2026 (repeatable)")
+    parser.add_argument("--skip", action="append", default=[], metavar="NAME", help="also skip any folder with this name (repeatable); folders in ALWAYS_SKIP are always skipped")
     args = parser.parse_args()
 
     root = Path(args.root)
     if not root.exists():
         sys.exit(f"{root} not found. Run this from the root of the site.")
 
-    skip = {name.lower() for name in args.skip}
+    skip = {name.lower() for name in list(ALWAYS_SKIP) + args.skip}
     todo = []
+    skipped = 0
     for path in sorted(root.rglob("*")):
         if not path.is_file() or path.parent.name != "players" or path.suffix.lower() not in SOURCE_EXTS or ".tmp." in path.name:
             continue
-        if skip and any(part.lower() in skip for part in path.relative_to(root).parts):
+        if any(part.lower() in skip for part in path.resolve().parts):
+            skipped += 1
             continue
         with Image.open(path) as img:
             if has_background(img, args.only_jpg, path):
                 todo.append(path)
 
+    if skipped:
+        print(f"Left {skipped} photo(s) untouched in protected folders: {', '.join(sorted(skip))}")
     if not todo:
         print("No photos with a solid background found.")
         return

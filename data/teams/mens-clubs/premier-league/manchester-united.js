@@ -25,7 +25,7 @@ registerTeam({
       onHeader: "#FFFFFF",
       headerBand: "#FBE122",
       rowTintStrength: 0.15,
-      pattern: { type: "pinstripe", base: "#DA291C", bands: ["#B51F14"] }
+      pattern: { type: "solid", base: "#DA291C" }
     },
     away: {
       label: "Away",
