@@ -69,6 +69,27 @@
     ctx.closePath();
   }
 
+  function hexToRgba(hex, alpha) {
+    if (!hex) return "rgba(0, 0, 0, " + alpha + ")";
+    const clean = String(hex).trim().replace(/^#/, "");
+    if (/^[0-9a-fA-F]{3}$/.test(clean)) {
+      const expanded = clean.split("").map(ch => ch + ch).join("");
+      const n = parseInt(expanded, 16);
+      const r = (n >> 16) & 255;
+      const g = (n >> 8) & 255;
+      const b = n & 255;
+      return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+    }
+    if (/^[0-9a-fA-F]{6}$/.test(clean)) {
+      const n = parseInt(clean, 16);
+      const r = (n >> 16) & 255;
+      const g = (n >> 8) & 255;
+      const b = n & 255;
+      return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+    }
+    return "rgba(0, 0, 0, " + alpha + ")";
+  }
+
   function font(weight, size, family, italic) {
     return (italic ? "italic " : "") + weight + " " + Math.round(size) + "px " + family;
   }
@@ -137,7 +158,7 @@
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     ctx.save();
-    if (["zigzag", "hoops", "split", "sash", "lightning", "checks", "triangles"].indexOf(p.type) >= 0) {
+    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles"].indexOf(p.type) >= 0) {
       if (room < 150) {
         ctx.restore();
         return;
@@ -150,6 +171,23 @@
       ctx.globalAlpha = k.headerPatternAlpha != null ? k.headerPatternAlpha : 0.1;
       ctx.fillStyle = k.headerPatternAlpha != null ? band : k.onHeader;
       for (let x = 54; x < f.w; x += 108) ctx.fillRect(x, 0, 54, h);
+    } else if (p.type === "diamonds") {
+      const bands = p.bands && p.bands.length ? p.bands : [k.onHeader];
+      const colors = bands.length >= 3 ? bands.slice(0, 3) : bands.concat(Array(3 - bands.length).fill(bands[0] || k.onHeader));
+      const segment = room / colors.length;
+      const gap = 0;
+      colors.forEach((color, i) => {
+        const x0 = from + i * segment + gap * 0.7;
+        const x1 = from + (i + 1) * segment - gap * 0.7;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x0, 0);
+        ctx.lineTo(x0, h * 0.5);
+        ctx.lineTo(x1, h);
+        ctx.lineTo(x1, h * 0.5);
+        ctx.closePath();
+        ctx.fill();
+      });
     } else if (p.type === "pinstripe") {
       ctx.globalAlpha = 0.28;
       ctx.fillStyle = band;
@@ -340,10 +378,10 @@
     const eyebrowW = ctx.measureText("MY RANKING").width + 40;
     const clearX = textX + Math.max(titleW, subW, eyebrowW) + 36;
 
-    ctx.fillStyle = k.header;
-    ctx.fillRect(0, 0, f.w, f.head);
+      ctx.fillStyle = k.header;
+      ctx.fillRect(0, 0, f.w, f.head);
     headerPattern(ctx, f, k, clearX);
-    headerCollar(ctx, f, k, clearX);
+        headerCollar(ctx, f, k, clearX);
     ctx.fillStyle = k.headerBand;
     ctx.fillRect(0, f.head - 14, f.w, 14);
 

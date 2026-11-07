@@ -101,6 +101,21 @@
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="' + pts + '" fill="' + color + '"/></svg>';
     return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
   }
+
+  function diamondsSvg(p) {
+    const bands = p.bands && p.bands.length ? p.bands : ["#FFFFFF"];
+    const colors = bands.length >= 3 ? bands.slice(0, 3) : bands.concat(Array(3 - bands.length).fill(bands[0] || "#FFFFFF"));
+    const segment = 100 / colors.length;
+    const gap = 0;
+    const shapes = colors.map((color, i) => {
+      const x0 = i * segment + gap * 0.7;
+      const x1 = (i + 1) * segment - gap * 0.7;
+      const pts = [[x0, 0], [x0, 50], [x1, 100], [x1, 50]].map(pt => pt.join(",")).join(" ");
+      return '<polygon points="' + pts + '" fill="' + color + '"/>';
+    }).join("");
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">' + shapes + '</svg>';
+    return "url('data:image/svg+xml," + encodeURIComponent(svg) + "') center / 100% 100% no-repeat, " + p.base;
+  }
   const RAYO_BOLT = [[78, 0], [96, 0], [77, 38], [89, 38], [48, 100], [28, 100], [60, 52], [48, 52]];
 
   const TIP = [[0.24, 0.3], [0.33, 0.39]];
@@ -193,6 +208,9 @@
     if (p.type === "sash") {
       return sashSvg(p) + " center / 100% 100% no-repeat, " + p.base;
     }
+    if (p.type === "diamonds") {
+      return diamondsSvg(p);
+    }
     if (p.type === "tipping") {
       const c = b.length ? b : ["#000000"];
       const stops = [p.base + " 0 " + pct(TIP[0][0])];
@@ -250,6 +268,22 @@
       const bandW = period * (p.type === "stripes" ? 0.4 : 2 / 17);
       ctx.fillStyle = b[0];
       for (let sx = x; sx < x + w; sx += period) ctx.fillRect(sx + period * offset, y, bandW, h);
+    } else if (p.type === "diamonds") {
+      const colors = b.length >= 3 ? b.slice(0, 3) : b.concat(Array(3 - b.length).fill(b[0] || "#FFFFFF"));
+      const segment = w / colors.length;
+      const gap = 2.5;
+      colors.forEach((color, i) => {
+        const x0 = x + i * segment + gap * 0.7;
+        const x1 = x + (i + 1) * segment - gap * 0.7;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x0, y + h * 0.06);
+        ctx.lineTo(x0, y + h * 0.34);
+        ctx.lineTo(x1, y + h * 0.96);
+        ctx.lineTo(x1, y + h * 0.68);
+        ctx.closePath();
+        ctx.fill();
+      });
     } else if (p.type === "bolts") {
       ctx.save();
       ctx.beginPath();
