@@ -34,7 +34,7 @@ registerTeam({
       paperPrimary: "#FFFFFF",
       paperOnPrimary: "#E32219",
       line: "rgba(0,0,0,0.16)",
-      ink: "#111111",
+      ink: "#171717",
       muted: "#5B6170",
       primary: "#E32219",
       onPrimary: "#FFFFFF",
@@ -45,6 +45,8 @@ registerTeam({
       headerBand: "#FFFFFF",
       rowTint: "#FFFFFF",
       rowTintStrength: 0.15,
+      cardMedia: "#34495E",
+      cardOnMedia: "#FFFFFF",
       pattern: { type: "band", base: "#E32219", bands: ["#FFFFFF"] }
     },
     third: {
@@ -56,7 +58,7 @@ registerTeam({
       paperPrimary: "#111111",
       paperOnPrimary: "#C8A562",
       line: "rgba(0,0,0,0.16)",
-      ink: "#111111",
+      ink: "#171717",
       muted: "#5B6170",
       primary: "#111111",
       onPrimary: "#FFFFFF",
@@ -68,6 +70,8 @@ registerTeam({
       rowTint: "#C8A562",
       rowTintStrength: 0.25,
       rowTintFloor: 0.5,
+      cardMedia: "#30343B",
+      cardOnMedia: "#FFFFFF",
       pattern: { type: "band", base: "#C8A562", bands: ["#111111"] }
     }
   },
