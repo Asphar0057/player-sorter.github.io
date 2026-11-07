@@ -11,13 +11,13 @@ window.SQUAD_MANIFEST = {
           id: "laliga",
           name: "LaLiga",
           country: "Spain",
-          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal"]
+          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano"]
         },
         {
           id: "premier-league",
           name: "Premier League",
           country: "England",
-          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle"]
+          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds"]
         },
         {
           id: "bundesliga",
@@ -36,6 +36,12 @@ window.SQUAD_MANIFEST = {
           name: "Serie A",
           country: "Italy",
           teams: ["roma", "juventus", "ac-milan", "inter"]
+        },
+        {
+          id: "eredivisie",
+          name: "Eredivisie",
+          country: "Netherlands",
+          teams: ["ajax"]
         },
         /*
         {
@@ -64,16 +70,16 @@ window.SQUAD_MANIFEST = {
       name: "Women's clubs",
       groups: [
         {
-          id: "wsl",
-          name: "WSL",
-          country: "England",
-          teams: ["arsenal-women"]
-        },
-        {
           id: "liga-f",
           name: "Liga F",
           country: "Spain",
           teams: ["atletico-madrid-femenino"]
+        },
+        {
+          id: "wsl",
+          name: "WSL",
+          country: "England",
+          teams: ["arsenal-women"]
         },
         /*
         {
@@ -92,7 +98,7 @@ window.SQUAD_MANIFEST = {
         {
           id: "world-cup-2026",
           name: "World Cup 2026",
-          teams: ["2026-spain", "2026-france"]
+          teams: ["2026-spain", "2026-argentina", "2026-france", "2026-england"]
         },
         /*
         {

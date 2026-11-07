@@ -42,25 +42,25 @@ registerTeam({
       header: "#111111",
       onHeader: "#FFD100",
       headerBand: "#FFD100",
-      pattern: { type: "hoops", base: "#111111", bands: ["#FFD100"] }
+      pattern: { type: "tipping", base: "#111111", bands: ["#FFD100"] }
     },
     third: {
       label: "Third",
-      paper: "#EEF2F8",
+      paper: "#ECEEF2",
       card: "#FFFFFF",
       ink: "#0B1E3D",
       muted: "#5B6170",
-      primary: "#1E4FD8",
+      primary: "#1C2C5B",
       onPrimary: "#FFFFFF",
       accent: "#6CABDD",
       onAccent: "#0B1E3D",
-      header: "#FFFFFF",
-      onHeader: "#1E4FD8",
-      headerBand: "#1E4FD8",
-      rowTint: "#1E4FD8",
+      header: "#A9B2BE",
+      onHeader: "#0B1E3D",
+      headerBand: "#6CABDD",
+      rowTint: "#1C2C5B",
       rowTintStrength: 0.2,
       rowTintFloor: 0.5,
-      pattern: { type: "tipping", base: "#E8EDF5", bands: ["#1E4FD8", "#6CABDD"] }
+      pattern: { type: "centreband", base: "#A9B2BE", bands: ["#6CABDD", "#1C2C5B"] }
     }
   },
   players: [

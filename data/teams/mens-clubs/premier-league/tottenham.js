@@ -40,7 +40,7 @@ registerTeam({
       header: "#0E1638",
       onHeader: "#FF4FA3",
       headerBand: "#FF8A3D",
-      pattern: { type: "zigzag", base: "#0E1638", bands: ["#3A2560", "#2B2C6E"] }
+      pattern: { type: "zigzag", base: "#0E1638", bands: ["#FF4FA3", "#9B5CFF", "#FF8A3D"] }
     },
     third: {
       label: "Third",

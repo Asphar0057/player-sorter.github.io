@@ -110,7 +110,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
 
 .hero-sub a { color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
 .hero-sub a:hover { color: var(--ink); }
-.hero-sub strong { font-weight: 800; color: var(--ink); }
+.hero-sub strong { font-weight: 600; color: inherit; }
 
 .league { margin-top: 18px; }
 

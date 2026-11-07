@@ -48,19 +48,19 @@ registerTeam({
     third: {
       label: "Third",
       dark: true,
-      paper: "#17120E",
-      card: "#241C16",
+      paper: "#1B1C1F",
+      card: "#27292D",
       line: "rgba(255,255,255,0.12)",
-      ink: "#F3ECE4",
-      muted: "#A8998A",
-      primary: "#F07C2B",
-      onPrimary: "#17120E",
-      accent: "#B3261E",
+      ink: "#F2F2F0",
+      muted: "#A0A3A8",
+      primary: "#FBBA00",
+      onPrimary: "#1B1C1F",
+      accent: "#C8102E",
       onAccent: "#FFFFFF",
-      header: "#2A2018",
-      onHeader: "#F07C2B",
-      headerBand: "#F07C2B",
-      pattern: { type: "tipping", base: "#2A2018", bands: ["#F07C2B", "#B3261E"] }
+      header: "#2A2C30",
+      onHeader: "#FBBA00",
+      headerBand: "#C8102E",
+      pattern: { type: "tipping", base: "#2A2C30", bands: ["#FBBA00", "#C8102E"] }
     }
   },
   players: [

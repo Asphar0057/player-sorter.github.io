@@ -128,6 +128,8 @@
     }
   }
 
+  const BOLT = [[78, 0], [96, 0], [77, 38], [89, 38], [48, 100], [28, 100], [60, 52], [48, 52]];
+
   function headerPattern(ctx, f, k, clearX) {
     const p = k.pattern || {};
     const band = (p.bands && p.bands[0]) || k.onHeader;
@@ -135,7 +137,7 @@
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     ctx.save();
-    if (["zigzag", "hoops", "split"].indexOf(p.type) >= 0) {
+    if (["zigzag", "hoops", "split", "sash", "lightning", "checks"].indexOf(p.type) >= 0) {
       if (room < 150) {
         ctx.restore();
         return;
@@ -185,6 +187,33 @@
         }
         ctx.stroke();
       });
+    } else if (p.type === "sash") {
+      const bw = Math.min(120, room * 0.38);
+      const x0 = Math.max(from + 20, f.w - bw - h * 0.9);
+      const x1 = x0 + h * 0.7;
+      ctx.fillStyle = band;
+      ctx.beginPath();
+      ctx.moveTo(x0, 0);
+      ctx.lineTo(x0 + bw, 0);
+      ctx.lineTo(x1 + bw, h);
+      ctx.lineTo(x1, h);
+      ctx.closePath();
+      ctx.fill();
+    } else if (p.type === "lightning") {
+      const right = f.w - 36;
+      const size = Math.min(h * 0.9, (right - from - 12) / 0.68);
+      const top = (h - size) / 2;
+      if (size >= h * 0.45) {
+        ctx.fillStyle = band;
+        ctx.beginPath();
+        BOLT.forEach(([px, py], j) => {
+          const X = right - ((96 - px) / 100) * size;
+          const Y = top + (py / 100) * size;
+          if (j) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+        });
+        ctx.closePath();
+        ctx.fill();
+      }
     } else if (p.type === "tipping") {
       const colors = p.bands && p.bands.length ? p.bands : [k.onHeader];
       const bandH = Math.round(f.head * 0.035);
@@ -212,6 +241,15 @@
       ctx.lineTo(f.w, 0);
       ctx.closePath();
       ctx.fill();
+    } else if (p.type === "checks") {
+      const header = String(k.header || "").toLowerCase();
+      ctx.fillStyle = String(p.base).toLowerCase() !== header ? p.base : band;
+      const cell = h / 4;
+      const cols = Math.min(8, Math.floor((room - 24) / cell));
+      const x0 = f.w - cols * cell;
+      for (let r = 0; r < 4; r++) {
+        for (let q = r % 2; q < cols; q += 2) ctx.fillRect(x0 + q * cell, r * cell, cell, cell);
+      }
     } else if (p.type === "hoops") {
       const colors = p.bands && p.bands.length ? p.bands : [k.onHeader];
       const bandH = Math.round(f.head * 0.028);
