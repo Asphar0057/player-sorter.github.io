@@ -158,7 +158,7 @@
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     ctx.save();
-    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles"].indexOf(p.type) >= 0) {
+    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles", "sleeves", "centreband", "band", "cross"].indexOf(p.type) >= 0) {
       if (room < 150) {
         ctx.restore();
         return;
@@ -252,6 +252,53 @@
         ctx.closePath();
         ctx.fill();
       }
+    } else if (p.type === "sleeves") {
+      const c = p.bands && p.bands[0] ? p.bands[0] : k.onHeader;
+      const sleeveW = Math.min(120, Math.max(60, room * 0.18));
+      const sleeveH = h * 0.7;
+      const dy = (h - sleeveH) / 2;
+      const drawSleeve = (x, flip) => {
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        [[0, 0], [30, 0], [22, 46], [0, 60]].forEach(([px, py], j) => {
+          const X = x + (flip ? (100 - px) : px) / 100 * sleeveW;
+          const Y = dy + (py / 100) * sleeveH;
+          if (j) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+        });
+        ctx.closePath();
+        ctx.fill();
+      };
+      drawSleeve(from + 10, false);
+      drawSleeve(f.w - sleeveW - 10, true);
+    } else if (p.type === "centreband") {
+      const edge = p.bands && p.bands[0] ? p.bands[0] : k.onHeader;
+      const mid = p.bands && p.bands[1] ? p.bands[1] : edge;
+      ctx.fillStyle = edge;
+      ctx.fillRect(from + room * 0.33, 0, room * (0.67 - 0.33), h);
+      ctx.fillStyle = mid;
+      ctx.fillRect(from + room * 0.39, 0, room * (0.61 - 0.39), h);
+    } else if (p.type === "band") {
+      const edge = p.bands && p.bands[0] ? p.bands[0] : k.onHeader;
+      const mid = p.bands && p.bands[1] ? p.bands[1] : edge;
+      ctx.fillStyle = edge;
+      ctx.fillRect(from, h * 0.36, room, h * (0.64 - 0.36));
+      ctx.fillStyle = mid;
+      ctx.fillRect(from, h * 0.41, room, h * (0.59 - 0.41));
+    } else if (p.type === "cross") {
+      const white = p.bands && p.bands[0] ? p.bands[0] : "#FFFFFF";
+      const blue = p.bands && p.bands[1] ? p.bands[1] : "#00205B";
+      const centerX = f.w * 0.65;
+      const startX = f.w * 0.49;
+      const whiteWidth = Math.min(h * 0.12, f.w * 0.05);
+      const blueWidth = whiteWidth * 1.05;
+      const whiteSpan = whiteWidth * 2.2;
+      const blueSpan = blueWidth * 1.15;
+      ctx.fillStyle = white;
+      ctx.fillRect(centerX - whiteSpan / 2, 0, whiteSpan, h);
+      ctx.fillRect(startX, h * 0.5 - whiteSpan / 2, f.w - startX, whiteSpan);
+      ctx.fillStyle = blue;
+      ctx.fillRect(centerX - blueSpan / 2, 0, blueSpan, h);
+      ctx.fillRect(startX, h * 0.5 - blueSpan / 2, f.w, blueSpan);
     } else if (p.type === "tipping") {
       const colors = p.bands && p.bands.length ? p.bands : [k.onHeader];
       const bandH = Math.round(f.head * 0.035);
