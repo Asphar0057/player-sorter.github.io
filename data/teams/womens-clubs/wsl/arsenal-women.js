@@ -64,6 +64,7 @@ registerTeam({
     }
   },
   players: [
+    { id: "van-domselaar", name: "Daphne van Domselaar", number: 1, position: "GK", nation: "NED" },
     { id: "misa", name: "Misa Rodríguez", number: 16, position: "GK", nation: "ESP" },
     { id: "borbe", name: "Anneke Borbe", number: 28, position: "GK", nation: "GER" },
     { id: "damm", name: "Isabella Damm", number: 40, position: "GK", nation: "DEN" },
