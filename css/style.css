@@ -54,16 +54,6 @@ body {
   flex-direction: column;
 }
 
-/* faint kit texture behind every squad page: squad, voting, results, stats (set per kit with `texture`).
-   Painted on the root so it also covers the scrollbar gutter. */
-html[data-club] {
-  background: var(--page-texture, none), var(--paper);
-  background-attachment: fixed;
-}
-/* the reserved scrollbar gutter only paints a flat colour, so drop it here and let the texture reach the edge */
-html[data-club] { scrollbar-gutter: auto; }
-html[data-club] body { background: transparent; }
-
 button { font: inherit; }
 
 main {

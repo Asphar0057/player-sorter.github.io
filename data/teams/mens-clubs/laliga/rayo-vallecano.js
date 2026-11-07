@@ -26,7 +26,6 @@ registerTeam({
       headerBand: "#E4002B",
       rowTint: "#E4002B",
       rowTintStrength: 0.12,
-      texture: { type: "lightning", color: "#E4002B", opacity: 0.08 },
       pattern: { type: "sash", base: "#FFFFFF", bands: ["#E4002B"] }
     },
     away: {
@@ -48,7 +47,6 @@ registerTeam({
       onHeader: "#FFFFFF",
       headerBand: "#1B1B1B",
       rowTintStrength: 0.15,
-      texture: { type: "lightning", color: "#FFFFFF", opacity: 0.16 },
       pattern: { type: "lightning", base: "#E4002B", bands: ["#FFFFFF"] }
     },
     third: {
@@ -71,7 +69,6 @@ registerTeam({
       headerBand: "#7A1B30",
       rowTint: "#7A1B30",
       rowTintStrength: 0.14,
-      texture: { type: "lightning", color: "#7A1B30", opacity: 0.12 },
       pattern: { type: "lightning", base: "#E9A81F", bands: ["#7A1B30"] }
     }
   },

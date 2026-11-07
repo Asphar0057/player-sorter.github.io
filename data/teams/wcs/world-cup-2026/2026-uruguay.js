@@ -19,8 +19,8 @@ registerTeam({
       muted: "#5B6170",
       primary: "#0B2A5B",
       onPrimary: "#FFFFFF",
-      accent: "#E3C575",
-      onAccent: "#0B1F4D",
+      accent: "#0B2A5B",
+      onAccent: "#FFFFFF",
       photoBg: "#FFFFFF",
       labelBg: "#D5E6F8",
       header: "#8DBCEB",
@@ -28,7 +28,7 @@ registerTeam({
       headerBand: "#E3C575",
       rowTint: "#0B2A5B",
       rowTintStrength: 0.14,
-      pattern: { type: "solid", base: "#8DBCEB" }
+      pattern: { type: "tipping", base: "#8DBCEB", bands: ["#FFFFFF", "#0B2A5B"] }
     },
     away: {
       label: "Away",
@@ -44,11 +44,11 @@ registerTeam({
       onAccent: "#FFFFFF",
       photoBg: "#FFFFFF",
       labelBg: "#1B2750",
-      texture: { type: "collar", color: "#2F7BFF", opacity: 0.2 },
+      headerDecor: { type: "collar", color: "#2F7BFF", opacity: 0.7 },
       header: "#0F1B3D",
       onHeader: "#FFFFFF",
       headerBand: "#2F7BFF",
-      pattern: { type: "bolts", base: "#0F1B3D", bands: ["#2F7BFF"] }
+      pattern: { type: "gradient", base: "#0F1B3D", bands: ["#1F4FBF"] }
     }
   },
   players: [

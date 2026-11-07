@@ -162,7 +162,6 @@
       "--pick-bg:" + (k.labelBg || k.card),
       "--club-on-accent:" + k.onAccent,
       "--club-pattern:" + Kits.css(k.pattern),
-      "--page-texture:" + (k.texture ? Kits.texture(k.texture) : "none"),
       "--paper:" + k.paper,
       "--card:" + k.card,
       "--card-ink:" + k.ink,

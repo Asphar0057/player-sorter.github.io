@@ -19,16 +19,15 @@ registerTeam({
       muted: "#5B6170",
       primary: "#1F55C8",
       onPrimary: "#FFFFFF",
-      accent: "#2B2E35",
+      accent: "#0E2A66",
       onAccent: "#FFFFFF",
       photoBg: "#FFFFFF",
       labelBg: "#D9E4FA",
       header: "#1F55C8",
       onHeader: "#FFFFFF",
-      headerBand: "#2B2E35",
+      headerBand: "#0E2A66",
       rowTint: "#1F55C8",
       rowTintStrength: 0.12,
-      texture: { type: "triangles", color: "#FFFFFF", opacity: 0.20 },
       pattern: { type: "triangles", base: "#1F55C8", bands: ["#8FB0FF"] }
     },
     away: {
@@ -53,7 +52,6 @@ registerTeam({
       headerBand: "#FFFFFF",
       rowTint: "#6E1830",
       rowTintStrength: 0.12,
-      texture: { type: "triangles", color: "#FFFFFF", opacity: 0.12 },
       pattern: { type: "triangles", base: "#7A1F3D", bands: ["#D9798F"] }
     },
     third: {
@@ -69,7 +67,7 @@ registerTeam({
       muted: "#5B6170",
       primary: "#0B1F4D",
       onPrimary: "#8ED3F2",
-      accent: "#2FA66A",
+      accent: "#1F55C8",
       onAccent: "#FFFFFF",
       photoBg: "#FFFFFF",
       labelBg: "#DCF1FB",
@@ -78,7 +76,6 @@ registerTeam({
       headerBand: "#0B1F4D",
       rowTint: "#0B1F4D",
       rowTintStrength: 0.12,
-      texture: { type: "triangles", color: "#FFFFFF", opacity: 0.32 },
       pattern: { type: "triangles", base: "#8ED3F2", bands: ["#FFFFFF"] }
     }
   },
