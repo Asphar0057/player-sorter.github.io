@@ -1,0 +1,76 @@
+registerTeam({
+  id: "2026-argentina",
+  name: "Argentina 2026",
+  shortName: "Argentina",
+  monogram: "ARG",
+  league: "world-cup-2026",
+  season: "2026 World Cup",
+  kits: {
+    home: {
+      label: "Home",
+      paper: "#EEF5FB",
+      card: "#FFFFFF",
+      ink: "#1B2A4A",
+      muted: "#5B6170",
+      primary: "#3E86C6",
+      onPrimary: "#FFFFFF",
+      accent: "#C9A227",
+      onAccent: "#1B2A4A",
+      header: "#6CACE4",
+      onHeader: "#FFFFFF",
+      headerBand: "#C9A227",
+      rowTint: "#3E86C6",
+      rowTintStrength: 0.2,
+      rowTintFloor: 0.5,
+      pattern: { type: "stripes", base: "#6CACE4", bands: ["#FFFFFF"] }
+    },
+    away: {
+      label: "Away",
+      dark: true,
+      paper: "#1C1230",
+      card: "#291B44",
+      ink: "#F1ECFA",
+      muted: "#ADA0C8",
+      line: "rgba(255,255,255,0.12)",
+      primary: "#B9A3F0",
+      onPrimary: "#1C1230",
+      accent: "#6CACE4",
+      onAccent: "#1C1230",
+      header: "#3B2366",
+      onHeader: "#FFFFFF",
+      headerBand: "#8E6FD8",
+      pattern: { type: "gradient", base: "#3B2366", bands: ["#1C1230"] }
+    }
+  },
+  players: [
+    { id: "musso", name: "Juan Musso", number: 1, position: "GK", nation: "Atlético de Madrid" },
+    { id: "rulli", name: "Gerónimo Rulli", number: 12, position: "GK", nation: "Marseille" },
+    { id: "emi-martinez", name: "Emiliano Martínez", number: 23, position: "GK", nation: "Aston Villa" },
+
+    { id: "senesi", name: "Marcos Senesi", number: 2, position: "DF", nation: "Bournemouth" },
+    { id: "tagliafico", name: "Nicolás Tagliafico", number: 3, position: "DF", nation: "Olympique Lyonnais" },
+    { id: "montiel", name: "Gonzalo Montiel", number: 4, position: "DF", nation: "River Plate" },
+    { id: "lisandro-martinez", name: "Lisandro Martínez", number: 6, position: "DF", nation: "Manchester United" },
+    { id: "cuti-romero", name: "Cristian Romero", number: 13, position: "DF", nation: "Tottenham Hotspur" },
+    { id: "otamendi", name: "Nicolás Otamendi", number: 19, position: "DF", nation: "Benfica" },
+    { id: "medina", name: "Facundo Medina", number: 25, position: "DF", nation: "Marseille" },
+    { id: "molina", name: "Nahuel Molina", number: 26, position: "DF", nation: "Atlético de Madrid" },
+
+    { id: "paredes", name: "Leandro Paredes", number: 5, position: "MF", nation: "Boca Juniors" },
+    { id: "de-paul", name: "Rodrigo De Paul", number: 7, position: "MF", nation: "Inter Miami" },
+    { id: "barco", name: "Valentín Barco", number: 8, position: "MF", nation: "Strasbourg" },
+    { id: "lo-celso", name: "Giovani Lo Celso", number: 11, position: "MF", nation: "Real Betis" },
+    { id: "palacios", name: "Exequiel Palacios", number: 14, position: "MF", nation: "Bayer Leverkusen" },
+    { id: "nico-gonzalez", name: "Nicolás González", number: 15, position: "MF", nation: "Atlético de Madrid" },
+    { id: "mac-allister", name: "Alexis Mac Allister", number: 20, position: "MF", nation: "Liverpool" },
+    { id: "enzo-fernandez", name: "Enzo Fernández", number: 24, position: "MF", nation: "Chelsea" },
+
+    { id: "julian-alvarez", name: "Julián Álvarez", number: 9, position: "FW", nation: "Atlético de Madrid" },
+    { id: "messi", name: "Lionel Messi", number: 10, position: "FW", nation: "Inter Miami" },
+    { id: "almada", name: "Thiago Almada", number: 16, position: "FW", nation: "Atlético de Madrid" },
+    { id: "simeone", name: "Giuliano Simeone", number: 17, position: "FW", nation: "Atlético de Madrid" },
+    { id: "nico-paz", name: "Nico Paz", number: 18, position: "FW", nation: "Como" },
+    { id: "lopez", name: "José Manuel López", number: 21, position: "FW", nation: "Palmeiras" },
+    { id: "lautaro-martinez", name: "Lautaro Martínez", number: 22, position: "FW", nation: "Inter" }
+  ]
+});
