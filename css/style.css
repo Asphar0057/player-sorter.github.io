@@ -29,7 +29,14 @@ html { overflow-x: clip; scrollbar-gutter: stable; }
   html { overflow-y: scroll; }
 }
 
-[data-tone="dark"] { color-scheme: dark; }
+:root { color-scheme: only light; }
+
+[data-tone="dark"] { color-scheme: only dark; }
+
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: only light; }
+  [data-tone="dark"] { color-scheme: only dark; }
+}
 
 body {
   --ink: var(--page-ink);
