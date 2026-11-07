@@ -54,6 +54,41 @@ body {
   flex-direction: column;
 }
 
+html[data-club] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--paper-bg, none);
+}
+
+.setup-body,
+.roster-item,
+.pick-card,
+.rank-row,
+.stats-entry,
+.st-panel,
+.st-card,
+.st-lock {
+  outline: 1px solid var(--card-border, transparent);
+  outline-offset: -1px;
+}
+
+html[data-metal] main h1 {
+  background-image: var(--metal);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-right: 0.08em;
+}
+
+html[data-metal] .btn-primary,
+html[data-metal] .vs {
+  background: var(--metal);
+  border-color: transparent;
+}
+
 button { font: inherit; }
 
 main {

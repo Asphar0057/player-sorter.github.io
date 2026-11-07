@@ -62,6 +62,22 @@
     return entry ? entry.section.id : "";
   }
 
+  function squadWord(team) {
+    return team.squadLabel || "squad";
+  }
+
+  function memberWord(team) {
+    return team.memberLabel || "players";
+  }
+
+  function fullLabel(team) {
+    return team.squadLabel ? "All " + team.squadLabel : "Full squad";
+  }
+
+  function playerMeta(first, player) {
+    return [first, player.number != null ? "#" + player.number : ""].filter(Boolean).join(" · ");
+  }
+
   function esc(str) {
     return String(str).replace(/[&<>"']/g, c => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -163,6 +179,9 @@
       "--club-on-accent:" + k.onAccent,
       "--club-pattern:" + Kits.css(k.pattern),
       "--paper:" + k.paper,
+      "--paper-bg:" + (k.paperBg || "none"),
+      "--card-border:" + (k.cardBorder || "transparent"),
+      "--metal:" + (k.metal ? "linear-gradient(115deg, " + k.metal.join(", ") + ")" : "none"),
       "--card:" + k.card,
       "--card-ink:" + k.ink,
       "--card-muted:" + k.muted,
@@ -187,11 +206,13 @@
       root.dataset.club = team.id;
       root.dataset.kit = kit.id;
       root.dataset.tone = kit.dark ? "dark" : "light";
+      if (kit.metal) root.dataset.metal = "1"; else delete root.dataset.metal;
     } else {
       root.removeAttribute("style");
       delete root.dataset.club;
       delete root.dataset.kit;
       delete root.dataset.tone;
+      delete root.dataset.metal;
     }
   }
 
@@ -398,7 +419,7 @@
         crestMarkup(team, "crest-md", home) +
         '<span class="team-tile-text">' +
           '<span class="team-tile-name">' + esc(team.name) + "</span>" +
-          '<span class="team-tile-meta">' + esc(meta || team.players.length + " players · " + team.season) + "</span>" +
+          '<span class="team-tile-meta">' + esc(meta || team.players.length + " " + memberWord(team) + " · " + team.season) + "</span>" +
         "</span>" +
       "</button>"
     );
@@ -710,7 +731,7 @@
         ? '<nav class="tabs" role="tablist">' +
             '<span class="tab-indicator" aria-hidden="true"></span>' +
             SECTIONS.map(s =>
-              '<button type="button" class="tab" role="tab" data-go="' + s.id + '" aria-selected="' + (s === section) + '">' + esc(s.name) + "</button>"
+              '<button type="button" class="tab" role="tab" data-go="' + s.id + '" aria-selected="' + (s === section) + '">' + esc(s.tab || s.name) + "</button>"
             ).join("") +
           "</nav>"
         : "";
@@ -875,7 +896,7 @@
         '<div class="setup-head">' +
           crestMarkup(team, "crest-lg") +
           "<div>" +
-            '<p class="eyebrow">' + esc(team.season) + " squad</p>" +
+            '<p class="eyebrow">' + esc(team.season + " " + squadWord(team)) + "</p>" +
             "<h1>" + esc(team.name) + "</h1>" +
           "</div>" +
           kitPicker(team) +
@@ -912,8 +933,8 @@
       const n = pool().length;
       startBtn.disabled = n < 2;
       estimate.textContent = n < 2
-        ? "Pick at least two players to rank."
-        : n + " players · at most " + MergeSorter.worstChoices(n) + " matchups";
+        ? "Pick at least two " + memberWord(team) + " to rank."
+        : n + " " + memberWord(team) + " · at most " + MergeSorter.worstChoices(n) + " matchups";
     };
     app.querySelectorAll('input[name="pos"]').forEach(i => i.addEventListener("change", update));
     update();
@@ -950,7 +971,7 @@
         '<span class="pick-info">' +
           '<span class="pick-pos">' + POSITIONS[player.position] + "</span>" +
           '<span class="pick-name">' + esc(player.name) + "</span>" +
-          '<span class="pick-meta">#' + esc(player.number) + " · " + esc(player.nation || "") + "</span>" +
+          '<span class="pick-meta">' + esc([player.number != null ? "#" + player.number : "", player.nation || ""].filter(Boolean).join(" · ")) + "</span>" +
         "</span>" +
         '<span class="pick-key">' + (side === "left" ? "←" : "→") + "</span>" +
       "</button>"
@@ -1096,7 +1117,7 @@
     const n = entries.length;
     const modes = [{ value: "top3", label: "Top 3" }];
     if (n > 3) modes.push({ value: "top10", label: "Top 10" });
-    if (n > 10) modes.push({ value: "full", label: "Full squad" });
+    if (n > 10) modes.push({ value: "full", label: fullLabel(team) });
     const opts = { format: "story", mode: n > 10 ? "full" : modes[modes.length - 1].value, kit: kitOf(team).id };
     const kitFor = t => (t.id === team.id ? kitOf(t, opts.kit) : kitOf(t));
     const escapeHref = ShareImage.needsBrowserEscape() && session && session.state.done ? rankingLink(team, session.state) : null;
@@ -1884,7 +1905,7 @@
         '<div class="st-lock">' +
           '<p class="eyebrow">Community ranking</p>' +
           "<h2>Stats unlock at " + data.min + " rankings</h2>" +
-          "<p>" + data.count + (data.count === 1 ? " person has" : " people have") + " ranked the full " + esc(team.name) + " squad so far. " +
+          "<p>" + data.count + (data.count === 1 ? " person has" : " people have") + " ranked the full " + esc(team.name) + " " + squadWord(team) + " so far. " +
             left + " more and you'll see how everyone ranks them.</p>" +
           '<div class="st-prog"><i style="width:' + pct(data.count, data.min) + '%"></i></div>' +
           '<p class="st-prog-label">' + data.count + " / " + data.min + "</p>" +
@@ -2004,7 +2025,7 @@
           '<span class="rank-slot">' + avatarMarkup(hit.team, hit.player, "avatar-rank") + "</span>" +
           '<span class="rank-text">' +
             '<span class="rank-name">' + esc(hit.player.name) + "</span>" +
-            '<span class="rank-meta">' + POSITIONS[hit.player.position] + " · #" + esc(hit.player.number) + "</span>" +
+            '<span class="rank-meta">' + esc(playerMeta(POSITIONS[hit.player.position], hit.player)) + "</span>" +
           "</span>" +
         "</li>"
       );

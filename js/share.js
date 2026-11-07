@@ -377,7 +377,13 @@
     ctx.globalAlpha = 1;
 
     ctx.font = font(800, tSize, DISPLAY, true);
+    if (k.metal && k.metal.length > 1) {
+      const g = ctx.createLinearGradient(textX, tBase - tSize, textX + titleW, tBase);
+      k.metal.forEach((c, i) => g.addColorStop(i / (k.metal.length - 1), c));
+      ctx.fillStyle = g;
+    }
     ctx.fillText(title, textX, tBase);
+    ctx.fillStyle = t.secondary;
 
     ctx.globalAlpha = 0.85;
     ctx.font = font(500, sSize, BODY);
@@ -459,7 +465,7 @@
     ctx.textBaseline = "alphabetic";
     if (twoLine) {
       const metaSize = nameSize ? Math.min(Math.max(16, nameSize * 0.62), 32) : Math.min(Math.max(18, h * 0.14), 32);
-      const meta = entry.positionLabel + " · #" + entry.player.number;
+      const meta = [entry.positionLabel, entry.player.number != null ? "#" + entry.player.number : ""].filter(Boolean).join(" · ");
       const nameAsc = ctx.measureText(nameText).actualBoundingBoxAscent;
       ctx.font = font(500, metaSize, BODY);
       const mm = ctx.measureText(meta);
@@ -627,8 +633,8 @@
     ctx.fillStyle = kit.paper;
     ctx.fillRect(0, 0, f.w, f.h);
 
-    const modeLabel = mode === "top3" ? "Top 3" : mode === "top10" ? "Top 10" : "Full squad";
-    drawHeader(ctx, f, kit, team, crestImg, team.season + " squad · " + modeLabel + (subtitleExtra || ""));
+    const modeLabel = mode === "top3" ? "Top 3" : mode === "top10" ? "Top 10" : team.squadLabel ? "All " + team.squadLabel : "Full squad";
+    drawHeader(ctx, f, kit, team, crestImg, team.season + " " + (team.squadLabel || "squad") + " · " + modeLabel + (subtitleExtra || ""));
 
     layoutList(ctx, f, shown, imgs, f.head + 36, f.h - f.foot - 28, kit);
 
