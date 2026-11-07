@@ -126,6 +126,38 @@
     return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
   }
 
+  // Faint full-page layer for the voting screen: { type, color, opacity }
+  function texture(t) {
+    const c = t.color || "#FFFFFF";
+    const o = t.opacity != null ? t.opacity : 0.12;
+    let svg;
+    if (t.type === "collar") {
+      // ring of angular panels around the neckline, like Uruguay's 2026 away shirt
+      const cx = 100, cy = -8, rad = Math.PI / 180;
+      let poly = "";
+      for (let i = 0; i < 15; i++) {
+        const a0 = (43 + i * 6.4) * rad, a1 = (43 + i * 6.4 + 4.6) * rad;
+        const r0 = 40, r1 = i % 2 ? 62 : 78;
+        const pt = (ang, r) => (cx + r * Math.cos(ang)).toFixed(1) + "," + (cy + r * Math.sin(ang)).toFixed(1);
+        poly += '<polygon points="' + pt(a0, r0) + " " + pt(a1, r0) + " " + pt(a1 + 0.02, r1) + " " + pt(a0 - 0.02, r1) + '" fill="' + c + '"/>';
+      }
+      svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 110" preserveAspectRatio="xMidYMin slice"><g opacity="' + o + '">' + poly + "</g></svg>";
+    } else if (t.type === "lightning") {
+      svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMaxYMid meet"><polygon opacity="' + o +
+        '" points="' + RAYO_BOLT.map(pt => pt.join(",")).join(" ") + '" fill="' + c + '"/></svg>';
+    } else {
+      svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs>' +
+        '<pattern id="t" width="18" height="16" patternUnits="userSpaceOnUse">' +
+        '<polygon points="9,0 18,16 0,16" fill="none" stroke="' + c + '" stroke-width="1.1" stroke-opacity="0.55"/>' +
+        '<polygon points="9,0 9,16 0,16" fill="' + c + '" fill-opacity="0.22"/></pattern>' +
+        '<linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/>' +
+        '<stop offset="1" stop-color="#fff" stop-opacity="0.15"/></linearGradient>' +
+        '<mask id="m"><rect width="100%" height="100%" fill="url(#g)"/></mask></defs>' +
+        '<rect width="100%" height="100%" fill="url(#t)" mask="url(#m)" opacity="' + o + '"/></svg>';
+    }
+    return "url(\"data:image/svg+xml," + encodeURIComponent(svg) + "\") center / 100% 100% repeat-x";
+  }
+
   function pct(n) {
     return (n * 100).toFixed(2) + "%";
   }
@@ -159,6 +191,18 @@
       const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="' +
         RAYO_BOLT.map(pt => pt.join(",")).join(" ") + '" fill="' + c + '"/></svg>';
       return "url('data:image/svg+xml," + encodeURIComponent(svg) + "') right center / auto 100% no-repeat, " + p.base;
+    }
+    if (p.type === "triangles") {
+      const c = b[0] || "#FFFFFF";
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs>' +
+        '<pattern id="t" width="18" height="16" patternUnits="userSpaceOnUse">' +
+        '<polygon points="9,0 18,16 0,16" fill="none" stroke="' + c + '" stroke-width="1.1" stroke-opacity="0.55"/>' +
+        '<polygon points="9,0 9,16 0,16" fill="' + c + '" fill-opacity="0.22"/></pattern>' +
+        '<linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/>' +
+        '<stop offset="1" stop-color="#fff" stop-opacity="0.12"/></linearGradient>' +
+        '<mask id="m"><rect width="100%" height="100%" fill="url(#g)"/></mask></defs>' +
+        '<rect width="100%" height="100%" fill="url(#t)" mask="url(#m)"/></svg>';
+      return "url('data:image/svg+xml," + encodeURIComponent(svg) + "') center / 100% 100% no-repeat, " + p.base;
     }
     if (p.type === "centreband") {
       const edge = b[0] || "#FFFFFF";
@@ -275,6 +319,41 @@
       });
       ctx.closePath();
       ctx.fill();
+    } else if (p.type === "triangles") {
+      const c = b[0] || "#FFFFFF";
+      const off = document.createElement("canvas");
+      off.width = Math.max(1, Math.ceil(w));
+      off.height = Math.max(1, Math.ceil(h));
+      const o = off.getContext("2d");
+      for (let ty = 0; ty < off.height; ty += 16) {
+        for (let tx = 0; tx < off.width; tx += 18) {
+          o.beginPath();
+          o.moveTo(tx + 9, ty);
+          o.lineTo(tx + 18, ty + 16);
+          o.lineTo(tx, ty + 16);
+          o.closePath();
+          o.globalAlpha = 0.55;
+          o.strokeStyle = c;
+          o.lineWidth = 1.1;
+          o.stroke();
+          o.beginPath();
+          o.moveTo(tx + 9, ty);
+          o.lineTo(tx + 9, ty + 16);
+          o.lineTo(tx, ty + 16);
+          o.closePath();
+          o.globalAlpha = 0.22;
+          o.fillStyle = c;
+          o.fill();
+        }
+      }
+      o.globalAlpha = 1;
+      o.globalCompositeOperation = "destination-in";
+      const fade = o.createLinearGradient(0, 0, 0, off.height);
+      fade.addColorStop(0, "rgba(0,0,0,1)");
+      fade.addColorStop(1, "rgba(0,0,0,0.12)");
+      o.fillStyle = fade;
+      o.fillRect(0, 0, off.width, off.height);
+      ctx.drawImage(off, x, y, w, h);
     } else if (p.type === "centreband") {
       const edge = b[0] || "#FFFFFF";
       ctx.fillStyle = edge;
@@ -339,5 +418,5 @@
     return "rgb(" + c.join(",") + ")";
   }
 
-  window.Kits = { ids, get, css, draw, mix };
+  window.Kits = { ids, get, css, draw, mix, texture };
 })();

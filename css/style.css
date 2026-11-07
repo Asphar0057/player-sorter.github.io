@@ -47,6 +47,16 @@ body {
   flex-direction: column;
 }
 
+/* faint kit texture behind every squad page: squad, voting, results, stats (set per kit with `texture`).
+   Painted on the root so it also covers the scrollbar gutter. */
+html[data-club] {
+  background: var(--page-texture, none), var(--paper);
+  background-attachment: fixed;
+}
+/* the reserved scrollbar gutter only paints a flat colour, so drop it here and let the texture reach the edge */
+html[data-club] { scrollbar-gutter: auto; }
+html[data-club] body { background: transparent; }
+
 button { font: inherit; }
 
 main {
@@ -226,7 +236,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
 .crest-card { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; z-index: 2; }
 .crest-card .crest-fallback { font-size: 12px; border-width: 2px; }
 
-.avatar { border-radius: 50%; background: var(--club-accent); }
+.avatar { border-radius: 50%; background: var(--photo-bg, var(--club-accent)); }
 
 .avatar-fallback {
   color: var(--club-on-accent);
@@ -355,7 +365,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
   border: 0;
   border-radius: 18px;
   overflow: hidden;
-  background: var(--card);
+  background: var(--pick-bg, var(--card));
   color: var(--ink);
   cursor: pointer;
   text-align: left;
@@ -377,7 +387,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
   aspect-ratio: 4 / 4.2;
   max-height: max(200px, calc(100vh - 470px));
   width: 100%;
-  background: var(--club-accent);
+  background: var(--photo-bg, var(--club-accent));
 }
 
 .avatar-card {

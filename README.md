@@ -73,7 +73,10 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `zigzag`: horizontal zigzag lines across `base`, cycling through the band colours
 - `tipping`: plain `base` with two thin horizontal stripes near the top, like collar tipping (Bayern away)
 - `lightning`: SVG lightning bolt of the band colour at the right edge of `base` (Rayo Vallecano)
+- `triangles`: faint embossed triangle texture in the band colour that fades toward the bottom (Getafe)
 - `solid`: plain `base` colour
+
+A kit can set `photoBg` to colour behind player photos (defaults to `accent`). `labelBg` colours the name label under the photo on the voting cards (defaults to `card`). A kit can also set `texture: { type: "triangles" | "lightning" | "collar", color, opacity }` for a faint SVG layer behind the whole squad page (squad, voting, results and stats screens) (Getafe uses triangles, Rayo Vallecano the lightning bolt, Uruguay away the collar panels).
 
 Text sitting directly on the page background uses `onPaper`, `onPaperMuted` and `paperPrimary` / `paperOnPrimary` (for buttons and highlights). Set `dark: true` (and a light `line` colour) for dark kits. The club's card on the home page always uses its home kit (`paper`, `onPaper`, `onPaperMuted` and `pattern`). The visitor's choice is remembered per club.
 
