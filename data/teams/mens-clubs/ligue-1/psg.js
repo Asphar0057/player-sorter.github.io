@@ -55,12 +55,12 @@ registerTeam({
       muted: "#A2A4A8",
       primary: "#FFD400",
       onPrimary: "#0E0F11",
-      accent: "#5A5E66",
+      accent: "#E30613",
       onAccent: "#FFFFFF",
       header: "#1A1C20",
       onHeader: "#FFD400",
       headerBand: "#FFD400",
-      pattern: { type: "pinstripe", base: "#17191C", bands: ["#2C2F34"] }
+      pattern: { type: "centreband", base: "#17191C", bands: ["#E30613", "#1E9E5A"] }
     }
   },
   players: [

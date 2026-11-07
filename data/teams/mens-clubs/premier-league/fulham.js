@@ -39,7 +39,7 @@ registerTeam({
       header: "#111111",
       onHeader: "#FFFFFF",
       headerBand: "#D41119",
-      pattern: { type: "stripes", base: "#D41119", bands: ["#111111"] }
+      pattern: { type: "checks", base: "#D41119", bands: ["#111111"] }
     },
     third: {
       label: "Third",

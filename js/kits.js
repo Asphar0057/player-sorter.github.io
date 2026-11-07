@@ -91,6 +91,18 @@
 
   const CB = [0.33, 0.39, 0.61, 0.67];
 
+  const BAND = [0.36, 0.41, 0.59, 0.64];
+
+  const SASH = [[0, 6], [0, 34], [100, 96], [100, 68]];
+
+  function sashSvg(p) {
+    const color = (p.bands && p.bands[0]) || "#FFFFFF";
+    const pts = SASH.map(pt => pt.join(",")).join(" ");
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="' + pts + '" fill="' + color + '"/></svg>';
+    return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
+  }
+  const RAYO_BOLT = [[78, 0], [96, 0], [77, 38], [89, 38], [48, 100], [28, 100], [60, 52], [48, 52]];
+
   const TIP = [[0.24, 0.3], [0.33, 0.39]];
 
   const SLEEVE_L = [[0, 0], [30, 0], [22, 46], [0, 60]];
@@ -112,6 +124,19 @@
     ).join("");
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">' + lines + "</svg>";
     return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
+  }
+
+  const CHECKS = 6;
+
+  function trianglesSvg(c, fadeTo, opacity) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs>' +
+      '<pattern id="t" width="18" height="16" patternUnits="userSpaceOnUse">' +
+      '<polygon points="9,0 18,16 0,16" fill="none" stroke="' + c + '" stroke-width="1.1" stroke-opacity="0.55"/>' +
+      '<polygon points="9,0 9,16 0,16" fill="' + c + '" fill-opacity="0.22"/></pattern>' +
+      '<linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/>' +
+      '<stop offset="1" stop-color="#fff" stop-opacity="' + fadeTo + '"/></linearGradient>' +
+      '<mask id="m"><rect width="100%" height="100%" fill="url(#g)"/></mask></defs>' +
+      '<rect width="100%" height="100%" fill="url(#t)" mask="url(#m)" opacity="' + opacity + '"/></svg>';
   }
 
   function pct(n) {
@@ -142,11 +167,31 @@
     if (p.type === "zigzag") {
       return zigzagSvg(p) + " center / 100% 100% no-repeat, " + p.base;
     }
+    if (p.type === "lightning") {
+      const c = b[0] || "#FFFFFF";
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="' +
+        RAYO_BOLT.map(pt => pt.join(",")).join(" ") + '" fill="' + c + '"/></svg>';
+      return "url('data:image/svg+xml," + encodeURIComponent(svg) + "') right center / auto 100% no-repeat, " + p.base;
+    }
+    if (p.type === "triangles") {
+      const c = b[0] || "#FFFFFF";
+      const svg = trianglesSvg(c, 0.12, 1);
+      return "url('data:image/svg+xml," + encodeURIComponent(svg) + "') center / 100% 100% no-repeat, " + p.base;
+    }
     if (p.type === "centreband") {
       const edge = b[0] || "#FFFFFF";
       const mid = b[1] || edge;
       return "linear-gradient(90deg, " + p.base + " 0 " + pct(CB[0]) + ", " + edge + " " + pct(CB[0]) + " " + pct(CB[1]) + ", " +
         mid + " " + pct(CB[1]) + " " + pct(CB[2]) + ", " + edge + " " + pct(CB[2]) + " " + pct(CB[3]) + ", " + p.base + " " + pct(CB[3]) + " 100%)";
+    }
+    if (p.type === "band") {
+      const edge = b[0] || "#FFFFFF";
+      const mid = b[1] || edge;
+      return "linear-gradient(180deg, " + p.base + " 0 " + pct(BAND[0]) + ", " + edge + " " + pct(BAND[0]) + " " + pct(BAND[1]) + ", " +
+        mid + " " + pct(BAND[1]) + " " + pct(BAND[2]) + ", " + edge + " " + pct(BAND[2]) + " " + pct(BAND[3]) + ", " + p.base + " " + pct(BAND[3]) + " 100%)";
+    }
+    if (p.type === "sash") {
+      return sashSvg(p) + " center / 100% 100% no-repeat, " + p.base;
     }
     if (p.type === "tipping") {
       const c = b.length ? b : ["#000000"];
@@ -159,6 +204,15 @@
     }
     if (p.type === "split") {
       return splitSvg(p) + " center / 100% 100% no-repeat, " + p.base;
+    }
+    if (p.type === "checks") {
+      const c = b[0] || "#000000";
+      let cells = "";
+      for (let r = 0; r < CHECKS; r++) {
+        for (let q = r % 2; q < CHECKS; q += 2) cells += '<rect x="' + q + '" y="' + r + '" width="1" height="1"/>';
+      }
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + CHECKS + " " + CHECKS + '" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges"><g fill="' + c + '">' + cells + "</g></svg>";
+      return "url('data:image/svg+xml," + encodeURIComponent(svg) + "') center / cover no-repeat, " + p.base;
     }
     if (p.type === "hoops") {
       const stops = [];
@@ -238,12 +292,73 @@
         ctx.stroke();
       });
       ctx.restore();
+    } else if (p.type === "lightning") {
+      ctx.fillStyle = b[0] || "#FFFFFF";
+      ctx.beginPath();
+      RAYO_BOLT.forEach(([px, py], j) => {
+        const X = x + w - h + (px / 100) * h;
+        const Y = y + (py / 100) * h;
+        if (j) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+      });
+      ctx.closePath();
+      ctx.fill();
+    } else if (p.type === "triangles") {
+      const c = b[0] || "#FFFFFF";
+      const off = document.createElement("canvas");
+      off.width = Math.max(1, Math.ceil(w));
+      off.height = Math.max(1, Math.ceil(h));
+      const o = off.getContext("2d");
+      for (let ty = 0; ty < off.height; ty += 16) {
+        for (let tx = 0; tx < off.width; tx += 18) {
+          o.beginPath();
+          o.moveTo(tx + 9, ty);
+          o.lineTo(tx + 18, ty + 16);
+          o.lineTo(tx, ty + 16);
+          o.closePath();
+          o.globalAlpha = 0.55;
+          o.strokeStyle = c;
+          o.lineWidth = 1.1;
+          o.stroke();
+          o.beginPath();
+          o.moveTo(tx + 9, ty);
+          o.lineTo(tx + 9, ty + 16);
+          o.lineTo(tx, ty + 16);
+          o.closePath();
+          o.globalAlpha = 0.22;
+          o.fillStyle = c;
+          o.fill();
+        }
+      }
+      o.globalAlpha = 1;
+      o.globalCompositeOperation = "destination-in";
+      const fade = o.createLinearGradient(0, 0, 0, off.height);
+      fade.addColorStop(0, "rgba(0,0,0,1)");
+      fade.addColorStop(1, "rgba(0,0,0,0.12)");
+      o.fillStyle = fade;
+      o.fillRect(0, 0, off.width, off.height);
+      ctx.drawImage(off, x, y, w, h);
     } else if (p.type === "centreband") {
       const edge = b[0] || "#FFFFFF";
       ctx.fillStyle = edge;
       ctx.fillRect(x + w * CB[0], y, w * (CB[3] - CB[0]), h);
       ctx.fillStyle = b[1] || edge;
       ctx.fillRect(x + w * CB[1], y, w * (CB[2] - CB[1]), h);
+    } else if (p.type === "band") {
+      const edge = b[0] || "#FFFFFF";
+      ctx.fillStyle = edge;
+      ctx.fillRect(x, y + h * BAND[0], w, h * (BAND[3] - BAND[0]));
+      ctx.fillStyle = b[1] || edge;
+      ctx.fillRect(x, y + h * BAND[1], w, h * (BAND[2] - BAND[1]));
+    } else if (p.type === "sash") {
+      ctx.fillStyle = b[0] || "#FFFFFF";
+      ctx.beginPath();
+      SASH.forEach(([px, py], j) => {
+        const X = x + (px / 100) * w;
+        const Y = y + (py / 100) * h;
+        if (j) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+      });
+      ctx.closePath();
+      ctx.fill();
     } else if (p.type === "tipping") {
       const c = b.length ? b : ["#000000"];
       TIP.forEach(([from, to], i) => {
@@ -256,6 +371,14 @@
       g.addColorStop(1, b[0] || p.base);
       ctx.fillStyle = g;
       ctx.fillRect(x, y, w, h);
+    } else if (p.type === "checks") {
+      const cell = Math.max(w, h) / CHECKS;
+      const cols = Math.ceil(w / cell);
+      const rows = Math.ceil(h / cell);
+      ctx.fillStyle = b[0] || "#000000";
+      for (let r = 0; r < rows; r++) {
+        for (let q = r % 2; q < cols; q += 2) ctx.fillRect(x + q * cell, y + r * cell, cell, cell);
+      }
     } else if (p.type === "split") {
       ctx.fillStyle = b[0] || p.base;
       ctx.beginPath();
