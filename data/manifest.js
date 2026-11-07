@@ -73,22 +73,20 @@ window.SQUAD_MANIFEST = {
           id: "liga-f",
           name: "Liga F",
           country: "Spain",
-          teams: ["atletico-madrid-femenino"]
+          teams: ["atletico-madrid-femenino", "barcelona-femeni", "real-madrid-femenino"]
         },
         {
           id: "wsl",
           name: "WSL",
           country: "England",
-          teams: ["arsenal-women"]
+          teams: ["arsenal-women", "chelsea-women", "manchester-city-women"]
         },
-        /*
         {
           id: "premiere-ligue",
           name: "Première Ligue",
           country: "France",
           teams: ["ol-lyonnes"]
         }
-          */
       ]
     },
     {
