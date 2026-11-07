@@ -90,6 +90,7 @@
   }
 
   const CB = [0.33, 0.39, 0.61, 0.67];
+  const RAYO_BOLT = [[78, 0], [96, 0], [77, 38], [89, 38], [48, 100], [28, 100], [60, 52], [48, 52]];
 
   const TIP = [[0.24, 0.3], [0.33, 0.39]];
 
@@ -141,6 +142,12 @@
     }
     if (p.type === "zigzag") {
       return zigzagSvg(p) + " center / 100% 100% no-repeat, " + p.base;
+    }
+    if (p.type === "lightning") {
+      const c = b[0] || "#FFFFFF";
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="' +
+        RAYO_BOLT.map(pt => pt.join(",")).join(" ") + '" fill="' + c + '"/></svg>';
+      return "url('data:image/svg+xml," + encodeURIComponent(svg) + "') right center / auto 100% no-repeat, " + p.base;
     }
     if (p.type === "centreband") {
       const edge = b[0] || "#FFFFFF";
@@ -238,6 +245,16 @@
         ctx.stroke();
       });
       ctx.restore();
+    } else if (p.type === "lightning") {
+      ctx.fillStyle = b[0] || "#FFFFFF";
+      ctx.beginPath();
+      RAYO_BOLT.forEach(([px, py], j) => {
+        const X = x + w - h + (px / 100) * h;
+        const Y = y + (py / 100) * h;
+        if (j) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+      });
+      ctx.closePath();
+      ctx.fill();
     } else if (p.type === "centreband") {
       const edge = b[0] || "#FFFFFF";
       ctx.fillStyle = edge;
