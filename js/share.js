@@ -137,7 +137,7 @@
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     ctx.save();
-    if (["zigzag", "hoops", "split", "sash", "lightning", "checks"].indexOf(p.type) >= 0) {
+    if (["zigzag", "hoops", "split", "sash", "lightning", "checks", "triangles"].indexOf(p.type) >= 0) {
       if (room < 150) {
         ctx.restore();
         return;
@@ -250,6 +250,32 @@
       for (let r = 0; r < 4; r++) {
         for (let q = r % 2; q < cols; q += 2) ctx.fillRect(x0 + q * cell, r * cell, cell, cell);
       }
+    } else if (p.type === "triangles") {
+      const start = Math.max(f.w * 0.45, from + 12);
+      const tw = 36;
+      const th = 32;
+      for (let ty = 0; ty < h; ty += th) {
+        for (let tx = start; tx < f.w; tx += tw) {
+          const fade = Math.min(1, (tx - start) / Math.max(1, f.w - start) + 0.15);
+          ctx.globalAlpha = 0.5 * fade;
+          ctx.strokeStyle = band;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(tx + tw / 2, ty);
+          ctx.lineTo(tx + tw, ty + th);
+          ctx.lineTo(tx, ty + th);
+          ctx.closePath();
+          ctx.stroke();
+          ctx.globalAlpha = 0.2 * fade;
+          ctx.fillStyle = band;
+          ctx.beginPath();
+          ctx.moveTo(tx + tw / 2, ty);
+          ctx.lineTo(tx + tw / 2, ty + th);
+          ctx.lineTo(tx, ty + th);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
     } else if (p.type === "hoops") {
       const colors = p.bands && p.bands.length ? p.bands : [k.onHeader];
       const bandH = Math.round(f.head * 0.028);
@@ -261,6 +287,39 @@
         ctx.fillRect(f.w * 0.62, y, f.w * 0.38, bandH);
         y += bandH + gap;
       }
+    }
+    ctx.restore();
+  }
+
+  function headerCollar(ctx, f, k, clearX) {
+    const t = k.headerDecor;
+    if (!t || t.type !== "collar") return;
+    const h = f.head - 14;
+    const from = Math.max(clearX || 0, 0);
+    const room = f.w - from;
+    if (room < 150) return;
+    const s = Math.min(h / 80, (room - 24) / 160);
+    const cx = f.w - 80 * s - 24;
+    const cy = -8 * s;
+    const rad = Math.PI / 180;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(from, 0, room, h);
+    ctx.clip();
+    ctx.fillStyle = t.color || k.onHeader;
+    ctx.globalAlpha = t.opacity != null ? t.opacity : 0.6;
+    for (let i = 0; i < 15; i++) {
+      const a0 = (43 + i * 6.4) * rad;
+      const a1 = a0 + 4.6 * rad;
+      const r0 = 40 * s;
+      const r1 = (i % 2 ? 62 : 78) * s;
+      ctx.beginPath();
+      ctx.moveTo(cx + r0 * Math.cos(a0), cy + r0 * Math.sin(a0));
+      ctx.lineTo(cx + r0 * Math.cos(a1), cy + r0 * Math.sin(a1));
+      ctx.lineTo(cx + r1 * Math.cos(a1 + 0.02), cy + r1 * Math.sin(a1 + 0.02));
+      ctx.lineTo(cx + r1 * Math.cos(a0 - 0.02), cy + r1 * Math.sin(a0 - 0.02));
+      ctx.closePath();
+      ctx.fill();
     }
     ctx.restore();
   }
@@ -284,6 +343,7 @@
     ctx.fillStyle = k.header;
     ctx.fillRect(0, 0, f.w, f.head);
     headerPattern(ctx, f, k, clearX);
+    headerCollar(ctx, f, k, clearX);
     ctx.fillStyle = k.headerBand;
     ctx.fillRect(0, f.head - 14, f.w, 14);
 
@@ -317,7 +377,13 @@
     ctx.globalAlpha = 1;
 
     ctx.font = font(800, tSize, DISPLAY, true);
+    if (k.metal && k.metal.length > 1) {
+      const g = ctx.createLinearGradient(textX, tBase - tSize, textX + titleW, tBase);
+      k.metal.forEach((c, i) => g.addColorStop(i / (k.metal.length - 1), c));
+      ctx.fillStyle = g;
+    }
     ctx.fillText(title, textX, tBase);
+    ctx.fillStyle = t.secondary;
 
     ctx.globalAlpha = 0.85;
     ctx.font = font(500, sSize, BODY);
@@ -399,7 +465,7 @@
     ctx.textBaseline = "alphabetic";
     if (twoLine) {
       const metaSize = nameSize ? Math.min(Math.max(16, nameSize * 0.62), 32) : Math.min(Math.max(18, h * 0.14), 32);
-      const meta = entry.positionLabel + " · #" + entry.player.number;
+      const meta = [entry.positionLabel, entry.player.number != null ? "#" + entry.player.number : ""].filter(Boolean).join(" · ");
       const nameAsc = ctx.measureText(nameText).actualBoundingBoxAscent;
       ctx.font = font(500, metaSize, BODY);
       const mm = ctx.measureText(meta);
@@ -567,8 +633,8 @@
     ctx.fillStyle = kit.paper;
     ctx.fillRect(0, 0, f.w, f.h);
 
-    const modeLabel = mode === "top3" ? "Top 3" : mode === "top10" ? "Top 10" : "Full squad";
-    drawHeader(ctx, f, kit, team, crestImg, team.season + " squad · " + modeLabel + (subtitleExtra || ""));
+    const modeLabel = mode === "top3" ? "Top 3" : mode === "top10" ? "Top 10" : team.squadLabel ? "All " + team.squadLabel : "Full squad";
+    drawHeader(ctx, f, kit, team, crestImg, team.season + " " + (team.squadLabel || "squad") + " · " + modeLabel + (subtitleExtra || ""));
 
     layoutList(ctx, f, shown, imgs, f.head + 36, f.h - f.foot - 28, kit);
 

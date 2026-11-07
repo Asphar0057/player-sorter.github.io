@@ -87,6 +87,7 @@ registerTeam({
     { id: "fernandes", name: "Mateus Fernandes", number: 18, position: "MF", nation: "POR" },
     { id: "kulusevski", name: "Dejan Kulusevski", number: 21, position: "MF", nation: "SWE" },
     { id: "bentancur", name: "Rodrigo Bentancur", number: 30, position: "MF", nation: "URU" },
+    { id: "williams-barnett", name: "Lucá Williams-Barnett", number: 68, position: "MF", nation: "ENG" },
 
     { id: "tel", name: "Mathys Tel", number: 11, position: "FW", nation: "FRA" },
     { id: "savio", name: "Sávio", number: 17, position: "FW", nation: "BRA" },

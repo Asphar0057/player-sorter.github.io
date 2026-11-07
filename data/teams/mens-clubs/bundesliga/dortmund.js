@@ -82,20 +82,24 @@ registerTeam({
     { id: "ryerson", name: "Julian Ryerson", number: 26, position: "DF", nation: "NOR" },
     { id: "prates", name: "Kauã Prates", number: 36, position: "DF", nation: "BRA" },
     { id: "mane", name: "Filippo Mane", number: 39, position: "DF", nation: "ITA" },
+    { id: "reggiani", name: "Luca Reggiani", number: 49, position: "DF", nation: "ITA" },
 
     { id: "jobe-bellingham", name: "Jobe Bellingham", number: 7, position: "MF", nation: "ENG" },
     { id: "nmecha", name: "Felix Nmecha", number: 8, position: "MF", nation: "GER" },
     { id: "chukwuemeka", name: "Carney Chukwuemeka", number: 17, position: "MF", nation: "AUT" },
     { id: "nwaneri", name: "Ethan Nwaneri", number: 18, position: "MF", nation: "ENG" },
     { id: "sabitzer", name: "Marcel Sabitzer", number: 20, position: "MF", nation: "AUT" },
+    { id: "can", name: "Emre Can", number: 23, position: "MF", nation: "GER" },
     { id: "veerman", name: "Joey Veerman", number: 25, position: "MF", nation: "NED" },
     { id: "dos-santos", name: "Enzo Dos Santos", number: 44, position: "MF", nation: "LUX" },
     { id: "kaba", name: "Mussa Kaba", number: 48, position: "MF", nation: "GER" },
+    { id: "konstantelias", name: "Giannis Konstantelias", number: 45, position: "MF", nation: "GRE" },
 
     { id: "guirassy", name: "Serhou Guirassy", number: 9, position: "FW", nation: "GUI" },
     { id: "beier", name: "Maximilian Beier", number: 14, position: "FW", nation: "GER" },
     { id: "karetsas", name: "Konstantinos Karetsas", number: 19, position: "FW", nation: "GRE" },
     { id: "fabio-silva", name: "Fábio Silva", number: 21, position: "FW", nation: "POR" },
-    { id: "samuele-inacio", name: "Samuele Inácio", number: 40, position: "FW", nation: "ITA" }
+    { id: "samuele-inacio", name: "Samuele Inácio", number: 40, position: "FW", nation: "ITA" },
+    { id: "albert", name: "Mathis Albert", number: 41, position: "FW", nation: "GER" }
   ]
 });

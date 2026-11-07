@@ -29,7 +29,14 @@ html { overflow-x: clip; scrollbar-gutter: stable; }
   html { overflow-y: scroll; }
 }
 
-[data-tone="dark"] { color-scheme: dark; }
+:root { color-scheme: only light; }
+
+[data-tone="dark"] { color-scheme: only dark; }
+
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: only light; }
+  [data-tone="dark"] { color-scheme: only dark; }
+}
 
 body {
   --ink: var(--page-ink);
@@ -45,6 +52,41 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+html[data-club] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--paper-bg, none);
+}
+
+.setup-body,
+.roster-item,
+.pick-card,
+.rank-row,
+.stats-entry,
+.st-panel,
+.st-card,
+.st-lock {
+  outline: 1px solid var(--card-border, transparent);
+  outline-offset: -1px;
+}
+
+html[data-metal] main h1 {
+  background-image: var(--metal);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-right: 0.08em;
+}
+
+html[data-metal] .btn-primary,
+html[data-metal] .vs {
+  background: var(--metal);
+  border-color: transparent;
 }
 
 button { font: inherit; }
@@ -226,7 +268,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
 .crest-card { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; z-index: 2; }
 .crest-card .crest-fallback { font-size: 12px; border-width: 2px; }
 
-.avatar { border-radius: 50%; background: var(--card-media, var(--club-accent)); }
+.avatar { border-radius: 50%; background: var(--photo-bg, var(--club-accent)); }
 
 .avatar-fallback {
   color: var(--club-on-accent);
@@ -355,7 +397,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
   border: 0;
   border-radius: 18px;
   overflow: hidden;
-  background: var(--card);
+  background: var(--pick-bg, var(--card));
   color: var(--ink);
   cursor: pointer;
   text-align: left;
@@ -377,7 +419,7 @@ h1 { font-size: clamp(40px, 7vw, 68px); font-style: italic; }
   aspect-ratio: 4 / 4.2;
   max-height: max(200px, calc(100vh - 470px));
   width: 100%;
-  background: var(--card-media, var(--club-accent));
+  background: var(--photo-bg, var(--club-accent));
 }
 
 .avatar-card {

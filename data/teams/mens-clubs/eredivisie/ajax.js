@@ -83,6 +83,7 @@ registerTeam({
     { id: "mokio", name: "Jorthy Mokio", number: 24, position: "MF", nation: "BEL" },
     { id: "bounida", name: "Rayane Bounida", number: 43, position: "MF", nation: "BEL" },
     { id: "bissouma", name: "Yves Bissouma", number: 28, position: "MF", nation: "MLI" },
+    { id: "ouazane", name: "Abdellah Ouazane", number: 68, position: "MF", nation: "MAR" },
 
     { id: "adingra", name: "Simon Adingra", number: 7, position: "FW", nation: "CIV" },
     { id: "dolberg", name: "Kasper Dolberg", number: 9, position: "FW", nation: "DEN" },
