@@ -72,6 +72,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `sleeves`: `base` body with band-coloured shoulders and sleeves (Arsenal home)
 - `zigzag`: horizontal zigzag lines across `base`, cycling through the band colours
 - `tipping`: plain `base` with two thin horizontal stripes near the top, like collar tipping (Bayern away)
+- `lightning`: SVG lightning bolt of the band colour at the right edge of `base` (Rayo Vallecano)
 - `solid`: plain `base` colour
 
 Text sitting directly on the page background uses `onPaper`, `onPaperMuted` and `paperPrimary` / `paperOnPrimary` (for buttons and highlights). Set `dark: true` (and a light `line` colour) for dark kits. The club's card on the home page always uses its home kit (`paper`, `onPaper`, `onPaperMuted` and `pattern`). The visitor's choice is remembered per club.
