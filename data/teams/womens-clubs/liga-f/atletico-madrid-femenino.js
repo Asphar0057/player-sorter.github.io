@@ -1,10 +1,10 @@
 registerTeam({
   id: "atletico-madrid-femenino",
-  name: "Atlético de Madrid Femenino",
+  name: "Atlético Femenino",
   shortName: "Atleti",
   monogram: "ATM",
   league: "liga-f",
-  season: "2025/26",
+  season: "2026/27",
   kits: {
     home: {
       label: "Home",
@@ -65,28 +65,30 @@ registerTeam({
   },
   players: [
     { id: "gallardo", name: "Lola Gallardo", number: 1, position: "GK", nation: "ESP" },
-    { id: "larque", name: "Patri Larqué", number: 13, position: "GK", nation: "ESP" },
+    { id: "genesis-perez", name: "Génesis Pérez", number: 13, position: "GK", nation: "CRC" },
 
-    { id: "medina", name: "Andrea Medina", number: 3, position: "DF", nation: "ESP" },
+    { id: "lucia-rodriguez", name: "Lucía Rodríguez", number: 2, position: "DF", nation: "ESP" },
+    { id: "lydia-rodriguez", name: "Lydia Rodríguez", number: 3, position: "DF", nation: "ESP" },
     { id: "lauren", name: "Lauren", number: 4, position: "DF", nation: "BRA" },
     { id: "perez", name: "Xènia Pérez", number: 5, position: "DF", nation: "ESP" },
-    { id: "menayo", name: "Carmen Menayo", number: 11, position: "DF", nation: "ESP" },
-    { id: "otermin", name: "Rosa Otermín", number: 14, position: "DF", nation: "ESP" },
-    { id: "lloris", name: "Silvia Lloris", number: 15, position: "DF", nation: "ESP" },
+    { id: "otermin", name: "Rosa Otermín", number: 11, position: "DF", nation: "ESP" },
+    { id: "calligaris", name: "Viola Calligaris", number: 19, position: "DF", nation: "SUI" },
     { id: "fernandez", name: "Alexia Fernández", number: 23, position: "DF", nation: "ESP" },
-    { id: "tanarro", name: "Laura Tanarro", number: 32, position: "DF", nation: "ESP" },
+    { id: "lloris", name: "Silvia Lloris", number: 8, position: "DF", nation: "ESP" },
 
-    { id: "boe-risa", name: "Vilde Bøe Risa", number: 6, position: "MF", nation: "NOR" },
+    { id: "zubieta", name: "Maite Zubieta", number: 6, position: "MF", nation: "ESP" },
+    { id: "fiamma", name: "Fiamma Benítez", number: 10, position: "MF", nation: "ESP" },
     { id: "kuhl", name: "Kathrine Kühl", number: 12, position: "MF", nation: "DEN" },
-    { id: "bartel", name: "Júlia Bartel", number: 17, position: "MF", nation: "ESP" },
-    { id: "benitez", name: "Fiamma Benítez", number: 21, position: "MF", nation: "ESP" },
+    { id: "penalvo", name: "Natalia Peñalvo", number: 14, position: "MF", nation: "ESP" },
+    { id: "csiszar", name: "Henrietta Csiszár", number: 21, position: "MF", nation: "HUN" },
+    { id: "teresa", name: "Teresa Abelleira Dueñas ", number: 15, position: "MF", nation: "ESP" },
+    { id: "poljak", name: "Allegra Poljak", number: 17, position: "MF", nation: "SRB" },
 
     { id: "jensen", name: "Synne Jensen", number: 7, position: "FW", nation: "NOR" },
-    { id: "guijarro", name: "Sheila Guijarro", number: 9, position: "FW", nation: "ESP" },
-    { id: "chinchilla", name: "Priscila Chinchilla", number: 16, position: "FW", nation: "CRC" },
-    { id: "garbelini", name: "Gio Garbelini", number: 18, position: "FW", nation: "BRA" },
-    { id: "portales", name: "Macarena Portales", number: 19, position: "FW", nation: "ESP" },
-    { id: "sarriegi", name: "Amaiur Sarriegi", number: 20, position: "FW", nation: "ESP" },
-    { id: "luany", name: "Luany", number: 22, position: "FW", nation: "BRA" }
+    { id: "hermoso", name: "Jenni Hermoso", number: 9, position: "FW", nation: "ESP" },
+    { id: "segura", name: "Celia Segura", number: 16, position: "FW", nation: "ESP" },
+    { id: "gio", name: "Gio Garbelini", number: 18, position: "FW", nation: "BRA" },
+    { id: "gabi-nunes", name: "Gabi Nunes", number: 20, position: "FW", nation: "BRA" },
+    { id: "luany", name: "Luany", number: 22, position: "FW", nation: "BRA" },
   ]
 });

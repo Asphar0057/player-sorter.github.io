@@ -25,7 +25,7 @@ registerTeam({
       onHeader: "#FFFFFF",
       headerBand: "#8FB6E4",
       rowTintStrength: 0.15,
-      pattern: { type: "stripes", base: "#3A56A8", bands: ["#16305C"] }
+      pattern: { type: "gradient", base: "#2F55B4", bands: ["#16305C"] }
     },
     away: {
       label: "Away",
@@ -58,8 +58,8 @@ registerTeam({
       muted: "#3E4A38",
       primary: "#163A8C",
       onPrimary: "#FFFFFF",
-      accent: "#FFFFFF",
-      onAccent: "#163A8C",
+      accent: "#163A8C",
+      onAccent: "#FFFFFF",
       header: "#9CC056",
       onHeader: "#10244F",
       headerBand: "#163A8C",
@@ -74,7 +74,7 @@ registerTeam({
     { id: "muller", name: "Kevin Müller", number: 22, position: "GK", nation: "GER" },
     { id: "siebeking", name: "Johannes Siebeking", number: 36, position: "GK", nation: "GER" },
 
-    { id: "kurucay", name: "Hasan Kuruçay", number: 4, position: "DF", nation: "DEN" },
+    { id: "kurucay", name: "Hasan Kuruçay", number: 4, position: "DF", nation: "TUR" },
     { id: "timo-becker", name: "Timo Becker", number: 5, position: "DF", nation: "GER" },
     { id: "gosens", name: "Robin Gosens", number: 8, position: "DF", nation: "GER" },
     { id: "gantenbein", name: "Adrian Gantenbein", number: 17, position: "DF", nation: "SUI" },
@@ -88,7 +88,7 @@ registerTeam({
     { id: "tanaka", name: "Satoshi Tanaka", number: 13, position: "MF", nation: "JPN" },
     { id: "bachmann", name: "Janik Bachmann", number: 14, position: "MF", nation: "GER" },
     { id: "ljubicic", name: "Dejan Ljubičić", number: 21, position: "MF", nation: "AUT" },
-    { id: "el-faouzi", name: "Soufiane El-Faouzi", number: 23, position: "MF", nation: "GER" },
+    { id: "el-faouzi", name: "Soufiane El-Faouzi", number: 23, position: "MF", nation: "MAR" },
     { id: "aouchiche", name: "Adil Aouchiche", number: 24, position: "MF", nation: "ALG" },
     { id: "porath", name: "Finn Porath", number: 27, position: "MF", nation: "GER" },
     { id: "vozar", name: "Luca Vozar", number: 38, position: "MF", nation: "GER" },
@@ -98,7 +98,7 @@ registerTeam({
     { id: "dzeko", name: "Edin Džeko", number: 10, position: "FW", nation: "BIH" },
     { id: "lasme", name: "Bryan Lasme", number: 11, position: "FW", nation: "FRA" },
     { id: "hojlund", name: "Emil Højlund", number: 15, position: "FW", nation: "DEN" },
-    { id: "karaman", name: "Kenan Karaman", number: 19, position: "FW", nation: "GER" },
+    { id: "karaman", name: "Kenan Karaman", number: 19, position: "FW", nation: "TUR" },
     { id: "adamu", name: "Junior Adamu", number: 20, position: "FW", nation: "AUT" }
   ]
 });
