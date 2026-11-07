@@ -205,6 +205,18 @@
     if (p.type === "split") {
       return splitSvg(p) + " center / 100% 100% no-repeat, " + p.base;
     }
+    if (p.type === "cross") {
+      const white = b[0] || "#FFFFFF";
+      const blue = b[1] || "#00205B";
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">' +
+        '<rect width="100" height="100" fill="' + p.base + '"/>' +
+        '<rect x="0" y="42" width="100" height="16" fill="' + white + '"/>' +
+        '<rect x="42" y="0" width="16" height="100" fill="' + white + '"/>' +
+        '<rect x="0" y="47" width="100" height="6" fill="' + blue + '"/>' +
+        '<rect x="47" y="0" width="6" height="100" fill="' + blue + '"/>' +
+        '</svg>';
+      return "url('data:image/svg+xml," + encodeURIComponent(svg) + "') center / 100% 100% no-repeat, " + p.base;
+    }
     if (p.type === "checks") {
       const c = b[0] || "#000000";
       let cells = "";
@@ -391,6 +403,17 @@
       ctx.lineTo(x + w, y);
       ctx.closePath();
       ctx.fill();
+    } else if (p.type === "cross") {
+      const white = b[0] || "#FFFFFF";
+      const blue = b[1] || "#00205B";
+      ctx.fillStyle = p.base;
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = white;
+      ctx.fillRect(x, y + h * 0.42, w, h * 0.16);
+      ctx.fillRect(x + w * 0.42, y, w * 0.16, h);
+      ctx.fillStyle = blue;
+      ctx.fillRect(x, y + h * 0.47, w, h * 0.06);
+      ctx.fillRect(x + w * 0.47, y, w * 0.06, h);
     }
   }
 
