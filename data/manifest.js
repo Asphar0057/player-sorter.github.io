@@ -92,7 +92,7 @@ window.SQUAD_MANIFEST = {
         {
           id: "world-cup-2026",
           name: "World Cup 2026",
-          teams: ["2026-spain", "2026-france"]
+          teams: ["2026-spain", "2026-france", "2026-argentina", "2026-england"]
         },
         /*
         {
