@@ -23,7 +23,7 @@ window.SQUAD_MANIFEST = {
           id: "bundesliga",
           name: "Bundesliga",
           country: "Germany",
-          teams: ["bayern-munich", "dortmund"]
+          teams: ["bayern-munich", "dortmund", "schalke"]
         },
         {
           id: "ligue-1",
@@ -69,13 +69,13 @@ window.SQUAD_MANIFEST = {
           country: "England",
           teams: ["arsenal-women"]
         },
-        /*
         {
           id: "liga-f",
           name: "Liga F",
           country: "Spain",
-          teams: ["barcelona-femeni"]
+          teams: ["atletico-madrid-femenino"]
         },
+        /*
         {
           id: "premiere-ligue",
           name: "Première Ligue",
@@ -92,7 +92,7 @@ window.SQUAD_MANIFEST = {
         {
           id: "world-cup-2026",
           name: "World Cup 2026",
-          teams: ["2026-spain"]
+          teams: ["2026-spain", "2026-france"]
         },
         /*
         {
