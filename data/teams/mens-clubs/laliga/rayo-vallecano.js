@@ -5,7 +5,7 @@ registerTeam({
   monogram: "RAY",
   league: "laliga",
   season: "2026/27",
-  tile: { bg: "#FFFFFF", fg: "#E4002B", muted: "rgba(228,0,43,0.75)", pattern: { type: "lightning", base: "#FFFFFF", bands: ["#E4002B"] } },
+  tile: { bg: "#FFFFFF", fg: "#E4002B", muted: "rgba(228,0,43,0.75)", pattern: { type: "sash", base: "#FFFFFF", bands: ["#E4002B"] } },
   kits: {
     home: {
       label: "Home",
@@ -26,24 +26,28 @@ registerTeam({
       headerBand: "#E4002B",
       rowTint: "#E4002B",
       rowTintStrength: 0.12,
-      pattern: { type: "lightning", base: "#FFFFFF", bands: ["#E4002B"] }
+      pattern: { type: "sash", base: "#FFFFFF", bands: ["#E4002B"] }
     },
     away: {
       label: "Away",
-      dark: true,
-      paper: "#141414",
-      card: "#1F1F1F",
-      line: "rgba(255,255,255,0.14)",
-      ink: "#F4F4F4",
-      muted: "#A8A8A8",
+      paper: "#E4002B",
+      card: "#FFFFFF",
+      onPaper: "#FFFFFF",
+      onPaperMuted: "rgba(255,255,255,0.82)",
+      paperPrimary: "#FFFFFF",
+      paperOnPrimary: "#E4002B",
+      line: "rgba(0,0,0,0.16)",
+      ink: "#1B1B1B",
+      muted: "#5B6170",
       primary: "#E4002B",
       onPrimary: "#FFFFFF",
-      accent: "#F4F4F4",
-      onAccent: "#141414",
-      header: "#1B1B1B",
-      onHeader: "#F4F4F4",
-      headerBand: "#E4002B",
-      pattern: { type: "lightning", base: "#1B1B1B", bands: ["#E4002B"] }
+      accent: "#1B1B1B",
+      onAccent: "#FFFFFF",
+      header: "#E4002B",
+      onHeader: "#FFFFFF",
+      headerBand: "#1B1B1B",
+      rowTintStrength: 0.15,
+      pattern: { type: "lightning", base: "#E4002B", bands: ["#FFFFFF"] }
     },
     third: {
       label: "Third",

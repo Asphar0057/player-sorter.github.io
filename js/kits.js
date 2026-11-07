@@ -90,6 +90,17 @@
   }
 
   const CB = [0.33, 0.39, 0.61, 0.67];
+
+  const BAND = [0.36, 0.41, 0.59, 0.64];
+
+  const SASH = [[0, 6], [0, 34], [100, 96], [100, 68]];
+
+  function sashSvg(p) {
+    const color = (p.bands && p.bands[0]) || "#FFFFFF";
+    const pts = SASH.map(pt => pt.join(",")).join(" ");
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="' + pts + '" fill="' + color + '"/></svg>';
+    return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
+  }
   const RAYO_BOLT = [[78, 0], [96, 0], [77, 38], [89, 38], [48, 100], [28, 100], [60, 52], [48, 52]];
 
   const TIP = [[0.24, 0.3], [0.33, 0.39]];
@@ -154,6 +165,15 @@
       const mid = b[1] || edge;
       return "linear-gradient(90deg, " + p.base + " 0 " + pct(CB[0]) + ", " + edge + " " + pct(CB[0]) + " " + pct(CB[1]) + ", " +
         mid + " " + pct(CB[1]) + " " + pct(CB[2]) + ", " + edge + " " + pct(CB[2]) + " " + pct(CB[3]) + ", " + p.base + " " + pct(CB[3]) + " 100%)";
+    }
+    if (p.type === "band") {
+      const edge = b[0] || "#FFFFFF";
+      const mid = b[1] || edge;
+      return "linear-gradient(180deg, " + p.base + " 0 " + pct(BAND[0]) + ", " + edge + " " + pct(BAND[0]) + " " + pct(BAND[1]) + ", " +
+        mid + " " + pct(BAND[1]) + " " + pct(BAND[2]) + ", " + edge + " " + pct(BAND[2]) + " " + pct(BAND[3]) + ", " + p.base + " " + pct(BAND[3]) + " 100%)";
+    }
+    if (p.type === "sash") {
+      return sashSvg(p) + " center / 100% 100% no-repeat, " + p.base;
     }
     if (p.type === "tipping") {
       const c = b.length ? b : ["#000000"];
@@ -261,6 +281,22 @@
       ctx.fillRect(x + w * CB[0], y, w * (CB[3] - CB[0]), h);
       ctx.fillStyle = b[1] || edge;
       ctx.fillRect(x + w * CB[1], y, w * (CB[2] - CB[1]), h);
+    } else if (p.type === "band") {
+      const edge = b[0] || "#FFFFFF";
+      ctx.fillStyle = edge;
+      ctx.fillRect(x, y + h * BAND[0], w, h * (BAND[3] - BAND[0]));
+      ctx.fillStyle = b[1] || edge;
+      ctx.fillRect(x, y + h * BAND[1], w, h * (BAND[2] - BAND[1]));
+    } else if (p.type === "sash") {
+      ctx.fillStyle = b[0] || "#FFFFFF";
+      ctx.beginPath();
+      SASH.forEach(([px, py], j) => {
+        const X = x + (px / 100) * w;
+        const Y = y + (py / 100) * h;
+        if (j) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+      });
+      ctx.closePath();
+      ctx.fill();
     } else if (p.type === "tipping") {
       const c = b.length ? b : ["#000000"];
       TIP.forEach(([from, to], i) => {
