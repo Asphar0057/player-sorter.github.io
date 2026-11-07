@@ -74,23 +74,23 @@ registerTeam({
     { id: "aleixandri", name: "Laia Aleixandri", number: 5, position: "DF", nation: "ESP" },
     { id: "torrejon", name: "Marta Torrejón", number: 8, position: "DF", nation: "ESP" },
     { id: "camara", name: "Aïcha Camara", number: 23, position: "DF", nation: "ESP" },
-    { id: "martina-fernandez", name: "Martina Fernández", number: 24, position: "DF", nation: "ESP" },
-    { id: "julia-torres", name: "Julia Torres", number: 26, position: "DF", nation: "ESP" },
+    { id: "fernandez", name: "Martina Fernández", number: 24, position: "DF", nation: "ESP" },
+    { id: "torres", name: "Julia Torres", number: 26, position: "DF", nation: "ESP" },
     { id: "arufe", name: "Lúa Arufe", number: 28, position: "DF", nation: "ESP" },
 
-    { id: "patri", name: "Patri Guijarro", number: 12, position: "MF", nation: "ESP" },
+    { id: "guijarro", name: "Patri Guijarro", number: 12, position: "MF", nation: "ESP" },
     { id: "aitana", name: "Aitana Bonmatí", number: 14, position: "MF", nation: "ESP" },
     { id: "serrajordi", name: "Clara Serrajordi", number: 16, position: "MF", nation: "ESP" },
     { id: "vicky-lopez", name: "Vicky López", number: 19, position: "MF", nation: "ESP" },
     { id: "carla-julia", name: "Carla Juliá", number: 21, position: "MF", nation: "ESP" },
-    { id: "rosalia-dominguez", name: "Rosalía Domínguez", number: 27, position: "MF", nation: "ESP" },
+    { id: "dominguez", name: "Rosalía Domínguez", number: 27, position: "MF", nation: "ESP" },
 
     { id: "schertenleib", name: "Sydney Schertenleib", number: 6, position: "FW", nation: "SUI" },
     { id: "kerolin", name: "Kerolin", number: 7, position: "FW", nation: "BRA" },
-    { id: "pina", name: "Clàudia Pina", number: 9, position: "FW", nation: "ESP" },
+    { id: "claudia-pina", name: "Clàudia Pina", number: 9, position: "FW", nation: "ESP" },
     { id: "graham-hansen", name: "Caroline Graham Hansen", number: 10, position: "FW", nation: "NOR" },
     { id: "pajor", name: "Ewa Pajor", number: 17, position: "FW", nation: "POL" },
-    { id: "kika-nazareth", name: "Kika Nazareth", number: 18, position: "FW", nation: "POR" },
+    { id: "kika", name: "Kika Nazareth", number: 18, position: "FW", nation: "POR" },
     { id: "brugts", name: "Esmee Brugts", number: 22, position: "FW", nation: "NED" }
   ]
 });

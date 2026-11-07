@@ -137,7 +137,7 @@
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     ctx.save();
-    if (["zigzag", "hoops", "split", "sash", "lightning"].indexOf(p.type) >= 0) {
+    if (["zigzag", "hoops", "split", "sash", "lightning", "checks"].indexOf(p.type) >= 0) {
       if (room < 150) {
         ctx.restore();
         return;
@@ -241,6 +241,15 @@
       ctx.lineTo(f.w, 0);
       ctx.closePath();
       ctx.fill();
+    } else if (p.type === "checks") {
+      const header = String(k.header || "").toLowerCase();
+      ctx.fillStyle = String(p.base).toLowerCase() !== header ? p.base : band;
+      const cell = h / 4;
+      const cols = Math.min(8, Math.floor((room - 24) / cell));
+      const x0 = f.w - cols * cell;
+      for (let r = 0; r < 4; r++) {
+        for (let q = r % 2; q < cols; q += 2) ctx.fillRect(x0 + q * cell, r * cell, cell, cell);
+      }
     } else if (p.type === "hoops") {
       const colors = p.bands && p.bands.length ? p.bands : [k.onHeader];
       const bandH = Math.round(f.head * 0.028);

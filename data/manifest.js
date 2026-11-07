@@ -17,13 +17,13 @@ window.SQUAD_MANIFEST = {
           id: "premier-league",
           name: "Premier League",
           country: "England",
-          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham"]
+          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds"]
         },
         {
           id: "bundesliga",
           name: "Bundesliga",
           country: "Germany",
-          teams: ["bayern-munich", "dortmund", "schalke"]
+          teams: ["bayern-munich", "dortmund", "schalke"]//, "stuttgart"]
         },
         {
           id: "ligue-1",
@@ -36,6 +36,12 @@ window.SQUAD_MANIFEST = {
           name: "Serie A",
           country: "Italy",
           teams: ["roma", "juventus", "ac-milan", "inter"]
+        },
+        {
+          id: "eredivisie",
+          name: "Eredivisie",
+          country: "Netherlands",
+          teams: ["ajax"]
         },
         /*
         {
@@ -64,25 +70,23 @@ window.SQUAD_MANIFEST = {
       name: "Women's clubs",
       groups: [
         {
-          id: "wsl",
-          name: "WSL",
-          country: "England",
-          teams: ["arsenal-women"]
-        },
-        {
           id: "liga-f",
           name: "Liga F",
           country: "Spain",
-          teams: ["atletico-madrid-femenino"]
+          teams: ["atletico-madrid-femenino", "barcelona-femeni", "real-madrid-femenino"]
         },
-        /*
+        {
+          id: "wsl",
+          name: "WSL",
+          country: "England",
+          teams: ["arsenal-women", "chelsea-women", "manchester-city-women"]
+        },
         {
           id: "premiere-ligue",
           name: "Première Ligue",
           country: "France",
           teams: ["ol-lyonnes"]
         }
-          */
       ]
     },
     {
@@ -92,7 +96,7 @@ window.SQUAD_MANIFEST = {
         {
           id: "world-cup-2026",
           name: "World Cup 2026",
-          teams: ["2026-spain", "2026-france", "2026-argentina", "2026-england", "2026-uruguay"]
+          teams: ["2026-spain", "2026-argentina", "2026-france", "2026-england", "2026-uruguay"]
         },
         /*
         {
