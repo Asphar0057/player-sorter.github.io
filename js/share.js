@@ -137,7 +137,7 @@
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     ctx.save();
-    if (["zigzag", "hoops", "split", "sash", "lightning", "checks", "triangles"].indexOf(p.type) >= 0) {
+    if (["zigzag", "hoops", "split", "sash", "lightning", "checks", "triangles", "chevron"].indexOf(p.type) >= 0) {
       if (room < 150) {
         ctx.restore();
         return;
@@ -187,6 +187,23 @@
         }
         ctx.stroke();
       });
+    } else if (p.type === "waves") {
+      const colors = p.bands && p.bands.length ? p.bands : [band];
+      const rows = 10;
+      const amplitude = Math.min(h * 0.18, 16);
+      const phase = 0.75;
+      for (let i = 0; i < rows; i++) {
+        const yBase = ((i + 0.5) / rows) * h;
+        ctx.beginPath();
+        for (let x = 0; x <= f.w; x += 10) {
+          const y = yBase + Math.sin((x / 120) * Math.PI * 2 + phase) * amplitude;
+          if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = colors[i % colors.length];
+        ctx.lineWidth = 2.2;
+        ctx.globalAlpha = 0.3 + ((i % 4) + 1) * 0.12;
+        ctx.stroke();
+      }
     } else if (p.type === "sash") {
       const bw = Math.min(120, room * 0.38);
       const x0 = Math.max(from + 20, f.w - bw - h * 0.9);
@@ -276,6 +293,24 @@
           ctx.fill();
         }
       }
+    } else if (p.type === "chevron") {
+      const centerX = from + ((f.w - from) * 0.5);
+      const size = Math.max(60, room * 0.58);
+      const left = from;
+      const right = f.w;
+      const top = 0;
+      const bottom = h;
+      ctx.fillStyle = band;
+      ctx.beginPath();
+      ctx.moveTo(left, top);
+      ctx.lineTo(centerX, bottom);
+      ctx.lineTo(right, top);
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 0;
+      ctx.fillStyle = k.onHeader;
+      ctx.fillRect(left, top, size, bottom);
+      ctx.globalAlpha = 1;
     } else if (p.type === "hoops") {
       const colors = p.bands && p.bands.length ? p.bands : [k.onHeader];
       const bandH = Math.round(f.head * 0.028);
