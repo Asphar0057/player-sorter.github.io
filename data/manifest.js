@@ -12,7 +12,7 @@ window.SQUAD_MANIFEST = {
           id: "laliga",
           name: "LaLiga",
           country: "Spain",
-          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna"]//, "real-sociedad"]
+          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna", "real-sociedad", "athletic-club", "sevilla"]
         },
         {
           id: "premier-league",
