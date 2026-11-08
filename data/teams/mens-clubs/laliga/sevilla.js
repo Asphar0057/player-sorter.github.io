@@ -19,7 +19,7 @@ registerTeam({
       primary: "#AE102C",
       onPrimary: "#FFFFFF",
       accent: "#C8102E",
-      onAccent: "#151C34",
+      onAccent: "#FFFFFF",
       labelBg: "#F3F6FF",
       header: "#FFFFFF",
       onHeader: "#AE102C",
@@ -27,6 +27,7 @@ registerTeam({
       rowTint: "#AE102C",
       rowTintStrength: 0.12,
       pattern: { type: "sleeves", base: "#FFFFFF", bands: ["#C8102E"] },
+      photoInk: "#151C34",
       photoBg: "#D5E4F8"
     },
     away: {
@@ -41,8 +42,8 @@ registerTeam({
       muted: "#55576C",
       primary: "#AE102C",
       onPrimary: "#FFFFFF",
-      accent: "#27141D",
-      onAccent: "#FFFFFF",
+      accent: "#FFF6F8",
+      onAccent: "#AE102C",
       labelBg: "#FFF6F8",
       header: "#AE102C",
       onHeader: "#FFFFFF",
@@ -50,6 +51,7 @@ registerTeam({
       rowTint: "#AE102C",
       rowTintStrength: 0.12,
       pattern: { type: "tipping", base: "#AE102C", bands: ["#27141D"] },
+      photoInk: "#FFFFFF",
       photoBg: "#AE102C"
     },
     third: {
@@ -65,7 +67,7 @@ registerTeam({
       primary: "#FFF3F8",
       onPrimary: "#1B1722",
       accent: "#E891AD",
-      onAccent: "#FFFFFF",
+      onAccent: "#1B1722",
       labelBg: "#2C2933",
       header: "#1B1722",
       onHeader: "#FFF3F8",
@@ -73,6 +75,7 @@ registerTeam({
       rowTint: "#FFF3F8",
       rowTintStrength: 0.12,
       pattern: { type: "gradient", base: "#1B1722", bands: ["#E891AD"] },
+      photoInk: "#FFFFFF",
       photoBg: "#433D50",
       dark: true
     }
