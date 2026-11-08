@@ -52,7 +52,7 @@ registerTeam({
       card: "#FFFFFF",
       ink: "#141214",
       muted: "#6A6468",
-      primary: "#9FE0C8",
+      primary: "#448f73",
       onPrimary: "#141214",
       accent: "#F4A9C7",
       onAccent: "#111111",

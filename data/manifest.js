@@ -36,7 +36,7 @@ window.SQUAD_MANIFEST = {
           id: "serie-a",
           name: "Serie A",
           country: "Italy",
-          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como"]//, "napoli"]
+          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como", "fiorentina", "atalanta"]//, "napoli"]
         },
         {
           id: "eredivisie",
@@ -73,6 +73,12 @@ window.SQUAD_MANIFEST = {
           name: "Championship",
           country: "England",
           teams: ["west-ham-united", "wolves"]//, "sheffield-united"]
+        },
+        {
+          id: "laliga-hypermotion",
+          name: "LALIGA HYPERMOTION",
+          country: "Spain",
+          teams: ["leganes"]
         },
         /*
         {
