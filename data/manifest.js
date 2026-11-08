@@ -36,7 +36,7 @@ window.SQUAD_MANIFEST = {
           id: "serie-a",
           name: "Serie A",
           country: "Italy",
-          teams: ["roma", "juventus", "ac-milan", "inter"]//, "napoli"]
+          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari"]//, "napoli"]
         },
         {
           id: "eredivisie",

@@ -120,6 +120,8 @@
 
   const TIP = [[0.24, 0.3], [0.33, 0.39]];
 
+  const FADE = [0.4, 0.62];
+
   const SLEEVE_L = [[0, 0], [30, 0], [22, 46], [0, 60]];
 
   const ZZ_ROWS = [0.3, 0.46, 0.62, 0.78];
@@ -194,6 +196,10 @@
     }
     if (p.type === "gradient") {
       return "linear-gradient(180deg, " + p.base + ", " + (b[0] || p.base) + ")";
+    }
+    if (p.type === "fade") {
+      // left half base colour, softly blending into the band colour on the right (Cagliari)
+      return "linear-gradient(90deg, " + p.base + " 0 " + pct(FADE[0]) + ", " + (b[0] || p.base) + " " + pct(FADE[1]) + " 100%)";
     }
     if (p.type === "sleeves") {
       const c = b[0] || "#FFFFFF";
@@ -472,6 +478,12 @@
         ctx.fillStyle = c[i % c.length];
         ctx.fillRect(x, y + h * from, w, h * (to - from));
       });
+    } else if (p.type === "fade") {
+      const g = ctx.createLinearGradient(x, y, x + w, y);
+      g.addColorStop(FADE[0], p.base);
+      g.addColorStop(FADE[1], b[0] || p.base);
+      ctx.fillStyle = g;
+      ctx.fillRect(x, y, w, h);
     } else if (p.type === "gradient") {
       const g = ctx.createLinearGradient(x, y, x, y + h);
       g.addColorStop(0, p.base);

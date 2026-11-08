@@ -68,6 +68,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `hoops`: horizontal bands (can alternate several colours)
 - `bolts`: plain `base` with two thin lightning-bolt stripes near the edges
 - `gradient`: `base` fading top to bottom into the band colour
+- `fade`: `base` on the left half, softly blending into the band colour on the right (Cagliari's home-page card)
 - `split`: `base` on the left, band colour on the right, divided by a vertical zigzag
 - `sleeves`: `base` body with band-coloured shoulders and sleeves (Arsenal home)
 - `zigzag`: horizontal zigzag lines across `base`, cycling through the band colours
