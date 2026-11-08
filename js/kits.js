@@ -210,7 +210,8 @@
       return "repeating-linear-gradient(90deg, " + p.base + " 0 18%, " + b[0] + " 18% 30%)";
     }
     if (p.type === "pinstripe") {
-      return "repeating-linear-gradient(90deg, " + p.base + " 0 15%, " + b[0] + " 15% 17%)";
+      const start = pct(0.17 - (p.width ?? 0.02));
+      return "repeating-linear-gradient(90deg, " + p.base + " 0 " + start + ", " + b[0] + " " + start + " 17%)";
     }
     if (p.type === "bolts") {
       return boltSvg(p) + " center / 100% 100% no-repeat, " + p.base;
@@ -250,10 +251,11 @@
       return chevronSvg(p);
     }
     if (p.type === "centreband") {
+      const stops = p.stops || CB;
       const edge = b[0] || "#FFFFFF";
       const mid = b[1] || edge;
-      return "linear-gradient(90deg, " + p.base + " 0 " + pct(CB[0]) + ", " + edge + " " + pct(CB[0]) + " " + pct(CB[1]) + ", " +
-        mid + " " + pct(CB[1]) + " " + pct(CB[2]) + ", " + edge + " " + pct(CB[2]) + " " + pct(CB[3]) + ", " + p.base + " " + pct(CB[3]) + " 100%)";
+      return "linear-gradient(90deg, " + p.base + " 0 " + pct(stops[0]) + ", " + edge + " " + pct(stops[0]) + " " + pct(stops[1]) + ", " +
+        mid + " " + pct(stops[1]) + " " + pct(stops[2]) + ", " + edge + " " + pct(stops[2]) + " " + pct(stops[3]) + ", " + p.base + " " + pct(stops[3]) + " 100%)";
     }
     if (p.type === "band") {
       const edge = b[0] || "#FFFFFF";
@@ -320,8 +322,8 @@
     ctx.fillRect(x, y, w, h);
     if (p.type === "stripes" || p.type === "pinstripe") {
       const period = w * (p.type === "stripes" ? 0.3 : 0.17);
-      const offset = p.type === "stripes" ? 0.6 : 15 / 17;
-      const bandW = period * (p.type === "stripes" ? 0.4 : 2 / 17);
+      const bandW = p.type === "stripes" ? period * 0.4 : w * (p.width ?? 0.02);
+      const offset = 1 - bandW / period;
       ctx.fillStyle = b[0];
       for (let sx = x; sx < x + w; sx += period) ctx.fillRect(sx + period * offset, y, bandW, h);
     } else if (p.type === "diamonds") {
@@ -487,11 +489,12 @@
       ctx.closePath();
       ctx.fill();
     } else if (p.type === "centreband") {
+      const stops = p.stops || CB;
       const edge = b[0] || "#FFFFFF";
       ctx.fillStyle = edge;
-      ctx.fillRect(x + w * CB[0], y, w * (CB[3] - CB[0]), h);
+      ctx.fillRect(x + w * stops[0], y, w * (stops[3] - stops[0]), h);
       ctx.fillStyle = b[1] || edge;
-      ctx.fillRect(x + w * CB[1], y, w * (CB[2] - CB[1]), h);
+      ctx.fillRect(x + w * stops[1], y, w * (stops[2] - stops[1]), h);
     } else if (p.type === "band") {
       const edge = b[0] || "#FFFFFF";
       ctx.fillStyle = edge;

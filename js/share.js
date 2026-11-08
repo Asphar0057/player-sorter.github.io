@@ -291,9 +291,10 @@
       const edge = p.bands && p.bands[0] ? p.bands[0] : k.onHeader;
       const mid = p.bands && p.bands[1] ? p.bands[1] : edge;
       ctx.fillStyle = edge;
-      ctx.fillRect(from + room * 0.33, 0, room * (0.67 - 0.33), h);
+      const [start, innerStart, innerEnd, end] = p.stops || [0.33, 0.39, 0.61, 0.67];
+      ctx.fillRect(from + room * start, 0, room * (end - start), h);
       ctx.fillStyle = mid;
-      ctx.fillRect(from + room * 0.39, 0, room * (0.61 - 0.39), h);
+      ctx.fillRect(from + room * innerStart, 0, room * (innerEnd - innerStart), h);
     } else if (p.type === "band") {
       const edge = p.bands && p.bands[0] ? p.bands[0] : k.onHeader;
       const mid = p.bands && p.bands[1] ? p.bands[1] : edge;
