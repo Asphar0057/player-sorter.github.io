@@ -48,7 +48,7 @@ window.SQUAD_MANIFEST = {
           id: "mls",
           name: "Major League Soccer",
           country: "United States",
-          teams: ["inter-miami", "new-england-revolution"]
+          teams: ["inter-miami", "orlando-city", "new-england-revolution"]
         },
         {
           id: "liga-profesional",
