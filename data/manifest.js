@@ -12,7 +12,7 @@ window.SQUAD_MANIFEST = {
           id: "laliga",
           name: "LaLiga",
           country: "Spain",
-          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna"]//, "real-sociedad"]
+          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna", "real-sociedad", "athletic-club", "sevilla"]
         },
         {
           id: "premier-league",
@@ -43,6 +43,12 @@ window.SQUAD_MANIFEST = {
           name: "Eredivisie",
           country: "Netherlands",
           teams: ["ajax"]
+        },
+        {
+          id: "liga-portugal",
+          name: "Liga Portugal",
+          country: "Portugal",
+          teams: ["benfica"]
         },
         {
           id: "mls",
@@ -80,14 +86,6 @@ window.SQUAD_MANIFEST = {
           country: "Spain",
           teams: ["leganes"]
         },
-        /*
-        {
-          id: "liga-portugal",
-          name: "Liga Portugal",
-          country: "Portugal",
-          teams: ["benfica"]
-        },
-          */
       ]
     },
     {
@@ -129,7 +127,7 @@ window.SQUAD_MANIFEST = {
         {
           id: "world-cup-2026",
           name: "World Cup 2026",
-          teams: ["2026-spain", "2026-argentina", "2026-france", "2026-england", "2026-uruguay", "2026-norway", "2026-portugal", "2026-germany"]
+          teams: ["2026-spain", "2026-argentina", "2026-france", "2026-england", "2026-uruguay", "2026-norway", "2026-portugal", "2026-germany", "2026-mexico", "2026-brasil"]
         },
         /*
         {
