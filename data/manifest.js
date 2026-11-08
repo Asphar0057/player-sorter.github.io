@@ -48,7 +48,7 @@ window.SQUAD_MANIFEST = {
           id: "mls",
           name: "Major League Soccer",
           country: "United States",
-          teams: ["new-england-revolution"]
+          teams: ["inter-miami", "orlando-city", "new-england-revolution"]
         },
         {
           id: "liga-profesional",
@@ -61,6 +61,12 @@ window.SQUAD_MANIFEST = {
           name: "Campeonato Brasileiro Série A",
           country: "Brazil",
           teams: ["flamengo"]
+        },
+        {
+          id: "liga-mx",
+          name: "Liga MX",
+          country: "Mexico",
+          teams: ["club-america"]
         },
         {
           id: "championship",
