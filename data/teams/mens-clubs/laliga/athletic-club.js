@@ -87,6 +87,7 @@ registerTeam({
     { id: "aymeric-laporte", name: "Aymeric Laporte", number: 14, position: "DF", nation: "ESP" },
     { id: "hugo-rincon", name: "Hugo Rincón", number: 15, position: "DF", nation: "ESP" },
     { id: "yuri-berchiche", name: "Yuri Berchiche", number: 17, position: "DF", nation: "ESP" },
+    { id: "adama-boiro", name: "Adama Boiro", number: 19, position: "DF", nation: "ESP" },
     { id: "johaneko-louis-jean", name: "Johaneko Louis-Jean", number: 31, position: "DF", nation: "FRA" },
     { id: "unai-eguiluz", name: "Unai Eguíluz", position: "DF", nation: "ESP" },
     { id: "benat-prados", name: "Beñat Prados", number: 6, position: "MF", nation: "ESP" },
@@ -96,7 +97,6 @@ registerTeam({
     { id: "alejandro-rego", name: "Alejandro Rego", number: 20, position: "MF", nation: "ESP" },
     { id: "benat-gerenabarrena", name: "Beñat Gerenabarrena", number: 24, position: "MF", nation: "ESP" },
     { id: "peio-canales", name: "Peio Canales", number: 28, position: "MF", nation: "ESP" },
-    { id: "selton-sanchez", name: "Selton Sánchez", number: 44, position: "MF", nation: "ESP" },
     { id: "alex-berenguer", name: "Álex Berenguer", number: 7, position: "FW", nation: "ESP" },
     { id: "inaki-williams", name: "Iñaki Williams", number: 9, position: "FW", nation: "GHA" },
     { id: "nico-williams", name: "Nico Williams", number: 10, position: "FW", nation: "ESP" },
@@ -106,7 +106,6 @@ registerTeam({
     { id: "robert-navarro", name: "Robert Navarro", number: 23, position: "FW", nation: "ESP" },
     { id: "alvaro-djalo", name: "Álvaro Djaló", number: 25, position: "FW", nation: "GNB" },
     { id: "christian-imga", name: "Christian Imga", number: 33, position: "FW" },
-    { id: "jesus-vizcay", name: "Jesús Vizcay", number: 34, position: "FW", nation: "ESP" },
-    { id: "aritz-conde", name: "Aritz Conde", number: 35, position: "FW", nation: "ESP" }
+    { id: "jesus-vizcay", name: "Jesús Vizcay", number: 34, position: "FW", nation: "ESP" }
   ]
 });
