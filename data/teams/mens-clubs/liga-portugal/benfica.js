@@ -65,8 +65,8 @@ registerTeam({
   },
   players: [
     { id: "trubin", name: "Anatoliy Trubin", number: 1, position: "GK", nation: "UKR" },
-    { id: "soares", name: "Samuel Soares", number: 24, position: "GK", nation: "POR" },
-    { id: "ferreira", name: "Diego Ferreira", number: 50, position: "GK", nation: "POR" },
+    { id: "samu", name: "Samuel Soares", number: 24, position: "GK", nation: "POR" },
+    { id: "diogo_ferreira", name: "Diego Ferreira", number: 50, position: "GK", nation: "POR" },
 
 
     { id: "lenglet", name: "Clément Lenglet", number: 2, position: "DF", nation: "FRA" },
@@ -74,27 +74,28 @@ registerTeam({
     { id: "bah", name: "Alexander Bah", number: 6, position: "DF", nation: "DEN" },
     { id: "dahl", name: "Samuel Dahl", number: 26, position: "DF", nation: "SWE" },
     { id: "indio", name: "Gabriel Índio", number: 33, position: "DF", nation: "BRA" },
-    { id: "el-karouani", name: "Souffian El Karouani", number: 34, position: "DF", nation: "MAR" },
-    { id: "araujo", name: "Tomás Araújo", number: 44, position: "DF", nation: "POR" },
+    { id: "el_karouani", name: "Souffian El Karouani", number: 34, position: "DF", nation: "MAR" },
+    { id: "tomas", name: "Tomás Araújo", number: 44, position: "DF", nation: "POR" },
     { id: "banjaqui", name: "Daniel Banjaqui", number: 58, position: "DF", nation: "POR" },
-    { id: "neto", name: "José Neto", number: 62, position: "DF", nation: "POR" },
+    { id: "jose_neto", name: "José Neto", number: 62, position: "DF", nation: "POR" },
 
-    { id: "barrenechea", name: "Enzo Barrenechea", number: 5, position: "MF", nation: "ARG" },
+    { id: "enzo", name: "Enzo Barrenechea", number: 5, position: "MF", nation: "ARG" },
     { id: "aursnes", name: "Fredrik Aursnes", number: 8, position: "MF", nation: "NOR" },
-    { id: "sudakov", name: "Heorhiy Sudakov", number: 10, position: "MF", nation: "UKR" },
+    { id: "sudakov", name: "Georgiy Sudakov", number: 10, position: "MF", nation: "UKR" },
     { id: "kaminski", name: "Jakub Kamiński", number: 13, position: "MF", nation: "POL" },
-    { id: "silva", name: "Manu Silva", number: 16, position: "MF", nation: "POR" },
+    { id: "manu", name: "Manu Silva", number: 16, position: "MF", nation: "POR" },
     { id: "barreiro", name: "Leandro Barreiro", number: 18, position: "MF", nation: "LUX" },
     { id: "echeverri", name: "Claudio Echeverri", number: 30, position: "MF", nation: "ARG" },
     { id: "palhinha", name: "João Palhinha", number: 36, position: "MF", nation: "POR" },
+    { id: "goncalo_moreira", name: "Gonçalo Moreira", number: 77, position: "MF", nation: "POR" },
 
-    { id: "lukebajio", name: "Dodi Lukébakio", number: 11, position: "FW", nation: "BEL" },
+    { id: "lukebakio", name: "Dodi Lukébakio", number: 11, position: "FW", nation: "BEL" },
     { id: "pavlidis", name: "Vangelis Pavlidis", number: 14, position: "FW", nation: "GRE" },
     { id: "schjelderup", name: "Andreas Schjelderup", number: 21, position: "FW", nation: "NOR" },
     { id: "duran", name: "Jhon Durán", number: 22, position: "FW", nation: "COL" },
     { id: "prestianni", name: "Gianluca Prestianni", number: 25, position: "FW", nation: "ARG" },
-    { id: "silva", name: "Rafa Silva", number: 27, position: "FW", nation: "POR" },
-    { id: "cabral", name: "Anísio Cabral", number: 72, position: "FW", nation: "POR" },
+    { id: "rafa", name: "Rafa Silva", number: 27, position: "FW", nation: "POR" },
+    { id: "anisio", name: "Anísio Cabral", number: 72, position: "FW", nation: "POR" },
 
   ]
 });
