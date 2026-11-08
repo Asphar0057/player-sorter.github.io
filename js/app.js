@@ -62,6 +62,65 @@
     return entry ? entry.section.id : "";
   }
 
+  const ARROW = '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const BACK = '<span class="back-icon" aria-hidden="true">' + ARROW + "</span>";
+
+  const SOCIAL = {
+    x: '<svg viewBox="0 0 24 24"><path d="M5 4l14 16M19 4 5 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    ig: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="3.6" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="16.8" cy="7.2" r="1.2" fill="currentColor"/></svg>',
+    tiktok: '<svg viewBox="0 0 24 24"><path d="M14 4v10.5a3.5 3.5 0 1 1-3.5-3.5M14 4c.4 2.6 2.2 4.4 5 4.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+
+  const CREATOR = {
+    name: "Nicole",
+    handle: "@nicsginthings",
+    personal: "https://www.instagram.com/nicolepanggabeann",
+    links: [
+      { kind: "x", label: "X", url: "https://x.com/nicsginthings" },
+      { kind: "ig", label: "Instagram", url: "https://www.instagram.com/nicsginthings" },
+      { kind: "tiktok", label: "TikTok", url: "https://www.tiktok.com/@nicsginthings" }
+    ]
+  };
+
+  const COLLABORATORS = [
+    { name: "Alejo", handle: "@thatoneatletico", url: "https://x.com/thatoneatletico", color: "#1F4096" },
+    { name: "Kingston", handle: "@Kingstonsmj", url: "https://x.com/Kingstonsmj", color: "#2E7D32" },
+    { name: "Parthav", handle: "@Atleti_humour", url: "https://x.com/Atleti_humour", color: "#B5904D" },
+    { name: "Mar", handle: "@marbadia97", url: "https://x.com/marbadia97", color: "#6C4AB6" },
+    { name: "Harsh", handle: "@Harshwa30041505", url: "https://x.com/Harshwa30041505", color: "#E4002B" }
+  ];
+
+  function initial(name, color, cls) {
+    return '<span class="' + cls + '" style="background:' + color + '" aria-hidden="true">' + esc(name.charAt(0)) + "</span>";
+  }
+
+  function siteCredits() {
+    const icons = CREATOR.links.map(l =>
+      '<a class="credit-social" href="' + l.url + '" target="_blank" rel="noopener" aria-label="' + esc(CREATOR.handle + " on " + l.label) + '">' + SOCIAL[l.kind] + "</a>"
+    ).join("");
+    const chips = COLLABORATORS.map(c =>
+      '<a class="credit-chip" href="' + c.url + '" target="_blank" rel="noopener" title="' + esc(c.handle) + '">' +
+        initial(c.name, c.color, "credit-dot") + esc(c.name) +
+      "</a>"
+    ).join("");
+    return (
+      '<div class="site-credits">' +
+        '<div class="hero-cards">' +
+        '<div class="credit-card">' +
+          initial(CREATOR.name, "#C8102E", "credit-avatar") +
+          '<a class="credit-me" href="' + CREATOR.personal + '" target="_blank" rel="noopener">' +
+            "<b>Made by " + esc(CREATOR.name) + "</b><small>" + esc(CREATOR.handle) + "</small>" +
+          "</a>" +
+          '<span class="credit-socials">' + icons + "</span>" +
+        "</div>" +
+        requestStrip() +
+        "</div>" +
+        '<p class="credit-label">With help from</p>' +
+        '<div class="credit-chips">' + chips + "</div>" +
+      "</div>"
+    );
+  }
+
   function squadWord(team) {
     return team.squadLabel || "squad";
   }
@@ -415,8 +474,9 @@
       "--tile-muted:" + tile.muted,
       "--tile-pattern:" + Kits.css(tile.pattern)
     ].join(";");
+    const light = Kits.isLight(tile.bg) ? " is-light" : "";
     return (
-      '<button type="button" class="team-tile team-tile-club" data-go="' + team.id + '" style="' + tileVars + '">' +
+      '<button type="button" class="team-tile team-tile-club' + light + '" data-go="' + team.id + '" style="' + tileVars + '">' +
         crestMarkup(team, "crest-md", home) +
         '<span class="team-tile-text">' +
           '<span class="team-tile-name">' + esc(team.name) + "</span>" +
@@ -490,9 +550,7 @@
       const more = hiddenCount > 0
         ? '<button type="button" class="team-tile see-more-tile" data-more="' + group.id + '" aria-expanded="' + !!EXPANDED[group.id] + '">' +
             blobMarkup(blobColours(group)) +
-            '<span class="see-more-arrow' + (EXPANDED[group.id] ? " is-up" : "") + '" aria-hidden="true">' +
-              '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-            "</span>" +
+            '<span class="arrow-circle see-more-arrow' + (EXPANDED[group.id] ? " is-up" : "") + '" aria-hidden="true">' + ARROW + "</span>" +
             '<span class="team-tile-text">' +
               '<span class="team-tile-name">' + (EXPANDED[group.id] ? "Show less" : "Show all") + "</span>" +
               '<span class="team-tile-meta">' +
@@ -740,9 +798,8 @@
         '<section class="hero">' +
           '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
           "<h1>Pick a squad &amp; start ranking</h1>" +
-          '<p class="hero-sub">Pick your favorite of two players until, eventually, you get your full squad ranking. First team lists and positions are taken from Wikipedia and UEFA. Photos taken from UEFA and official club sites.<br><br>Creator: <strong>Nicole</strong>! Find me as @nicsginthings on: <a href="https://x.com/nicsginthings" target="_blank" rel="noopener">X</a>, <a href="https://www.instagram.com/nicsginthings" target="_blank" rel="noopener">IG</a>, <a href="https://www.tiktok.com/@nicsginthings" target="_blank" rel="noopener">TikTok</a>, or <a href="https://www.instagram.com/nicolepanggabeann" target="_blank" rel="noopener">my personal Instagram</a>.' +
-          '<br><br>Special thanks to my collaborators: Alejo (<a href="https://x.com/thatoneatletico" target="_blank" rel="noopener">@thatoneatletico</a>), Kingston (<a href="https://x.com/Kingstonsmj" target="_blank" rel="noopener">@Kingstonsmj</a> / <a href="https://github.com/Kingston-smj/" target="_blank" rel="noopener">GitHub</a>), Parthav (<a href="https://x.com/Atleti_humour" target="_blank" rel="noopener">@Atleti_humour</a>), Mar (<a href="https://x.com/marbadia97" target="_blank" rel="noopener">@marbadia97</a>) and Harsh (<a href="https://x.com/Harshwa30041505 target="_blank" rel="noopener">@Harshwa30041505</a>).</p>' +
-          requestStrip() +
+          '<p class="hero-sub">Pick your favourite of two players until your whole squad is ranked.</p>' +
+          siteCredits() +
         "</section>" +
         '<div class="home-bar' + (searching() ? " is-searching" : "") + '">' + searchBox() + tabs + "</div>" +
         '<div class="home-body" data-section="' + section.id + '">' + body + "</div>",
@@ -893,7 +950,7 @@
 
     render(
       '<section class="setup">' +
-        '<button type="button" class="back-link" data-go="' + sectionOf(team) + '">← All squads</button>' +
+        '<button type="button" class="back-link" data-go="' + sectionOf(team) + '">' + BACK + "All squads</button>" +
         '<div class="setup-head">' +
           crestMarkup(team, "crest-lg") +
           "<div>" +
@@ -1295,10 +1352,11 @@
   function requestStrip() {
     if (!REQUESTS_URL) return "";
     return (
-      '<div class="request-strip">' +
-        '<span class="request-strip-text">Missing a squad or a player?</span>' +
-        '<button type="button" class="btn btn-solid btn-sm" data-request="team">Make a request</button>' +
-      "</div>"
+      '<button type="button" class="request-card-cta" data-request="team">' +
+        '<span class="request-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>' +
+        '<span class="request-text"><b>Missing a squad or player?</b><small>Send a request</small></span>' +
+        '<span class="arrow-circle request-arrow" aria-hidden="true">' + ARROW + "</span>" +
+      "</button>"
     );
   }
 
@@ -1530,7 +1588,7 @@
             '<textarea name="notes" maxlength="500" rows="3" placeholder="Shirt number, position, a link…"></textarea></label>' +
           '<label class="req-hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>' +
           '<p class="req-status" role="status"></p>' +
-          '<div class="req-actions"><button type="submit" class="btn btn-primary">Send request</button></div>' +
+          '<div class="req-actions"><button type="submit" class="btn btn-primary req-send">Send request</button></div>' +
         "</form>" +
       "</div>";
     openModal(modal);
@@ -1824,7 +1882,7 @@
           '<b>See how everyone else ranked ' + esc(team.shortName || team.name) + "</b>" +
           '<span class="stats-entry-sub">Community ranking</span>' +
         "</span>" +
-        '<span class="stats-entry-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
+        '<span class="arrow-circle stats-entry-arrow" aria-hidden="true">' + ARROW + "</span>" +
       "</button>"
     );
   }
@@ -1840,7 +1898,7 @@
     session = null;
     applyTheme(team);
     const head =
-      '<button type="button" class="back-link" data-go="' + team.id + '">← ' + esc(team.name) + "</button>" +
+      '<button type="button" class="back-link" data-go="' + team.id + '">' + BACK + esc(team.name) + "</button>" +
       '<div class="setup-head">' +
         crestMarkup(team, "crest-lg") +
         "<div>" +
@@ -2034,7 +2092,7 @@
 
     render(
       '<section class="results">' +
-        '<button type="button" class="back-link" data-go="' + sectionOf(team) + '">← All squads</button>' +
+        '<button type="button" class="back-link" data-go="' + sectionOf(team) + '">' + BACK + "All squads</button>" +
         '<div class="setup-head">' +
           crestMarkup(team, "crest-lg") +
           "<div>" +
