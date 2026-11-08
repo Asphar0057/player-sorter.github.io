@@ -25,6 +25,7 @@ registerTeam({
       header: "#F4A9C7",
       onHeader: "#111111",
       headerBand: "#111111",
+      photoBg: "#D8467F",
       rowTintStrength: 0.16,
       pattern: { type: "stripes", base: "#F4A9C7", bands: ["#F9C9DC"] }
     },
