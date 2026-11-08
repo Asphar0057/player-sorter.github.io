@@ -55,19 +55,19 @@ window.SQUAD_MANIFEST = {
           name: "Campeonato Brasileiro Série A",
           country: "Brazil",
           teams: ["flamengo"]
-        }
+        },
+        {
+          id: "championship",
+          name: "Championship",
+          country: "England",
+          teams: ["west-ham-united", "wolves"]//, "sheffield-united"]
+        },
         /*
         {
           id: "liga-portugal",
           name: "Liga Portugal",
           country: "Portugal",
           teams: ["benfica"]
-        },
-        {
-          id: "championship",
-          name: "Championship",
-          country: "England",
-          teams: ["sheffield-united"]
         },
           */
       ]
