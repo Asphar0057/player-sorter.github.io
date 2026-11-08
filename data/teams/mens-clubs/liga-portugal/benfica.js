@@ -66,7 +66,7 @@ registerTeam({
   players: [
     { id: "trubin", name: "Anatoliy Trubin", number: 1, position: "GK", nation: "UKR" },
     { id: "samu", name: "Samuel Soares", number: 24, position: "GK", nation: "POR" },
-    { id: "diogo_ferreira", name: "Diego Ferreira", number: 50, position: "GK", nation: "POR" },
+    { id: "diogo_ferreira", name: "Diogo Ferreira", number: 50, position: "GK", nation: "POR" },
 
 
     { id: "lenglet", name: "Clément Lenglet", number: 2, position: "DF", nation: "FRA" },
