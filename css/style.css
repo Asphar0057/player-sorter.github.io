@@ -718,6 +718,11 @@ body.modal-open { overflow: hidden; }
 
 .kit-seg .seg-opt span { display: inline-flex; align-items: center; gap: 7px; }
 
+:is([data-club="real-sociedad"], [data-club="athletic-club"], [data-club="sevilla"]) .kit-seg {
+  --club-accent: var(--club-primary);
+  --club-on-accent: var(--club-on-primary);
+}
+
 .swatch {
   display: inline-block;
   width: 16px;
