@@ -12,21 +12,13 @@ window.SQUAD_MANIFEST = {
           id: "laliga",
           name: "LaLiga",
           country: "Spain",
-<<<<<<< Updated upstream
-          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna", "real-sociedad", "athletic-club", "sevilla"]
-=======
-          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "celta", "rayo-vallecano", "getafe"]
->>>>>>> Stashed changes
+          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna", "real-sociedad", "athletic-club", "sevilla", "celta"]
         },
         {
           id: "premier-league",
           name: "Premier League",
           country: "England",
-<<<<<<< Updated upstream
-          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton"]
-=======
-          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "bournemouth", "brighton"]
->>>>>>> Stashed changes
+          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton", "bournemouth", "brighton"]
         },
         {
           id: "bundesliga",
@@ -44,11 +36,7 @@ window.SQUAD_MANIFEST = {
           id: "serie-a",
           name: "Serie A",
           country: "Italy",
-<<<<<<< Updated upstream
-          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como", "fiorentina", "atalanta"]//, "napoli"]
-=======
-          teams: ["roma", "juventus", "ac-milan", "inter", "lazio"]
->>>>>>> Stashed changes
+          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como", "fiorentina", "atalanta", "lazio"]//, "napoli"]
         },
         {
           id: "eredivisie",
@@ -57,7 +45,6 @@ window.SQUAD_MANIFEST = {
           teams: ["ajax"]
         },
         {
-<<<<<<< Updated upstream
           id: "liga-portugal",
           name: "Liga Portugal",
           country: "Portugal",
@@ -68,12 +55,6 @@ window.SQUAD_MANIFEST = {
           name: "Major League Soccer",
           country: "United States",
           teams: ["inter-miami", "orlando-city", "new-england-revolution"]
-=======
-          id: "championship",
-          name: "Championship",
-          country: "England",
-          teams: ["birmingham"]
->>>>>>> Stashed changes
         },
         {
           id: "saudi-pro-league",
@@ -87,7 +68,6 @@ window.SQUAD_MANIFEST = {
           country: "Egypt",
           teams: ["al-ahly"]
         },
-        /*
         {
           id: "liga-profesional",
           name: "Liga Profesional de Futbol (LPF)",
@@ -161,7 +141,6 @@ window.SQUAD_MANIFEST = {
           name: "World Cup 2026",
           teams: ["2026-spain", "2026-argentina", "2026-france", "2026-england", "2026-uruguay", "2026-norway", "2026-portugal", "2026-germany", "2026-mexico", "2026-brasil"]
         },
-        /*
         {
           id: "world-cup-2022",
           name: "World Cup 2022",
@@ -172,7 +151,6 @@ window.SQUAD_MANIFEST = {
           name: "World Cup 2018",
           teams: ["2018-france"]
         }
-          */
       ]
     },
     {
