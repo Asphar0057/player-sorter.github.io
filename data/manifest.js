@@ -12,7 +12,7 @@ window.SQUAD_MANIFEST = {
           id: "laliga",
           name: "LaLiga",
           country: "Spain",
-          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe"]
+          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna"]
         },
         {
           id: "premier-league",
@@ -36,20 +36,13 @@ window.SQUAD_MANIFEST = {
           id: "serie-a",
           name: "Serie A",
           country: "Italy",
-          teams: ["roma", "juventus", "ac-milan", "inter"]
+          teams: ["roma", "juventus", "ac-milan", "inter"]//, "napoli"]
         },
         {
           id: "eredivisie",
           name: "Eredivisie",
           country: "Netherlands",
           teams: ["ajax"]
-        },
-        /*
-        {
-          id: "championship",
-          name: "Championship",
-          country: "England",
-          teams: ["sheffield-united"]
         },
         {
           id: "liga-profesional",
@@ -63,6 +56,19 @@ window.SQUAD_MANIFEST = {
           country: "Brazil",
           teams: ["flamengo"]
         }
+        /*
+        {
+          id: "liga-portugal",
+          name: "Liga Portugal",
+          country: "Portugal",
+          teams: ["benfica"]
+        },
+        {
+          id: "championship",
+          name: "Championship",
+          country: "England",
+          teams: ["sheffield-united"]
+        },
           */
       ]
     },
