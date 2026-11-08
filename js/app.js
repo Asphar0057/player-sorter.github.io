@@ -63,6 +63,7 @@
   }
 
   const ARROW = '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const CROSS = '<svg class="x-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
   const BACK = '<span class="back-icon" aria-hidden="true">' + ARROW + "</span>";
 
   const SOCIAL = {
@@ -344,6 +345,10 @@
     );
   }
 
+  function plainCrest(team, cls) {
+    return crestMarkup(team, cls, Object.assign({}, Kits.get(team, "home"), { crest: null }));
+  }
+
   function avatarMarkup(team, player, cls) {
     return (
       '<span class="avatar ' + (cls || "") + '" data-team="' + team.id + '" style="' + themeVars(team) + '">' +
@@ -546,6 +551,14 @@
 
   function homeBody(section, groups) {
     const body = groups.map(group => {
+      if (group.builder) {
+        return (
+          '<section class="league">' +
+            '<h2 class="league-name">' + esc(group.name) + "</h2>" +
+            '<div class="team-grid">' + builderTile() + "</div>" +
+          "</section>"
+        );
+      }
       const all = (group.teams || []).filter(id => INDEX[id]);
       const tiles = visibleIds(group).filter(id => TEAMS[id]).map(id => teamTile(TEAMS[id])).join("");
       if (!tiles) return "";
@@ -643,7 +656,7 @@
         '<svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m15.5 15.5 5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' +
         '<input type="search" class="search-input" placeholder="Search squads" aria-label="Search squads" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" value="' + esc(searchQuery) + '">' +
         '<button type="button" class="search-clear" aria-label="Clear search"' + (searchQuery ? "" : " hidden") + ">" +
-          '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>' +
+          CROSS +
         "</button>" +
       "</div>"
     );
@@ -932,6 +945,7 @@
   }
 
   function renderTeamSetup(team) {
+    if (isCustom(team)) return renderBuilder();
     session = null;
     applyTheme(team);
     const saved = storeGet(team.id);
@@ -1020,9 +1034,12 @@
 
   function cardMarkup(side, key) {
     const { team, player } = lookup(key);
+    const custom = !!session && isCustom(session.team);
+    const own = ' data-team="' + team.id + '" style="' + themeVars(team) + '"';
+    const meta = [player.number != null ? "#" + player.number : "", custom ? clubLabel(team) : player.nation || ""];
     return (
-      '<button class="pick-card' + (team.photoFit === "contain" ? " photo-contain" : "") + '" data-pick="' + side + '" data-team="' + team.id + '" style="' + themeVars(team) + '">' +
-        '<span class="pick-media">' +
+      '<button class="pick-card' + (team.photoFit === "contain" ? " photo-contain" : "") + '" data-pick="' + side + '"' + (custom ? "" : own) + ">" +
+        '<span class="pick-media"' + (custom ? own : "") + ">" +
           '<span class="avatar avatar-card">' +
             '<span class="avatar-fallback"><span>' + esc(player.number != null ? player.number : "") + "</span></span>" +
             imgTag(photoPaths(team, player)) +
@@ -1032,7 +1049,7 @@
         '<span class="pick-info">' +
           '<span class="pick-pos">' + POSITIONS[player.position] + "</span>" +
           '<span class="pick-name">' + esc(player.name) + "</span>" +
-          '<span class="pick-meta">' + esc([player.number != null ? "#" + player.number : "", player.nation || ""].filter(Boolean).join(" · ")) + "</span>" +
+          '<span class="pick-meta">' + esc(meta.filter(Boolean).join(" · ")) + "</span>" +
         "</span>" +
         '<span class="pick-key">' + (side === "left" ? "←" : "→") + "</span>" +
       "</button>"
@@ -1067,7 +1084,7 @@
           '<button class="btn btn-tie" data-pick="tie">Can\'t choose (tie)</button>' +
           '<button class="btn btn-ghost" data-act="quit">Save &amp; exit</button>' +
         "</div>" +
-        '<div class="battle-kit">' + kitSwitch(team, "site-kit", kitOf(team).id, true) + "</div>" +
+        '<div class="battle-kit">' + (isCustom(team) ? customColours(team, "site-kit", kitOf(team).id, true) : kitSwitch(team, "site-kit", kitOf(team).id, true)) + "</div>" +
         '<p class="hint">Keyboard: ← / → to pick, ↓ for a tie, Backspace to undo</p>' +
       "</section>"
     );
@@ -1075,6 +1092,8 @@
       el.addEventListener("click", () => pick(el.dataset.pick))
     );
     app.querySelector('[data-act="undo"]').addEventListener("click", doUndo);
+    const battleMenu = app.querySelector(".battle-kit .colour-menu");
+    if (battleMenu) wireColourMenu(battleMenu, customConfig(), () => renderMatchup());
     app.querySelector('[data-act="quit"]').addEventListener("click", () => swapScreen(() => renderTeamSetup(team)));
   }
 
@@ -1094,7 +1113,7 @@
     return location.protocol.startsWith("http") && !local ? location.origin + location.pathname : "";
   }
 
-  function shareEntries(ranking) {
+  function shareEntries(ranking, custom) {
     const out = [];
     ranking.forEach(row => row.ids.forEach(key => {
       const hit = lookup(key);
@@ -1106,6 +1125,7 @@
         team: hit.team,
         player: hit.player,
         positionLabel: POSITIONS[hit.player.position],
+        metaLine: custom ? POSITIONS[hit.player.position] + " · " + clubLabel(hit.team) : "",
         photoSrc: photoPaths(hit.team, hit.player)
       });
     }));
@@ -1114,7 +1134,7 @@
 
   function caption(team, entries) {
     const top = entries.slice(0, 3).map(e => e.rank + (e.tied ? "=" : "") + ". " + e.player.name).join("\n");
-    return "My " + team.shortName + " ranking (" + team.season + ")\n" + top;
+    return "My " + team.shortName + " ranking" + (team.season ? " (" + team.season + ")" : "") + "\n" + top;
   }
 
   function toast(message) {
@@ -1143,6 +1163,15 @@
   }
 
   function rankingLink(team, state) {
+    if (isCustom(team)) {
+      const cfg = customConfig();
+      const params = new URLSearchParams();
+      params.set("custom", "1");
+      params.set("r", (state.queue[0] || []).map(g => g.join("~")).join("."));
+      if (cfg.name.trim()) params.set("n", cfg.name.trim());
+      if (colourClub(cfg)) params.set("c", cfg.colours);
+      return location.origin + location.pathname + "?" + params.toString();
+    }
     const prefix = team.id + ":";
     const groups = (state.queue[0] || []).map(g => g.map(key => key.slice(prefix.length)).join("~"));
     return location.origin + location.pathname + "?club=" + encodeURIComponent(team.id) + "&r=" + groups.join(".");
@@ -1150,6 +1179,7 @@
 
   function importRanking() {
     const params = new URLSearchParams(location.search);
+    if (params.get("list") || params.get("custom")) return importCustom(params);
     const club = params.get("club");
     const raw = params.get("r");
     if (!club || !raw) return Promise.resolve();
@@ -1181,6 +1211,7 @@
     if (n > 10) modes.push({ value: "full", label: fullLabel(team) });
     const opts = { format: "story", mode: n > 10 ? "full" : modes[modes.length - 1].value, kit: kitOf(team).id };
     const kitFor = t => (t.id === team.id ? kitOf(t, opts.kit) : kitOf(t));
+    const headCrest = () => (isCustom(team) ? [] : crestPaths(team, kitFor(team)));
     const escapeHref = ShareImage.needsBrowserEscape() && session && session.state.done ? rankingLink(team, session.state) : null;
     const url = siteUrl();
     let canvas = null;
@@ -1193,7 +1224,7 @@
       '<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="shareTitle">' +
         '<div class="modal-head">' +
           '<h2 id="shareTitle">Share your ranking</h2>' +
-          '<button type="button" class="modal-close" data-act="close" aria-label="Close">×</button>' +
+          '<button type="button" class="modal-close" data-act="close" aria-label="Close">' + CROSS + '</button>' +
         "</div>" +
         '<div class="modal-body">' +
           '<div class="share-preview"><div class="share-loading">Drawing your ranking…</div></div>' +
@@ -1207,7 +1238,9 @@
             ], opts.format) +
             '<p class="setup-label">Show</p>' +
             segmented("mode", modes, opts.mode) +
-            (Kits.ids(team).length > 1 ? '<p class="setup-label">Colors</p>' + kitSwitch(team, "kit", opts.kit, false) : "") +
+            (isCustom(team)
+              ? '<p class="setup-label">Colors</p><div class="share-colours">' + customColours(team, "kit", opts.kit, false) + "</div>"
+              : Kits.ids(team).length > 1 ? '<p class="setup-label">Colors</p>' + kitSwitch(team, "kit", opts.kit, false) : "") +
             '<div class="share-buttons">' +
               '<button type="button" class="btn btn-primary" data-act="download">Download image</button>' +
               '<button type="button" class="btn btn-social btn-ig" data-act="ig">Instagram story</button>' +
@@ -1221,6 +1254,20 @@
 
     const preview = modal.querySelector(".share-preview");
     const note = modal.querySelector("#shareNote");
+    const wireShareColours = () => {
+      const holder = modal.querySelector(".share-colours");
+      if (!holder) return;
+      wireColourMenu(holder.querySelector(".colour-menu"), customConfig(), () => {
+        opts.kit = kitOf(team).id;
+        holder.innerHTML = customColours(team, "kit", opts.kit, false);
+        enhanceSegs(holder);
+        wireShareColours();
+        modal.setAttribute("style", themeVars(team));
+        if (session && session.team === team && session.state.done) renderResults();
+        draw();
+      });
+    };
+    wireShareColours();
     const fileShare = ShareImage.canShareFiles();
     if (escapeHref) {
       note.innerHTML = 'This app blocks saving images. <a class="share-escape" target="_blank" rel="noopener">Open your ranking in your browser</a> to download or share it.';
@@ -1240,7 +1287,7 @@
         team,
         entries,
         siteUrl: url,
-        crestSrc: crestPaths(team, kitFor(team)),
+        crestSrc: headCrest(),
         kitFor
       });
       if (id !== renderId) return;
@@ -1254,7 +1301,7 @@
 
     async function storyCanvas() {
       if (opts.format === "story" && canvas) return canvas;
-      return ShareImage.render({ format: "story", mode: opts.mode, team, entries, siteUrl: url, crestSrc: crestPaths(team, kitFor(team)), kitFor });
+      return ShareImage.render({ format: "story", mode: opts.mode, team, entries, siteUrl: url, crestSrc: headCrest(), kitFor });
     }
 
     function close() {
@@ -1340,6 +1387,704 @@
     draw();
   }
 
+  const CUSTOM_ID = "build-your-own";
+  const CUSTOM_MIN = 5;
+  const CUSTOM_MAX = 25;
+  const CUSTOM_DEFAULT_NAME = "My picks";
+  const CHEVRON = '<svg class="colour-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const NEUTRAL_KIT = {
+    label: "Neutral",
+    paper: "#F5F2EC",
+    card: "#FFFFFF",
+    ink: "#111827",
+    muted: "#5B6170",
+    onPaper: "#111827",
+    onPaperMuted: "#5B6170",
+    primary: "#A55448",
+    onPrimary: "#FFFFFF",
+    paperPrimary: "#A55448",
+    paperOnPrimary: "#FFFFFF",
+    accent: "#111827",
+    onAccent: "#FFFFFF",
+    header: "#A55448",
+    onHeader: "#FFFFFF",
+    headerBand: "#111827",
+    rowTint: "#A55448",
+    rowTintStrength: 0.1,
+    pattern: { type: "solid", base: "#A55448", bands: [] }
+  };
+  let customNotice = "";
+
+  function isCustom(team) {
+    return !!(team && team.custom);
+  }
+
+  function customConfig() {
+    const raw = storeGet("custom") || {};
+    return {
+      keys: Array.isArray(raw.keys) ? raw.keys.filter(k => typeof k === "string").slice(0, CUSTOM_MAX) : [],
+      name: typeof raw.name === "string" ? raw.name.slice(0, 40) : "",
+      colours: typeof raw.colours === "string" && raw.colours ? raw.colours : "neutral"
+    };
+  }
+
+  function saveCustom(cfg) {
+    storeSet("custom", cfg);
+  }
+
+  function customName(cfg) {
+    return cfg.name.trim() || CUSTOM_DEFAULT_NAME;
+  }
+
+  function colourClub(cfg) {
+    return cfg.colours !== "neutral" && INDEX[cfg.colours] && TEAMS[cfg.colours] ? TEAMS[cfg.colours] : null;
+  }
+
+  function customKits(club) {
+    const src = club.kits || { home: Kits.get(club, "home") };
+    const out = {};
+    Object.keys(src).forEach(id => {
+      out[id] = Object.assign({}, src[id], { crest: null });
+    });
+    return out;
+  }
+
+  function customTeam(cfg) {
+    const club = colourClub(cfg);
+    const team = TEAMS[CUSTOM_ID] || (TEAMS[CUSTOM_ID] = { id: CUSTOM_ID });
+    Object.assign(team, {
+      custom: true,
+      name: customName(cfg),
+      shortName: customName(cfg),
+      monogram: "YOU",
+      season: "",
+      squadLabel: "players",
+      shareLabel: "Build your own",
+      colourClub: club ? club.id : "",
+      kits: club ? customKits(club) : { home: NEUTRAL_KIT },
+      players: cfg.keys.map(lookup).filter(Boolean).map(hit => hit.player)
+    });
+    return team;
+  }
+
+  const BYO_ICON =
+    '<svg class="byo-icon" viewBox="0 0 48 48" aria-hidden="true">' +
+      '<rect x="5" y="11" width="20" height="28" rx="4" transform="rotate(-16 15 25)" fill="currentColor" opacity="0.45"/>' +
+      '<rect x="23" y="11" width="20" height="28" rx="4" transform="rotate(16 33 25)" fill="currentColor" opacity="0.7"/>' +
+      '<rect x="13.5" y="7" width="21" height="31" rx="4" fill="currentColor"/>' +
+      '<circle cx="24" cy="18" r="4.4" style="fill:var(--byo-bg)"/>' +
+      '<path d="M16.6 33c0-4.6 3.3-7.9 7.4-7.9s7.4 3.3 7.4 7.9z" style="fill:var(--byo-bg)"/>' +
+    "</svg>";
+
+  function customBadge(cls) {
+    return '<span class="crest byo-badge ' + cls + '" role="img" aria-label="Build your own">' + BYO_ICON + "</span>";
+  }
+
+  function builderSection() {
+    return SECTIONS.find(s => (s.groups || []).some(g => g.builder)) || null;
+  }
+
+  function builderTile() {
+    const n = customConfig().keys.length;
+    return (
+      '<button type="button" class="team-tile builder-tile" data-go="' + CUSTOM_ID + '">' +
+        '<span class="builder-icon" aria-hidden="true">' + BYO_ICON + "</span>" +
+        '<span class="team-tile-text">' +
+          '<span class="team-tile-name">Build your own ranking</span>' +
+          '<span class="team-tile-meta">' + (n ? "Your list: " + n + " player" + (n === 1 ? "" : "s") : CUSTOM_MIN + " to " + CUSTOM_MAX + " players from any squad") + "</span>" +
+        "</span>" +
+      "</button>"
+    );
+  }
+
+  function seasonYear(season) {
+    const text = String(season || "");
+    const m = text.match(/(19|20)\d\d/);
+    return m ? Number(m[0]) + (text.indexOf("/") >= 0 ? 0.5 : 0) : 0;
+  }
+
+  let poolCache = null;
+
+  function playerPool() {
+    const loaded = Object.keys(TEAMS).length;
+    if (poolCache && poolCache.loaded === loaded) return poolCache;
+    const best = {};
+    const identByKey = {};
+    let order = 0;
+    SECTIONS.forEach(section => (section.groups || []).forEach(group => (group.teams || []).forEach(id => {
+      const team = TEAMS[id];
+      if (!team || !INDEX[id]) return;
+      const special = section.id === "specials";
+      const national = !special && /^\d{4}-/.test(id);
+      const tier = special ? 2 : national ? 1 : 0;
+      const year = seasonYear(team.season);
+      const clubText = normText([team.name, team.shortName].join(" "));
+      team.players.forEach(player => {
+        const nation = String((national ? team.monogram : player.nation) || "").toUpperCase();
+        const ident = normText(player.name) + "|" + nation;
+        const key = id + ":" + player.id;
+        identByKey[key] = ident;
+        const entry = { key, team, player, tier, year, order: order++, ident, hay: normText(player.name), clubText };
+        const cur = best[ident];
+        if (!cur || tier < cur.tier || (tier === cur.tier && year > cur.year)) best[ident] = entry;
+      });
+    })));
+    const list = Object.keys(best).map(k => best[k]).sort((a, b) => a.order - b.order);
+    poolCache = { loaded, list, identByKey, best };
+    return poolCache;
+  }
+
+  function identOf(key) {
+    const known = playerPool().identByKey[key];
+    if (known) return known;
+    const hit = lookup(key);
+    return hit ? normText(hit.player.name) + "|" + String(hit.player.nation || "").toUpperCase() : key;
+  }
+
+  function cleanKeys(keys) {
+    const seen = new Set();
+    const out = [];
+    const best = playerPool().best;
+    keys.forEach(key => {
+      if (out.length >= CUSTOM_MAX || !lookup(key) || key.indexOf(CUSTOM_ID + ":") === 0) return;
+      const ident = identOf(key);
+      if (seen.has(ident)) return;
+      seen.add(ident);
+      out.push(best[ident] ? best[ident].key : key);
+    });
+    return out;
+  }
+
+  function searchPlayers(query, limit) {
+    const q = normText(query);
+    const tokens = q.split(" ").filter(Boolean);
+    if (!tokens.length) return [];
+    return playerPool().list.map(e => {
+      if (!tokens.every(t => wordStarts(e.hay + " " + e.clubText, t))) return null;
+      const score = e.hay.indexOf(q) === 0 ? 0 : tokens.every(t => wordStarts(e.hay, t)) ? 1 : 2;
+      return { e, score };
+    }).filter(Boolean).sort((a, b) => a.score - b.score || a.e.order - b.e.order).slice(0, limit).map(r => r.e);
+  }
+
+  function clubLabel(team) {
+    return team.shortName || team.name;
+  }
+
+  function customListLink(cfg) {
+    const params = new URLSearchParams();
+    params.set("list", cfg.keys.join("."));
+    if (cfg.name.trim()) params.set("n", cfg.name.trim());
+    if (colourClub(cfg)) params.set("c", cfg.colours);
+    return location.origin + location.pathname + "?" + params.toString().replace(/%3A/gi, ":");
+  }
+
+  function copyText(text) {
+    const fallback = () => {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try {
+        ok = document.execCommand("copy");
+      } catch (e) {}
+      ta.remove();
+      return ok;
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(() => true, fallback);
+    }
+    return Promise.resolve(fallback());
+  }
+
+  function shareCustomList(cfg) {
+    const url = customListLink(cfg);
+    const title = customName(cfg);
+    const touch = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    if (touch && navigator.share) {
+      navigator.share({ title, text: "Rank my " + title + " list:", url }).catch(e => {
+        if (e && e.name !== "AbortError") copyText(url).then(ok => toast(ok ? "Link copied. Anyone with it can sort your list." : "Couldn't copy the link."));
+      });
+      return;
+    }
+    copyText(url).then(ok => toast(ok ? "Link copied. Anyone with it can sort your list." : "Couldn't copy the link."));
+  }
+
+  function sameSet(a, b) {
+    if (a.length !== b.length) return false;
+    const set = new Set(a);
+    return b.every(k => set.has(k));
+  }
+
+  function colourOption(id, label, crest, selected) {
+    return (
+      '<li role="option" class="colour-opt" data-colour="' + id + '" aria-selected="' + selected + '">' +
+        crest +
+        '<span class="colour-opt-name">' + esc(label) + "</span>" +
+        (selected ? '<span class="colour-tick" aria-hidden="true">✓</span>' : "") +
+      "</li>"
+    );
+  }
+
+  function colourOptions(cfg, filter) {
+    const q = normText(filter);
+    const match = team => !q || q.split(" ").every(t => wordStarts(normText([team.name, team.shortName, team.monogram].join(" ")), t));
+    const mineIds = [];
+    cfg.keys.forEach(key => {
+      const id = key.split(":")[0];
+      if (INDEX[id] && TEAMS[id] && mineIds.indexOf(id) < 0) mineIds.push(id);
+    });
+    const allIds = Object.keys(INDEX).filter(id => TEAMS[id] && mineIds.indexOf(id) < 0);
+    const opt = id => {
+      const team = TEAMS[id];
+      return colourOption(id, team.name, plainCrest(team, "crest-xs"), cfg.colours === id);
+    };
+    const mine = mineIds.filter(id => match(TEAMS[id])).map(opt).join("");
+    const rest = allIds.filter(id => match(TEAMS[id])).map(opt).join("");
+    const neutral = !q || wordStarts("neutral", q)
+      ? colourOption("neutral", "Neutral", '<i class="colour-dot" aria-hidden="true"></i>', cfg.colours === "neutral")
+      : "";
+    const out =
+      neutral +
+      (mine ? '<li class="colour-group" role="presentation">From your list</li>' + mine : "") +
+      (rest ? '<li class="colour-group" role="presentation">All squads</li>' + rest : "");
+    return out || '<li class="colour-empty">No squads match that.</li>';
+  }
+
+  function colourMenu(cfg) {
+    const club = colourClub(cfg);
+    return (
+      '<div class="colour-menu">' +
+        '<button type="button" class="colour-trigger" aria-haspopup="listbox" aria-expanded="false">' +
+          (club ? plainCrest(club, "crest-xs") : '<i class="colour-dot" aria-hidden="true"></i>') +
+          '<span class="colour-current">' + esc(club ? club.name : "Neutral") + "</span>" +
+          CHEVRON +
+        "</button>" +
+        '<div class="colour-pop" hidden>' +
+          '<div class="colour-search-box">' +
+            '<input type="search" class="colour-search" placeholder="Search squads…" aria-label="Search squads" autocomplete="off" autocapitalize="off" spellcheck="false">' +
+            '<button type="button" class="field-clear" aria-label="Clear search" hidden>' + CROSS + "</button>" +
+          "</div>" +
+          '<ul class="colour-list" role="listbox" aria-label="Colors"></ul>' +
+        "</div>" +
+      "</div>"
+    );
+  }
+
+  function wireColourMenu(menu, cfg, onPick) {
+    const trigger = menu.querySelector(".colour-trigger");
+    const pop = menu.querySelector(".colour-pop");
+    const colourSearch = menu.querySelector(".colour-search");
+    const colourClear = menu.querySelector(".field-clear");
+    const colourList = menu.querySelector(".colour-list");
+    const closeColours = () => {
+      pop.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+    };
+    const paintColours = () => {
+      colourClear.hidden = !colourSearch.value;
+      colourList.innerHTML = colourOptions(cfg, colourSearch.value);
+      wireImages(colourList);
+    };
+    trigger.addEventListener("click", () => {
+      if (!pop.hidden) return closeColours();
+      colourSearch.value = "";
+      paintColours();
+      pop.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      const on = colourList.querySelector('[aria-selected="true"]');
+      if (on) on.scrollIntoView({ block: "nearest" });
+      if (!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches)) colourSearch.focus();
+    });
+    colourSearch.addEventListener("input", paintColours);
+    colourClear.addEventListener("click", () => {
+      colourSearch.value = "";
+      paintColours();
+      colourSearch.focus();
+    });
+    colourSearch.addEventListener("keydown", e => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        closeColours();
+        trigger.focus();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        const first = colourList.querySelector("[data-colour]");
+        if (first) first.click();
+      }
+    });
+    colourList.addEventListener("click", e => {
+      const li = e.target.closest("[data-colour]");
+      if (!li) return;
+      const id = li.dataset.colour;
+      closeColours();
+      if (id === cfg.colours) return;
+      cfg.colours = id;
+      saveCustom(cfg);
+      storeDel("kit:" + CUSTOM_ID);
+      customTeam(cfg);
+      onPick(id);
+    });
+    menu.addEventListener("keydown", e => {
+      if (e.key === "Escape" && !pop.hidden) {
+        e.stopPropagation();
+        closeColours();
+        trigger.focus();
+      }
+    });
+    document.addEventListener("click", function outside(e) {
+      if (!document.body.contains(menu)) return document.removeEventListener("click", outside);
+      if (!menu.contains(e.target)) closeColours();
+    });
+  }
+
+  function customColours(team, name, current, attr) {
+    return (
+      '<div class="builder-colours">' +
+        colourMenu(customConfig()) +
+        kitSwitch(team, name, current, attr) +
+      "</div>"
+    );
+  }
+
+  function renderBuilder(keepScroll) {
+    session = null;
+    const cfg = customConfig();
+    cfg.keys = cleanKeys(cfg.keys);
+    if (!colourClub(cfg)) cfg.colours = "neutral";
+    saveCustom(cfg);
+    const team = customTeam(cfg);
+    applyTheme(team);
+    const back = builderSection();
+
+    render(
+      '<section class="setup builder">' +
+        '<button type="button" class="back-link" data-go="' + (back ? back.id : "") + '">' + BACK + "All squads</button>" +
+        '<div class="setup-head">' +
+          customBadge("crest-lg") +
+          "<div>" +
+            '<p class="eyebrow">Specials</p>' +
+            "<h1>Build your own</h1>" +
+          "</div>" +
+          '<div class="kit-picker builder-colours">' +
+            '<span class="kit-label">Colors</span>' +
+            colourMenu(cfg) +
+            kitSwitch(team, "site-kit", kitOf(team).id, true) +
+          "</div>" +
+        "</div>" +
+        '<p class="missing-line missing-line-top">Pick ' + CUSTOM_MIN + " to " + CUSTOM_MAX + " players from any squad on the site, then rank them.</p>" +
+        '<div class="setup-body builder-body">' +
+          '<label class="builder-field"><span class="setup-label">Name your list <em>(optional)</em></span>' +
+            '<input class="builder-input" name="listName" maxlength="40" placeholder="' + CUSTOM_DEFAULT_NAME + '" value="' + esc(cfg.name) + '" autocomplete="off"></label>' +
+          '<div class="builder-field builder-search">' +
+            '<label class="setup-label" for="byoSearch">Add players</label>' +
+            '<div class="builder-search-box">' +
+              '<svg class="builder-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m15.5 15.5 5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' +
+              '<input id="byoSearch" class="builder-input" type="search" placeholder="Search players or clubs" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="byoResults" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done">' +
+              '<button type="button" class="field-clear" aria-label="Clear search" hidden>' + CROSS + "</button>" +
+            "</div>" +
+            '<ul class="builder-results" id="byoResults" role="listbox" hidden></ul>' +
+          "</div>" +
+          '<div class="builder-count"><b class="builder-num"></b><span class="builder-bar"><i></i></span><span class="builder-hint"></span></div>' +
+          '<ul class="builder-list"></ul>' +
+          '<div class="setup-actions">' +
+            '<button type="button" class="btn btn-primary" data-act="byo-start">Start sorting</button>' +
+            '<button type="button" class="btn btn-ghost" data-act="byo-resume" hidden></button>' +
+            '<button type="button" class="btn btn-ghost" data-act="byo-share">Share list</button>' +
+            '<button type="button" class="btn btn-ghost" data-act="byo-clear">Clear list</button>' +
+          "</div>" +
+          '<p class="setup-estimate builder-estimate"></p>' +
+        "</div>" +
+        '<div class="builder-dock" aria-hidden="true">' +
+          '<span class="builder-stack"></span>' +
+          '<b class="builder-num"></b>' +
+          '<button type="button" class="btn btn-primary" data-act="byo-start" tabindex="-1">Start sorting</button>' +
+        "</div>" +
+      "</section>",
+      keepScroll
+    );
+
+    const root = app.querySelector(".builder");
+    const search = root.querySelector("#byoSearch");
+    const results = root.querySelector("#byoResults");
+    const list = root.querySelector(".builder-list");
+    const nameInput = root.querySelector('input[name="listName"]');
+    const menu = root.querySelector(".colour-menu");
+    wireColourMenu(menu, cfg, () => swapScreen(() => renderBuilder(true)));
+    const searchClear = root.querySelector(".builder-search-box .field-clear");
+    let hits = [];
+    let active = -1;
+
+    const chosen = () => new Set(cfg.keys.map(identOf));
+
+    const paintResults = () => {
+      const q = search.value;
+      if (!normText(q)) {
+        results.hidden = true;
+        search.setAttribute("aria-expanded", "false");
+        return;
+      }
+      hits = searchPlayers(q, 8);
+      const have = chosen();
+      const full = cfg.keys.length >= CUSTOM_MAX;
+      results.innerHTML = hits.length
+        ? hits.map((e, i) => {
+            const added = have.has(e.ident);
+            return (
+              '<li role="option" id="byo-hit-' + i + '" class="builder-hit' + (i === active ? " is-active" : "") + (added ? " is-added" : "") + '" data-i="' + i + '" aria-selected="' + added + '"' + (!added && full ? ' aria-disabled="true"' : "") + ">" +
+                avatarMarkup(e.team, e.player, "avatar-sm") +
+                '<span class="builder-hit-text">' +
+                  '<span class="builder-hit-name">' + esc(e.player.name) + "</span>" +
+                  '<span class="builder-hit-meta">' + esc(clubLabel(e.team) + " · " + POSITIONS[e.player.position]) + "</span>" +
+                "</span>" +
+                '<span class="builder-add">' + (added ? "Added" : full ? "List full" : "+ Add") + "</span>" +
+              "</li>"
+            );
+          }).join("")
+        : '<li class="builder-empty">No players match that. Only players already on the site can be added.</li>';
+      if (active >= 0 && hits[active]) search.setAttribute("aria-activedescendant", "byo-hit-" + active);
+      else search.removeAttribute("aria-activedescendant");
+      results.hidden = false;
+      search.setAttribute("aria-expanded", "true");
+      wireImages(results);
+    };
+
+    const paint = () => {
+      const n = cfg.keys.length;
+      const ready = n >= CUSTOM_MIN;
+      root.querySelectorAll(".builder-num").forEach(el => { el.textContent = n + " / " + CUSTOM_MAX; });
+      root.querySelector(".builder-bar i").style.width = (n / CUSTOM_MAX) * 100 + "%";
+      root.querySelector(".builder-hint").textContent = n >= CUSTOM_MAX ? "List full" : ready ? "Ready to sort" : "Add " + (CUSTOM_MIN - n) + " more to start";
+      list.innerHTML = cfg.keys.map(key => {
+        const hit = lookup(key);
+        if (!hit) return "";
+        return (
+          '<li class="roster-item builder-item">' +
+            avatarMarkup(hit.team, hit.player, "avatar-sm") +
+            '<span class="builder-item-text">' +
+              '<span class="roster-name">' + esc(hit.player.name) + "</span>" +
+              '<span class="builder-item-meta">' + esc(clubLabel(hit.team) + " · " + hit.player.position) + "</span>" +
+            "</span>" +
+            '<button type="button" class="builder-remove" data-remove="' + esc(key) + '" aria-label="Remove ' + esc(hit.player.name) + '">' + CROSS + "</button>" +
+          "</li>"
+        );
+      }).join("") + (n < CUSTOM_MAX ? '<li class="builder-slot">+ ' + (CUSTOM_MAX - n) + " more spot" + (CUSTOM_MAX - n === 1 ? "" : "s") + "</li>" : "");
+      wireImages(list);
+      root.querySelectorAll('[data-act="byo-start"]').forEach(btn => {
+        btn.disabled = !ready;
+        btn.textContent = ready ? "Start sorting" : "Add " + (CUSTOM_MIN - n) + " more";
+      });
+      root.querySelector('[data-act="byo-share"]').disabled = !ready;
+      root.querySelector('[data-act="byo-clear"]').disabled = !n;
+      root.querySelector(".builder-estimate").textContent = ready
+        ? n + " players · at most " + MergeSorter.worstChoices(n) + " matchups"
+        : "";
+      const stack = root.querySelector(".builder-stack");
+      stack.innerHTML = cfg.keys.slice(-3).map(key => {
+        const hit = lookup(key);
+        return hit ? avatarMarkup(hit.team, hit.player, "avatar-stack") : "";
+      }).join("");
+      wireImages(stack);
+      root.querySelector(".builder-dock").classList.toggle("is-empty", !n);
+      const saved = storeGet(CUSTOM_ID);
+      const resume = root.querySelector('[data-act="byo-resume"]');
+      let canResume = false;
+      try {
+        canResume = !!(saved && saved.state && sameSet(MergeSorter.allIds(saved.state), cfg.keys));
+      } catch (e) {}
+      resume.hidden = !canResume;
+      if (canResume) {
+        resume.textContent = saved.state.done
+          ? "See your last ranking"
+          : "Resume where you left off (" + Math.round(MergeSorter.progress(saved.state) * 100) + "%)";
+      }
+      if (!results.hidden) paintResults();
+    };
+
+    const commit = () => {
+      saveCustom(cfg);
+      customTeam(cfg);
+      paint();
+    };
+
+    const toggleKey = e => {
+      const have = cfg.keys.findIndex(k => identOf(k) === e.ident);
+      if (have >= 0) cfg.keys.splice(have, 1);
+      else if (cfg.keys.length < CUSTOM_MAX) cfg.keys.push(e.key);
+      else return toast("Your list is full. Remove someone to add " + e.player.name + ".");
+      commit();
+    };
+
+    search.addEventListener("input", () => {
+      active = -1;
+      searchClear.hidden = !search.value;
+      paintResults();
+    });
+    search.addEventListener("focus", () => {
+      if (normText(search.value)) paintResults();
+    });
+    search.addEventListener("keydown", e => {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        if (!hits.length) return;
+        e.preventDefault();
+        active = e.key === "ArrowDown" ? (active + 1) % hits.length : (active <= 0 ? hits.length - 1 : active - 1);
+        paintResults();
+        const el = results.querySelector(".is-active");
+        if (el) el.scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        const target = hits[active >= 0 ? active : 0];
+        if (target) toggleKey(target);
+      } else if (e.key === "Escape") {
+        if (!results.hidden) {
+          e.stopPropagation();
+          results.hidden = true;
+          search.setAttribute("aria-expanded", "false");
+        }
+      }
+    });
+    results.addEventListener("mousedown", e => e.preventDefault());
+    results.addEventListener("click", e => {
+      const li = e.target.closest("[data-i]");
+      if (li && hits[Number(li.dataset.i)]) toggleKey(hits[Number(li.dataset.i)]);
+    });
+    list.addEventListener("click", e => {
+      const btn = e.target.closest("[data-remove]");
+      if (!btn) return;
+      cfg.keys = cfg.keys.filter(k => k !== btn.dataset.remove);
+      commit();
+    });
+    nameInput.addEventListener("input", () => {
+      cfg.name = nameInput.value.slice(0, 40);
+      saveCustom(cfg);
+      customTeam(cfg);
+    });
+
+    searchClear.addEventListener("click", () => {
+      search.value = "";
+      searchClear.hidden = true;
+      active = -1;
+      paintResults();
+      search.focus();
+    });
+    document.addEventListener("click", function outside(e) {
+      if (!document.body.contains(root)) return document.removeEventListener("click", outside);
+      if (!e.target.closest(".builder-search")) {
+        results.hidden = true;
+        search.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    root.querySelectorAll('[data-act="byo-start"]').forEach(btn => btn.addEventListener("click", () => {
+      const keys = cleanKeys(cfg.keys);
+      if (keys.length < CUSTOM_MIN) return;
+      storeDel(CUSTOM_ID);
+      swapScreen(() => startSession(customTeam(cfg), MergeSorter.create(keys)));
+    }));
+    root.querySelector('[data-act="byo-resume"]').addEventListener("click", () => {
+      const saved = storeGet(CUSTOM_ID);
+      if (!saved || !saved.state) return;
+      swapScreen(() => {
+        if (saved.state.done) {
+          session = { team: customTeam(cfg), state: saved.state };
+          renderResults();
+        } else {
+          startSession(customTeam(cfg), saved.state);
+        }
+      });
+    });
+    root.querySelector('[data-act="byo-share"]').addEventListener("click", () => shareCustomList(cfg));
+    root.querySelector('[data-act="byo-clear"]').addEventListener("click", () => {
+      if (!cfg.keys.length) return;
+      const before = cfg.keys.slice();
+      cfg.keys = [];
+      commit();
+      toast("List cleared.");
+      const t = document.querySelector(".toast");
+      if (t) {
+        t.innerHTML = 'List cleared. <button type="button" class="link-btn toast-undo">Undo</button>';
+        t.querySelector(".toast-undo").addEventListener("click", () => {
+          if (!document.body.contains(root)) return;
+          cfg.keys = before;
+          commit();
+          t.classList.remove("show");
+        });
+      }
+    });
+
+    paint();
+    if (customNotice) {
+      toast(customNotice);
+      customNotice = "";
+    }
+  }
+
+  function importCustom(params) {
+    const listRaw = params.get("list");
+    const rankRaw = params.get("custom") ? params.get("r") : null;
+    const name = (params.get("n") || "").slice(0, 40);
+    const colours = params.get("c") || "neutral";
+    ["list", "custom", "r", "n", "c"].forEach(k => params.delete(k));
+    const rest = params.toString();
+    const clean = hash => {
+      try {
+        history.replaceState(null, "", location.pathname + (rest ? "?" + rest : "") + "#/" + hash);
+      } catch (e) {}
+    };
+    return loadAllTeams().then(() => {
+      if (listRaw) {
+        const keys = cleanKeys(listRaw.split("."));
+        if (!keys.length) return clean(CUSTOM_ID);
+        const cfg = { keys, name, colours: INDEX[colours] && TEAMS[colours] ? colours : "neutral" };
+        const current = customConfig();
+        if (!(sameSet(current.keys, keys) && current.name === cfg.name)) storeDel(CUSTOM_ID);
+        saveCustom(cfg);
+        storeDel("kit:" + CUSTOM_ID);
+        customNotice = "Loaded “" + customName(cfg) + "” with " + keys.length + " players.";
+        clean(CUSTOM_ID);
+        return;
+      }
+      if (!rankRaw) return;
+      const seen = new Set();
+      const groups = rankRaw.split(".").map(g => g.split("~").filter(key => {
+        if (seen.has(key) || !lookup(key)) return false;
+        seen.add(key);
+        return true;
+      })).filter(g => g.length);
+      const keys = groups.flat();
+      if (keys.length < 2) return;
+      saveCustom({ keys: keys.slice(0, CUSTOM_MAX), name, colours: INDEX[colours] && TEAMS[colours] ? colours : "neutral" });
+      storeSet(CUSTOM_ID, {
+        state: {
+          queue: [groups], left: null, right: null, merged: null, i: 0, j: 0,
+          placed: keys.length, total: keys.length, choices: 0, done: true, history: []
+        }
+      });
+      clean(CUSTOM_ID + "/results");
+    });
+  }
+
+  function showCustom(parts, token) {
+    loadAllTeams().then(() => {
+      if (token !== navToken) return;
+      swapScreen(() => {
+        const team = customTeam(customConfig());
+        const saved = storeGet(CUSTOM_ID);
+        if (!isValidSaved(team, saved)) {
+          storeDel(CUSTOM_ID);
+        } else if (parts[1] === "results" && saved.state.done) {
+          session = { team, state: saved.state };
+          renderResults();
+          return;
+        }
+        renderBuilder();
+      });
+    });
+  }
+
   const REQUESTS_URL = MANIFEST.requestsUrl || "";
   let lastRequestAt = 0;
 
@@ -1362,8 +2107,16 @@
     );
   }
 
+  const LETTER_SWAPS = { "ø": "o", "æ": "ae", "œ": "oe", "ß": "ss", "ł": "l", "đ": "d", "ð": "d", "þ": "th", "ı": "i", "ħ": "h", "ŧ": "t", "ŋ": "n" };
+
   function normText(text) {
-    return String(text || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    return String(text || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[øæœßłđðþıħŧŋ]/g, c => LETTER_SWAPS[c])
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
   }
 
   function squadIndex() {
@@ -1422,7 +2175,7 @@
       const meta = entry ? entry.group.name + " · " + entry.section.name : "";
       return (
         '<li><button type="button" class="req-clash-item' + (id === state.exact ? " is-exact" : "") + '" data-open="' + id + '">' +
-          (team ? crestMarkup(team, "crest-xs", Kits.get(team, "home")) : "") +
+          (team ? plainCrest(team, "crest-xs") : "") +
           '<span class="req-clash-text"><span class="combo-name">' + esc(team ? team.name : id.replace(/-/g, " ")) + "</span>" +
           '<span class="combo-meta">' + esc(meta) + "</span></span>" +
           '<span class="req-clash-go" aria-hidden="true">' + ARROW + "</span>" +
@@ -1627,7 +2380,7 @@
       '<div class="modal-card request-card" role="dialog" aria-modal="true" aria-labelledby="reqTitle">' +
         '<div class="modal-head">' +
           '<h2 id="reqTitle">' + (fromTeam ? "Missing a player?" : "Make a request") + "</h2>" +
-          '<button type="button" class="modal-close" data-act="close" aria-label="Close">×</button>' +
+          '<button type="button" class="modal-close" data-act="close" aria-label="Close">' + CROSS + '</button>' +
         "</div>" +
         '<form class="req-form" novalidate>' +
           (fromTeam ? "" :
@@ -1913,7 +2666,7 @@
   const SENDING = {};
 
   function submitRanking(team) {
-    if (!STATS_URL || !team) return Promise.resolve(false);
+    if (!STATS_URL || !team || isCustom(team)) return Promise.resolve(false);
     const saved = storeGet(team.id);
     if (!saved || !saved.state || !saved.state.done) return Promise.resolve(false);
     let order;
@@ -2201,6 +2954,8 @@
 
   function renderResults() {
     const { team, state } = session;
+    const custom = isCustom(team);
+    const backTo = custom ? (builderSection() || { id: "" }).id : sectionOf(team);
     const kit = kitOf(team);
     applyTheme(team);
     const ranking = MergeSorter.ranking(state);
@@ -2215,7 +2970,7 @@
           '<span class="rank-slot">' + avatarMarkup(hit.team, hit.player, "avatar-rank") + "</span>" +
           '<span class="rank-text">' +
             '<span class="rank-name">' + esc(hit.player.name) + "</span>" +
-            '<span class="rank-meta">' + esc(playerMeta(POSITIONS[hit.player.position], hit.player)) + "</span>" +
+            '<span class="rank-meta">' + esc(custom ? POSITIONS[hit.player.position] + " · " + clubLabel(hit.team) : playerMeta(POSITIONS[hit.player.position], hit.player)) + "</span>" +
           "</span>" +
         "</li>"
       );
@@ -2223,27 +2978,29 @@
 
     render(
       '<section class="results">' +
-        '<button type="button" class="back-link" data-go="' + sectionOf(team) + '">' + BACK + "All squads</button>" +
+        '<button type="button" class="back-link" data-go="' + backTo + '">' + BACK + "All squads</button>" +
         '<div class="setup-head">' +
-          crestMarkup(team, "crest-lg") +
+          (custom ? customBadge("crest-lg") : crestMarkup(team, "crest-lg")) +
           "<div>" +
             '<p class="eyebrow">Your ranking</p>' +
             "<h1>" + esc(team.name) + "</h1>" +
           "</div>" +
           kitPicker(team) +
         "</div>" +
-        missingLine(team, true) +
-        statsEntry(team) +
+        (custom ? "" : missingLine(team, true) + statsEntry(team)) +
         '<div class="setup-actions results-actions">' +
           '<button class="btn btn-primary" data-act="share">Share ranking</button>' +
-          '<button class="btn btn-ghost" data-act="again">Sort again</button>' +
-          '<button type="button" class="btn btn-ghost" data-go="' + sectionOf(team) + '">All squads</button>' +
+          (custom ? '<button class="btn btn-ghost" data-act="share-list">Share list</button>' : "") +
+          '<button class="btn btn-ghost" data-act="again">' + (custom ? "Edit &amp; sort again" : "Sort again") + "</button>" +
+          '<button type="button" class="btn btn-ghost" data-go="' + backTo + '">All squads</button>' +
         "</div>" +
         '<ol class="rank-list">' + rows.join("") + "</ol>" +
       "</section>"
     );
 
-    app.querySelector('[data-act="share"]').addEventListener("click", () => openShare(team, shareEntries(ranking)));
+    app.querySelector('[data-act="share"]').addEventListener("click", () => openShare(team, shareEntries(ranking, custom)));
+    const shareList = app.querySelector('[data-act="share-list"]');
+    if (shareList) shareList.addEventListener("click", () => shareCustomList(customConfig()));
     const entry = app.querySelector(".stats-entry .stats-entry-sub");
     submitRanking(team).then(() => {
       if (!entry || !app.contains(entry)) return;
@@ -2260,6 +3017,7 @@
   function isValidSaved(team, saved) {
     if (!saved || !saved.state) return false;
     try {
+      if (isCustom(team)) return MergeSorter.allIds(saved.state).every(key => lookup(key));
       return MergeSorter.allIds(saved.state).every(key => lookup(key) && key.startsWith(team.id + ":"));
     } catch (e) {
       return false;
@@ -2282,6 +3040,10 @@
   function show(id) {
     const token = ++navToken;
     const parts = id.split("/");
+    if (parts[0] === CUSTOM_ID) {
+      showCustom(parts, token);
+      return;
+    }
     if (!INDEX[parts[0]]) {
       renderHome(parts[0], token);
       return;

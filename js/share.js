@@ -585,7 +585,7 @@
     ctx.textBaseline = "alphabetic";
     if (twoLine) {
       const metaSize = nameSize ? Math.min(Math.max(16, nameSize * 0.62), 32) : Math.min(Math.max(18, h * 0.14), 32);
-      const meta = [entry.positionLabel, entry.player.number != null ? "#" + entry.player.number : ""].filter(Boolean).join(" · ");
+      const meta = entry.metaLine || [entry.positionLabel, entry.player.number != null ? "#" + entry.player.number : ""].filter(Boolean).join(" · ");
       const nameAsc = ctx.measureText(nameText).actualBoundingBoxAscent;
       ctx.font = font(500, metaSize, BODY);
       const mm = ctx.measureText(meta);
@@ -754,7 +754,7 @@
     ctx.fillRect(0, 0, f.w, f.h);
 
     const modeLabel = mode === "top3" ? "Top 3" : mode === "top10" ? "Top 10" : team.squadLabel ? "All " + team.squadLabel : "Full squad";
-    drawHeader(ctx, f, kit, team, crestImg, team.season + " " + (team.squadLabel || "squad") + " · " + modeLabel + (subtitleExtra || ""));
+    drawHeader(ctx, f, kit, team, crestImg, (team.shareLabel || team.season + " " + (team.squadLabel || "squad")) + " · " + modeLabel + (subtitleExtra || ""));
 
     layoutList(ctx, f, shown, imgs, f.head + 36, f.h - f.foot - 28, kit);
 
@@ -842,7 +842,7 @@
     view.setAttribute("role", "dialog");
     view.setAttribute("aria-modal", "true");
     view.innerHTML =
-      '<button type="button" class="save-view-close" aria-label="Close">×</button>' +
+      '<button type="button" class="save-view-close" aria-label="Close"><svg class="x-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>' +
       '<p class="save-view-tip"></p>' +
       (escapeHref
         ? '<p class="save-view-sub save-view-stuck">If press & hold isn\'t working, please open in your browser. Twitter browser is buggy and I can\'t figure out how to fix it. I\'m sorry.</p>'
