@@ -195,7 +195,7 @@ registerTeam({
       "onPrimary": "#FFFFFF",
       "paperPrimary": "#FFFFFF",
       "paperOnPrimary": "#114A82",
-      "accent": "#114A82",
+      "accent": "#181B20",
       "onAccent": "#FFFFFF",
       "photoBg": "#181B20",
       "labelBg": "#FFFFFF",
