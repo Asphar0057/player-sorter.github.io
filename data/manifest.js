@@ -63,6 +63,12 @@ window.SQUAD_MANIFEST = {
           teams: ["flamengo"]
         },
         {
+          id: "liga-mx",
+          name: "Liga MX",
+          country: "Mexico",
+          teams: ["club-america"]
+        },
+        {
           id: "championship",
           name: "Championship",
           country: "England",
