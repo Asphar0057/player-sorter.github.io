@@ -45,6 +45,12 @@ window.SQUAD_MANIFEST = {
           teams: ["ajax"]
         },
         {
+          id: "mls",
+          name: "Major League Soccer",
+          country: "United States",
+          teams: ["new-england-revolution"]
+        },
+        {
           id: "liga-profesional",
           name: "Liga Profesional de Futbol (LPF)",
           country: "Argentina",
