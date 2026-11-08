@@ -9,7 +9,7 @@ registerTeam({
   kits: {
     home: {
       label: "Home",
-      paper: "#F4A9C7",
+      paper: "#FBDDE9",
       card: "#FFFFFF",
       onPaper: "#111111",
       onPaperMuted: "rgba(0,0,0,0.68)",
@@ -25,7 +25,6 @@ registerTeam({
       header: "#F4A9C7",
       onHeader: "#111111",
       headerBand: "#111111",
-      photoBg: "#D8467F",
       rowTintStrength: 0.16,
       pattern: { type: "stripes", base: "#F4A9C7", bands: ["#F9C9DC"] }
     },
