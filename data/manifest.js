@@ -36,13 +36,19 @@ window.SQUAD_MANIFEST = {
           id: "serie-a",
           name: "Serie A",
           country: "Italy",
-          teams: ["roma", "juventus", "ac-milan", "inter"]//, "napoli"]
+          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como"]//, "napoli"]
         },
         {
           id: "eredivisie",
           name: "Eredivisie",
           country: "Netherlands",
           teams: ["ajax"]
+        },
+        {
+          id: "mls",
+          name: "Major League Soccer",
+          country: "United States",
+          teams: ["new-england-revolution"]
         },
         {
           id: "liga-profesional",
@@ -55,19 +61,19 @@ window.SQUAD_MANIFEST = {
           name: "Campeonato Brasileiro Série A",
           country: "Brazil",
           teams: ["flamengo"]
-        }
+        },
+        {
+          id: "championship",
+          name: "Championship",
+          country: "England",
+          teams: ["west-ham-united", "wolves"]//, "sheffield-united"]
+        },
         /*
         {
           id: "liga-portugal",
           name: "Liga Portugal",
           country: "Portugal",
           teams: ["benfica"]
-        },
-        {
-          id: "championship",
-          name: "Championship",
-          country: "England",
-          teams: ["sheffield-united"]
         },
           */
       ]

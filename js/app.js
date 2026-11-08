@@ -64,6 +64,7 @@
 
   const ARROW = '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const CROSS = '<svg class="x-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+  const LINK_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const BACK = '<span class="back-icon" aria-hidden="true">' + ARROW + "</span>";
 
   const SOCIAL = {
@@ -457,6 +458,7 @@
     document.body.appendChild(modal);
     document.body.classList.add("modal-open");
     enhanceSegs(modal);
+    wireImages(modal);
   }
 
   function closeModal(modal) {
@@ -1179,7 +1181,7 @@
 
   function importRanking() {
     const params = new URLSearchParams(location.search);
-    if (params.get("list") || params.get("custom")) return importCustom(params);
+    if (params.get("l") || params.get("x") || params.get("list") || params.get("custom")) return importCustom(params);
     const club = params.get("club");
     const raw = params.get("r");
     if (!club || !raw) return Promise.resolve();
@@ -1229,6 +1231,16 @@
         '<div class="modal-body">' +
           '<div class="share-preview"><div class="share-loading">Drawing your ranking…</div></div>' +
           '<div class="share-controls">' +
+            (isCustom(team)
+              ? '<div class="challenge-card">' +
+                  '<p class="challenge-title"><span class="challenge-icon" aria-hidden="true">' + LINK_ICON + "</span>Challenge your friends</p>" +
+                  '<p class="challenge-text">Send them your unique link and they’ll rank the same ' + entries.length + " players.</p>" +
+                  '<div class="challenge-field">' +
+                    '<input class="challenge-link" type="text" readonly aria-label="Your challenge link" value="' + esc(customListLink(customConfig())) + '">' +
+                    '<button type="button" class="btn btn-primary challenge-copy">Copy link</button>' +
+                  "</div>" +
+                "</div>"
+              : "") +
             '<p class="setup-label">Shape</p>' +
             segmented("format", [
               { value: "story", label: "Story 9:16" },
@@ -1261,13 +1273,37 @@
         opts.kit = kitOf(team).id;
         holder.innerHTML = customColours(team, "kit", opts.kit, false);
         enhanceSegs(holder);
+        wireImages(holder);
         wireShareColours();
         modal.setAttribute("style", themeVars(team));
+        const linkField = modal.querySelector(".challenge-link");
+        if (linkField) linkField.value = customListLink(customConfig());
         if (session && session.team === team && session.state.done) renderResults();
         draw();
       });
     };
     wireShareColours();
+    const copyBtn = modal.querySelector(".challenge-copy");
+    if (copyBtn) {
+      const field = modal.querySelector(".challenge-link");
+      field.addEventListener("focus", () => field.select());
+      copyBtn.addEventListener("click", () => {
+        copyText(field.value).then(ok => {
+          if (!ok) {
+            field.focus();
+            toast("Couldn't copy automatically. The link is selected, so copy it from there.");
+            return;
+          }
+          copyBtn.textContent = "Copied ✓";
+          copyBtn.classList.add("is-done");
+          clearTimeout(copyBtn.timer);
+          copyBtn.timer = setTimeout(() => {
+            copyBtn.textContent = "Copy link";
+            copyBtn.classList.remove("is-done");
+          }, 2200);
+        });
+      });
+    }
     const fileShare = ShareImage.canShareFiles();
     if (escapeHref) {
       note.innerHTML = 'This app blocks saving images. <a class="share-escape" target="_blank" rel="noopener">Open your ranking in your browser</a> to download or share it.';
@@ -1353,14 +1389,15 @@
       }
 
       if (act.dataset.act === "x") {
-        const text = caption(team, entries) + (url ? "\n\nRank yours:" : "");
+        const postUrl = isCustom(team) ? customListLink(customConfig()) : url;
+        const text = caption(team, entries) + (postUrl ? "\n\n" + (isCustom(team) ? "Rank my list:" : "Rank yours:") : "");
         if (fileShare) {
-          await shareFile(ShareImage.canvasToFile(canvas, fileName(opts.format)), text + (url ? " " + url : ""));
+          await shareFile(ShareImage.canvasToFile(canvas, fileName(opts.format)), text + (postUrl ? " " + postUrl : ""));
         } else {
           if (ShareImage.prefersSaveView()) {
             ShareImage.showSaveView(canvas, "Press and hold to save, then attach it to your post on X", escapeHref);
           } else {
-            const intent = "https://x.com/intent/tweet?text=" + encodeURIComponent(text) + (url ? "&url=" + encodeURIComponent(url) : "");
+            const intent = "https://x.com/intent/tweet?text=" + encodeURIComponent(text) + (postUrl ? "&url=" + encodeURIComponent(postUrl) : "");
             window.open(intent, "_blank", "noopener");
             ShareImage.download(ShareImage.canvasToFile(canvas, fileName(opts.format)));
             toast("Image downloaded. Attach it to your post on X.");
@@ -1484,14 +1521,53 @@
     return SECTIONS.find(s => (s.groups || []).some(g => g.builder)) || null;
   }
 
+  const FEATURED_FACES = [
+    "barcelona:lamine-yamal",
+    "arsenal:saka",
+    "barcelona-femeni:aitana",
+    "real-madrid:bellingham",
+    "atletico-madrid:alvarez",
+    "arsenal-women:russo",
+    "liverpool:wirtz",
+    "real-madrid:mbappe",
+    "barcelona:pedri"
+  ];
+
+  function faceMarkup(key) {
+    const [teamId, playerId] = key.split(":");
+    const entry = INDEX[teamId];
+    if (!entry) return "";
+    const base = "assets/teams/" + entry.dir + "/players/" + playerId;
+    return (
+      '<span class="avatar builder-face">' +
+        '<span class="avatar-fallback"><span></span></span>' +
+        imgTag(PHOTO_EXTS.map(ext => base + ext)) +
+      "</span>"
+    );
+  }
+
+  function builderFaces(keys) {
+    const own = keys.filter(k => INDEX[k.split(":")[0]]).slice(-3);
+    if (own.length >= 3) return own;
+    const pool = FEATURED_FACES.filter(k => INDEX[k.split(":")[0]] && own.indexOf(k) < 0);
+    const day = Math.floor(Date.now() / 86400000);
+    const picks = [];
+    for (let i = 0; picks.length + own.length < 3 && i < pool.length; i++) picks.push(pool[(day * 3 + i) % pool.length]);
+    return picks.concat(own);
+  }
+
   function builderTile() {
-    const n = customConfig().keys.length;
+    const keys = customConfig().keys;
+    const n = keys.length;
     return (
       '<button type="button" class="team-tile builder-tile" data-go="' + CUSTOM_ID + '">' +
-        '<span class="builder-icon" aria-hidden="true">' + BYO_ICON + "</span>" +
         '<span class="team-tile-text">' +
-          '<span class="team-tile-name">Build your own ranking</span>' +
-          '<span class="team-tile-meta">' + (n ? "Your list: " + n + " player" + (n === 1 ? "" : "s") : CUSTOM_MIN + " to " + CUSTOM_MAX + " players from any squad") + "</span>" +
+          '<span class="team-tile-name">Build your own</span>' +
+          '<span class="team-tile-meta">' + (n ? "Your list: " + n + " player" + (n === 1 ? "" : "s") : "Pick " + CUSTOM_MIN + "–" + CUSTOM_MAX + " players from any club") + "</span>" +
+        "</span>" +
+        '<span class="builder-fan" aria-hidden="true">' +
+          builderFaces(keys).map(faceMarkup).join("") +
+          '<span class="builder-fan-plus">+</span>' +
         "</span>" +
       "</button>"
     );
@@ -1570,12 +1646,66 @@
     return team.shortName || team.name;
   }
 
+  const CODE_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const CODE_LEN = 5;
+  let codeCache = null;
+
+  function playerCode(key) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < key.length; i++) {
+      h ^= key.charCodeAt(i);
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    let out = "";
+    for (let i = 0; i < CODE_LEN; i++) {
+      out = CODE_CHARS[h % 62] + out;
+      h = Math.floor(h / 62);
+    }
+    return out;
+  }
+
+  function codeIndex() {
+    const loaded = Object.keys(TEAMS).length;
+    if (codeCache && codeCache.loaded === loaded) return codeCache.map;
+    const map = {};
+    Object.keys(INDEX).forEach(id => {
+      const team = TEAMS[id];
+      if (!team) return;
+      team.players.forEach(player => {
+        const key = id + ":" + player.id;
+        const code = playerCode(key);
+        (map[code] = map[code] || []).push(key);
+      });
+    });
+    codeCache = { loaded, map };
+    return map;
+  }
+
   function customListLink(cfg) {
+    const map = codeIndex();
+    let codes = "";
+    const extra = [];
+    cfg.keys.forEach(key => {
+      const code = playerCode(key);
+      if (map[code] && map[code].length === 1) codes += code;
+      else extra.push(key);
+    });
     const params = new URLSearchParams();
-    params.set("list", cfg.keys.join("."));
+    if (codes) params.set("l", codes);
+    if (extra.length) params.set("x", extra.join("."));
     if (cfg.name.trim()) params.set("n", cfg.name.trim());
-    if (colourClub(cfg)) params.set("c", cfg.colours);
+    if (colourClub(cfg)) params.set("k", cfg.colours);
     return location.origin + location.pathname + "?" + params.toString().replace(/%3A/gi, ":");
+  }
+
+  function decodeList(codes, extra) {
+    const map = codeIndex();
+    const keys = [];
+    for (let i = 0; i + CODE_LEN <= codes.length; i += CODE_LEN) {
+      const hit = map[codes.slice(i, i + CODE_LEN)];
+      if (hit && hit.length === 1) keys.push(hit[0]);
+    }
+    return keys.concat(extra ? extra.split(".") : []);
   }
 
   function copyText(text) {
@@ -1598,19 +1728,6 @@
       return navigator.clipboard.writeText(text).then(() => true, fallback);
     }
     return Promise.resolve(fallback());
-  }
-
-  function shareCustomList(cfg) {
-    const url = customListLink(cfg);
-    const title = customName(cfg);
-    const touch = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-    if (touch && navigator.share) {
-      navigator.share({ title, text: "Rank my " + title + " list:", url }).catch(e => {
-        if (e && e.name !== "AbortError") copyText(url).then(ok => toast(ok ? "Link copied. Anyone with it can sort your list." : "Couldn't copy the link."));
-      });
-      return;
-    }
-    copyText(url).then(ok => toast(ok ? "Link copied. Anyone with it can sort your list." : "Couldn't copy the link."));
   }
 
   function sameSet(a, b) {
@@ -1665,7 +1782,7 @@
         "</button>" +
         '<div class="colour-pop" hidden>' +
           '<div class="colour-search-box">' +
-            '<input type="search" class="colour-search" placeholder="Search squads…" aria-label="Search squads" autocomplete="off" autocapitalize="off" spellcheck="false">' +
+            '<input type="search" class="colour-search" placeholder="Search kit themes…" aria-label="Search squads" autocomplete="off" autocapitalize="off" spellcheck="false">' +
             '<button type="button" class="field-clear" aria-label="Clear search" hidden>' + CROSS + "</button>" +
           "</div>" +
           '<ul class="colour-list" role="listbox" aria-label="Colors"></ul>' +
@@ -1776,6 +1893,10 @@
           "</div>" +
         "</div>" +
         '<p class="missing-line missing-line-top">Pick ' + CUSTOM_MIN + " to " + CUSTOM_MAX + " players from any squad on the site, then rank them.</p>" +
+        '<button type="button" class="builder-resume" data-act="byo-resume" hidden>' +
+          '<span class="builder-resume-text"></span>' +
+          '<span class="arrow-circle builder-resume-arrow" aria-hidden="true">' + ARROW + "</span>" +
+        "</button>" +
         '<div class="setup-body builder-body">' +
           '<label class="builder-field"><span class="setup-label">Name your list <em>(optional)</em></span>' +
             '<input class="builder-input" name="listName" maxlength="40" placeholder="' + CUSTOM_DEFAULT_NAME + '" value="' + esc(cfg.name) + '" autocomplete="off"></label>' +
@@ -1788,15 +1909,18 @@
             "</div>" +
             '<ul class="builder-results" id="byoResults" role="listbox" hidden></ul>' +
           "</div>" +
-          '<div class="builder-count"><b class="builder-num"></b><span class="builder-bar"><i></i></span><span class="builder-hint"></span></div>' +
+          '<div class="builder-progress">' +
+            '<div class="builder-progress-top">' +
+              '<span class="builder-status" role="status"></span>' +
+              '<span class="builder-rule">Minimum ' + CUSTOM_MIN + " · up to " + CUSTOM_MAX + "</span>" +
+              '<button type="button" class="builder-tool builder-tool-quiet" data-act="byo-clear">Clear list</button>' +
+            "</div>" +
+            '<span class="builder-bar" aria-hidden="true"><i></i></span>' +
+          "</div>" +
           '<ul class="builder-list"></ul>' +
           '<div class="setup-actions">' +
             '<button type="button" class="btn btn-primary" data-act="byo-start">Start sorting</button>' +
-            '<button type="button" class="btn btn-ghost" data-act="byo-resume" hidden></button>' +
-            '<button type="button" class="btn btn-ghost" data-act="byo-share">Share list</button>' +
-            '<button type="button" class="btn btn-ghost" data-act="byo-clear">Clear list</button>' +
           "</div>" +
-          '<p class="setup-estimate builder-estimate"></p>' +
         "</div>" +
         '<div class="builder-dock" aria-hidden="true">' +
           '<span class="builder-stack"></span>' +
@@ -1855,9 +1979,10 @@
     const paint = () => {
       const n = cfg.keys.length;
       const ready = n >= CUSTOM_MIN;
-      root.querySelectorAll(".builder-num").forEach(el => { el.textContent = n + " / " + CUSTOM_MAX; });
-      root.querySelector(".builder-bar i").style.width = (n / CUSTOM_MAX) * 100 + "%";
-      root.querySelector(".builder-hint").textContent = n >= CUSTOM_MAX ? "List full" : ready ? "Ready to sort" : "Add " + (CUSTOM_MIN - n) + " more to start";
+      root.querySelectorAll(".builder-num").forEach(el => { el.textContent = n + (n === 1 ? " player" : " players"); });
+      root.querySelector(".builder-progress").classList.toggle("is-ready", ready);
+      root.querySelector(".builder-bar i").style.width = Math.min(n / CUSTOM_MIN, 1) * 100 + "%";
+      root.querySelector(".builder-status").textContent = n >= CUSTOM_MAX ? n + " players · list full" : n + (n === 1 ? " player" : " players");
       list.innerHTML = cfg.keys.map(key => {
         const hit = lookup(key);
         if (!hit) return "";
@@ -1871,17 +1996,13 @@
             '<button type="button" class="builder-remove" data-remove="' + esc(key) + '" aria-label="Remove ' + esc(hit.player.name) + '">' + CROSS + "</button>" +
           "</li>"
         );
-      }).join("") + (n < CUSTOM_MAX ? '<li class="builder-slot">+ ' + (CUSTOM_MAX - n) + " more spot" + (CUSTOM_MAX - n === 1 ? "" : "s") + "</li>" : "");
+      }).join("") + (n < CUSTOM_MAX ? '<li class="builder-slot-item"><button type="button" class="builder-slot" data-act="byo-add">+ Add a player</button></li>' : "");
       wireImages(list);
       root.querySelectorAll('[data-act="byo-start"]').forEach(btn => {
         btn.disabled = !ready;
-        btn.textContent = ready ? "Start sorting" : "Add " + (CUSTOM_MIN - n) + " more";
+        btn.title = ready ? "" : "Pick at least " + CUSTOM_MIN + " players to start";
       });
-      root.querySelector('[data-act="byo-share"]').disabled = !ready;
       root.querySelector('[data-act="byo-clear"]').disabled = !n;
-      root.querySelector(".builder-estimate").textContent = ready
-        ? n + " players · at most " + MergeSorter.worstChoices(n) + " matchups"
-        : "";
       const stack = root.querySelector(".builder-stack");
       stack.innerHTML = cfg.keys.slice(-3).map(key => {
         const hit = lookup(key);
@@ -1897,9 +2018,9 @@
       } catch (e) {}
       resume.hidden = !canResume;
       if (canResume) {
-        resume.textContent = saved.state.done
-          ? "See your last ranking"
-          : "Resume where you left off (" + Math.round(MergeSorter.progress(saved.state) * 100) + "%)";
+        resume.querySelector(".builder-resume-text").innerHTML = saved.state.done
+          ? "<b>See your last ranking</b> of “" + esc(customName(cfg)) + "”"
+          : "<b>Resume</b> “" + esc(customName(cfg)) + "” · " + Math.round(MergeSorter.progress(saved.state) * 100) + "% sorted";
       }
       if (!results.hidden) paintResults();
     };
@@ -1952,6 +2073,11 @@
       if (li && hits[Number(li.dataset.i)]) toggleKey(hits[Number(li.dataset.i)]);
     });
     list.addEventListener("click", e => {
+      if (e.target.closest('[data-act="byo-add"]')) {
+        search.scrollIntoView({ block: "center", behavior: MOTION_OK ? "smooth" : "auto" });
+        search.focus({ preventScroll: true });
+        return;
+      }
       const btn = e.target.closest("[data-remove]");
       if (!btn) return;
       cfg.keys = cfg.keys.filter(k => k !== btn.dataset.remove);
@@ -1996,7 +2122,6 @@
         }
       });
     });
-    root.querySelector('[data-act="byo-share"]').addEventListener("click", () => shareCustomList(cfg));
     root.querySelector('[data-act="byo-clear"]').addEventListener("click", () => {
       if (!cfg.keys.length) return;
       const before = cfg.keys.slice();
@@ -2023,11 +2148,13 @@
   }
 
   function importCustom(params) {
+    const codes = params.get("l");
+    const extra = params.get("x");
     const listRaw = params.get("list");
     const rankRaw = params.get("custom") ? params.get("r") : null;
     const name = (params.get("n") || "").slice(0, 40);
-    const colours = params.get("c") || "neutral";
-    ["list", "custom", "r", "n", "c"].forEach(k => params.delete(k));
+    const colours = params.get("k") || params.get("c") || "neutral";
+    ["l", "x", "k", "list", "custom", "r", "n", "c"].forEach(k => params.delete(k));
     const rest = params.toString();
     const clean = hash => {
       try {
@@ -2035,15 +2162,15 @@
       } catch (e) {}
     };
     return loadAllTeams().then(() => {
-      if (listRaw) {
-        const keys = cleanKeys(listRaw.split("."));
+      if (codes || extra || listRaw) {
+        const keys = cleanKeys(codes || extra ? decodeList(codes || "", extra) : listRaw.split("."));
         if (!keys.length) return clean(CUSTOM_ID);
         const cfg = { keys, name, colours: INDEX[colours] && TEAMS[colours] ? colours : "neutral" };
         const current = customConfig();
         if (!(sameSet(current.keys, keys) && current.name === cfg.name)) storeDel(CUSTOM_ID);
         saveCustom(cfg);
         storeDel("kit:" + CUSTOM_ID);
-        customNotice = "Loaded “" + customName(cfg) + "” with " + keys.length + " players.";
+        customNotice = "You've been challenged to rank “" + customName(cfg) + "” (" + keys.length + " players).";
         clean(CUSTOM_ID);
         return;
       }
@@ -2985,12 +3112,14 @@
             '<p class="eyebrow">Your ranking</p>' +
             "<h1>" + esc(team.name) + "</h1>" +
           "</div>" +
-          kitPicker(team) +
+          (custom
+            ? '<div class="kit-picker builder-colours"><span class="kit-label">Colors</span>' + colourMenu(customConfig()) + kitSwitch(team, "site-kit", kitOf(team).id, true) + "</div>"
+            : kitPicker(team)) +
         "</div>" +
         (custom ? "" : missingLine(team, true) + statsEntry(team)) +
         '<div class="setup-actions results-actions">' +
-          '<button class="btn btn-primary" data-act="share">Share ranking</button>' +
-          (custom ? '<button class="btn btn-ghost" data-act="share-list">Share list</button>' : "") +
+          '<button class="btn btn-primary" data-act="share">' + (custom ? "Share &amp; challenge friends" : "Share ranking") + "</button>" +
+
           '<button class="btn btn-ghost" data-act="again">' + (custom ? "Edit &amp; sort again" : "Sort again") + "</button>" +
           '<button type="button" class="btn btn-ghost" data-go="' + backTo + '">All squads</button>' +
         "</div>" +
@@ -2999,8 +3128,8 @@
     );
 
     app.querySelector('[data-act="share"]').addEventListener("click", () => openShare(team, shareEntries(ranking, custom)));
-    const shareList = app.querySelector('[data-act="share-list"]');
-    if (shareList) shareList.addEventListener("click", () => shareCustomList(customConfig()));
+    const resultsMenu = custom && app.querySelector(".results .colour-menu");
+    if (resultsMenu) wireColourMenu(resultsMenu, customConfig(), () => swapScreen(renderResults));
     const entry = app.querySelector(".stats-entry .stats-entry-sub");
     submitRanking(team).then(() => {
       if (!entry || !app.contains(entry)) return;
