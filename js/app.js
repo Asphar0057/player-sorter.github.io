@@ -103,20 +103,22 @@
         initial(c.name, c.color, "credit-dot") + esc(c.name) +
       "</a>"
     ).join("");
+    const stack = COLLABORATORS.map(c => initial(c.name, c.color, "credit-dot")).join("");
     return (
       '<div class="site-credits">' +
-        '<div class="hero-cards">' +
-        '<div class="credit-card">' +
-          initial(CREATOR.name, "#C8102E", "credit-avatar") +
+        '<div class="credit-row">' +
           '<a class="credit-me" href="' + CREATOR.personal + '" target="_blank" rel="noopener">' +
-            "<b>Made by " + esc(CREATOR.name) + "</b><small>" + esc(CREATOR.handle) + "</small>" +
+            initial(CREATOR.name, "#C8102E", "credit-avatar") + "By " + esc(CREATOR.name) +
           "</a>" +
           '<span class="credit-socials">' + icons + "</span>" +
+          '<button type="button" class="credit-toggle" aria-expanded="false" aria-controls="creditList">' +
+            '<span class="credit-with">with</span><span class="credit-stack">' + stack + "</span>" +
+            '<svg class="credit-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            '<span class="sr-only">Show collaborators</span>' +
+          "</button>" +
         "</div>" +
+        '<div class="credit-chips" id="creditList" hidden>' + chips + "</div>" +
         requestStrip() +
-        "</div>" +
-        '<p class="credit-label">With help from</p>' +
-        '<div class="credit-chips">' + chips + "</div>" +
       "</div>"
     );
   }
@@ -798,7 +800,7 @@
         '<section class="hero">' +
           '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
           "<h1>Pick a squad &amp; start ranking</h1>" +
-          '<p class="hero-sub">Pick your favourite of two players until your whole squad is ranked.</p>' +
+          '<p class="hero-sub">Pick between two players at a time until your whole squad is ranked.</p>' +
           siteCredits() +
         "</section>" +
         '<div class="home-bar' + (searching() ? " is-searching" : "") + '">' + searchBox() + tabs + "</div>" +
@@ -1018,7 +1020,7 @@
   function cardMarkup(side, key) {
     const { team, player } = lookup(key);
     return (
-      '<button class="pick-card" data-pick="' + side + '" data-team="' + team.id + '" style="' + themeVars(team) + '">' +
+      '<button class="pick-card' + (team.photoFit === "contain" ? " photo-contain" : "") + '" data-pick="' + side + '" data-team="' + team.id + '" style="' + themeVars(team) + '">' +
         '<span class="pick-media">' +
           '<span class="avatar avatar-card">' +
             '<span class="avatar-fallback"><span>' + esc(player.number != null ? player.number : "") + "</span></span>" +
@@ -1352,9 +1354,8 @@
   function requestStrip() {
     if (!REQUESTS_URL) return "";
     return (
-      '<button type="button" class="request-card-cta" data-request="team">' +
-        '<span class="request-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>' +
-        '<span class="request-text"><b>Missing a squad or player?</b><small>Send a request</small></span>' +
+      '<button type="button" class="request-pill" data-request="team">' +
+        "Missing a squad or player?" +
         '<span class="arrow-circle request-arrow" aria-hidden="true">' + ARROW + "</span>" +
       "</button>"
     );
@@ -1375,6 +1376,84 @@
         hay: normText([name, team && team.shortName, id, group.name].join(" "))
       };
     })));
+  }
+
+  function existingSquads(query) {
+    const q = normText(query);
+    if (q.length < 3) return { exact: null, close: [] };
+    const tokens = q.split(" ");
+    const years = tokens.filter(t => /^(19|20)\d\d$/.test(t));
+    const hits = [];
+    let exact = null;
+    Object.keys(INDEX).forEach((id, i) => {
+      const team = TEAMS[id];
+      const name = normText(team ? team.name : id.replace(/-/g, " "));
+      const own = normText([name, id, team && team.season].join(" ")).split(" ");
+      if (years.some(y => own.indexOf(y) < 0)) return;
+      const dated = /(^|-)(19|20)\d\d(-|$)/.test(id);
+      const names = [name, normText(id.replace(/-/g, " "))]
+        .concat(team ? [team.shortName].concat(team.aliases || []).map(normText) : [])
+        .filter(Boolean);
+      if (names.indexOf(q) >= 0 && (!dated || years.length)) {
+        if (!exact) exact = id;
+        hits.push({ id, score: -1, i });
+        return;
+      }
+      if (tokens.every(t => wordStarts(names.join(" "), t))) hits.push({ id, score: name.indexOf(q) === 0 ? 0 : 1, i });
+    });
+    const ids = hits.sort((a, b) => a.score - b.score || a.i - b.i).map(h => h.id).slice(0, 4);
+    return { exact, close: ids };
+  }
+
+  function squadClash(form, onBlock) {
+    const input = form.querySelector('input[name="teamName"]');
+    const box = form.querySelector(".req-clash");
+    const list = box.querySelector(".req-clash-list");
+    const ok = box.querySelector('input[name="clashOk"]');
+    const okRow = box.querySelector(".req-clash-ok");
+    const playerLink = box.querySelector('[data-act="to-player"]');
+    let lastQuery = null;
+    let state = { exact: null, close: [] };
+
+    const row = id => {
+      const team = TEAMS[id];
+      const entry = INDEX[id];
+      const meta = entry ? entry.group.name + " · " + entry.section.name : "";
+      return (
+        '<li><button type="button" class="req-clash-item' + (id === state.exact ? " is-exact" : "") + '" data-open="' + id + '">' +
+          (team ? crestMarkup(team, "crest-xs", Kits.get(team, "home")) : "") +
+          '<span class="req-clash-text"><span class="combo-name">' + esc(team ? team.name : id.replace(/-/g, " ")) + "</span>" +
+          '<span class="combo-meta">' + esc(meta) + "</span></span>" +
+          '<span class="req-clash-go" aria-hidden="true">' + ARROW + "</span>" +
+        "</button></li>"
+      );
+    };
+
+    const check = force => {
+      const q = input.value;
+      if (!force && normText(q) === lastQuery) return;
+      lastQuery = normText(q);
+      state = existingSquads(q);
+      ok.checked = false;
+      box.hidden = !state.close.length;
+      box.classList.toggle("is-exact", !!state.exact);
+      list.innerHTML = state.close.map(row).join("");
+      wireImages(list);
+      okRow.hidden = !!state.exact;
+      playerLink.hidden = !state.exact;
+      playerLink.dataset.squad = state.exact || "";
+      onBlock(blocked());
+    };
+    const blocked = () => !!state.exact || (state.close.length > 0 && !ok.checked);
+
+    input.addEventListener("input", () => check());
+    ok.addEventListener("change", () => onBlock(blocked()));
+
+    return {
+      check,
+      blocked,
+      exact: () => state.exact
+    };
   }
 
   function squadCombo(form, initialId) {
@@ -1465,6 +1544,10 @@
     });
 
     return {
+      select(id) {
+        const it = items.find(x => x.id === id);
+        if (it) pickItem(it);
+      },
       refresh() {
         items = squadIndex();
         const it = items.find(x => x.id === hidden.value);
@@ -1555,6 +1638,12 @@
           '<div class="req-group" data-for="team">' +
             '<label class="req-field"><span>Which squad?</span>' +
               '<input name="teamName" maxlength="120" placeholder="e.g. Athletic Club, Chelsea Women, Brazil 2002" autocomplete="off"></label>' +
+            '<div class="req-clash" hidden>' +
+              '<p class="req-clash-title">Already on the site</p>' +
+              '<ul class="req-clash-list"></ul>' +
+              '<label class="req-clash-ok"><input type="checkbox" name="clashOk"><span>None of these, I want a different squad</span></label>' +
+              '<button type="button" class="req-clash-player" data-act="to-player" hidden>Missing a player? Report one instead</button>' +
+            "</div>" +
             '<div class="req-field req-combo req-select"><label id="catLabel">Type</label>' +
               '<button type="button" class="select-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="catLabel catValue">' +
                 '<span id="catValue">' + esc(categories[0]) + "</span>" +
@@ -1632,10 +1721,19 @@
     showGroup();
     const combo = squadCombo(form, teamId);
     pickerSelect(form.querySelector(".req-select"));
+    const clash = fromTeam ? null : squadClash(form, isBlocked => {
+      submit.disabled = isBlocked && currentType() === "team";
+    });
+    form.querySelectorAll('input[name="reqType"]').forEach(r => r.addEventListener("change", () => {
+      submit.disabled = !!clash && currentType() === "team" && clash.blocked();
+    }));
 
     const missingNames = SECTIONS.flatMap(s => (s.groups || []).flatMap(g => g.teams || [])).filter(id => INDEX[id] && !TEAMS[id]);
     if (missingNames.length) {
-      Promise.all(missingNames.map(ensureTeam)).then(() => combo.refresh());
+      Promise.all(missingNames.map(ensureTeam)).then(() => {
+        combo.refresh();
+        if (clash) clash.check(true);
+      });
     }
 
     const firstInput = form.querySelector(fromTeam ? 'input[name="playerName"]' : type === "other" ? 'textarea[name="message"]' : 'input[name="teamName"]');
@@ -1651,6 +1749,22 @@
     document.addEventListener("keydown", onKey);
     modal.addEventListener("click", e => {
       if (e.target === modal || e.target.closest('[data-act="close"]')) close();
+      const openBtn = e.target.closest(".req-clash-item[data-open]");
+      if (openBtn) {
+        close();
+        go(openBtn.dataset.open);
+        return;
+      }
+      const toPlayer = e.target.closest('[data-act="to-player"]');
+      if (toPlayer) {
+        const squad = toPlayer.dataset.squad;
+        const radio = form.querySelector('input[name="reqType"][value="player"]');
+        radio.checked = true;
+        radio.dispatchEvent(new Event("change", { bubbles: true }));
+        if (squad) combo.select(squad);
+        setTimeout(() => form.elements.playerName.focus(), 30);
+        return;
+      }
       if (e.target.closest('[data-act="another"]')) {
         modal.remove();
         document.removeEventListener("keydown", onKey);
@@ -1691,6 +1805,10 @@
       if (t === "team" && !payload.squad) {
         status.textContent = "Add the name of the squad you'd like to see.";
         form.elements.teamName.focus();
+        return;
+      }
+      if (t === "team" && clash && clash.blocked()) {
+        status.textContent = clash.exact() ? "That squad is already on the site." : "Pick a squad above, or tick the box if you want a different one.";
         return;
       }
       if (t === "player" && !INDEX[squadId]) {
@@ -1736,11 +1854,23 @@
   }
 
   document.addEventListener("click", e => {
+    const toggle = e.target.closest(".credit-toggle");
+    if (!toggle) return;
+    const list = document.getElementById(toggle.getAttribute("aria-controls"));
+    const open = toggle.getAttribute("aria-expanded") !== "true";
+    toggle.setAttribute("aria-expanded", String(open));
+    if (list) list.hidden = !open;
+  });
+
+  document.addEventListener("click", e => {
     const trigger = e.target.closest("[data-request]");
     if (!trigger) return;
     openRequest(trigger.dataset.request, trigger.dataset.team);
     const field = trigger.dataset.prefill && document.querySelector('.request-modal:not(.is-closing) input[name="teamName"]');
-    if (field) field.value = trigger.dataset.prefill;
+    if (field) {
+      field.value = trigger.dataset.prefill;
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+    }
   });
 
   function rankScale(rank) {

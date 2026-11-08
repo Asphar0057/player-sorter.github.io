@@ -5,6 +5,7 @@ registerTeam({
   monogram: "DEP",
   league: "laliga",
   season: "2026/27",
+  photoFit: "contain",
   kits: {
     home: {
       label: "Home",
@@ -19,9 +20,9 @@ registerTeam({
       muted: "#525F7C",
       primary: "#0831B6",
       onPrimary: "#FFFFFF",
-      accent: "#0831B6",
+      accent: "#061F73",
       onAccent: "#FFFFFF",
-      photoBg: "#0831B6",
+      photoBg: "#061F73",
       labelBg: "#FFFFFF",
       header: "#0831B6",
       onHeader: "#FFFFFF",
