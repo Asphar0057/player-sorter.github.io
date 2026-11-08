@@ -527,5 +527,10 @@
     return "rgb(" + c.join(",") + ")";
   }
 
-  window.Kits = { ids, get, css, draw, mix };
+  function isLight(hex) {
+    const c = hexRgb(hex);
+    return !!c && (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255 > 0.85;
+  }
+
+  window.Kits = { ids, get, css, draw, mix, isLight };
 })();

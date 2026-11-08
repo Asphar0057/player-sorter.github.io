@@ -158,11 +158,7 @@
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     ctx.save();
-<<<<<<< HEAD
-    if (["zigzag", "hoops", "split", "sash", "lightning", "checks", "triangles", "chevron"].indexOf(p.type) >= 0) {
-=======
-    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles", "sleeves", "centreband", "band", "cross"].indexOf(p.type) >= 0) {
->>>>>>> 9d047e5dd01eb2f4fe42b0a1ea8b161648ee0b26
+    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles", "chevron", "sleeves", "centreband", "band", "cross"].indexOf(p.type) >= 0) {
       if (room < 150) {
         ctx.restore();
         return;
