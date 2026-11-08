@@ -12,13 +12,13 @@ window.SQUAD_MANIFEST = {
           id: "laliga",
           name: "LaLiga",
           country: "Spain",
-          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna"]
+          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna"]//, "real-sociedad"]
         },
         {
           id: "premier-league",
           name: "Premier League",
           country: "England",
-          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds"]
+          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton"]
         },
         {
           id: "bundesliga",
@@ -87,13 +87,19 @@ window.SQUAD_MANIFEST = {
           id: "wsl",
           name: "WSL",
           country: "England",
-          teams: ["arsenal-women", "chelsea-women", "manchester-city-women"]
+          teams: ["arsenal-women", "chelsea-women", "manchester-city-women", "manchester-united-women", "london-city-lionesses"]
         },
         {
           id: "premiere-ligue",
           name: "Première Ligue",
           country: "France",
-          teams: ["ol-lyonnes"]
+          teams: ["ol-lyonnes", "psg-women"]
+        },
+        {
+          id: "frauen-bundesliga",
+          name: "Frauen-Bundesliga",
+          country: "Germany",
+          teams: ["bayern-munich-women"]
         }
       ]
     },
@@ -126,6 +132,13 @@ window.SQUAD_MANIFEST = {
       name: "Specials",
       tab: "Specials",
       groups: [
+        /*
+        {
+          id: "build-your-own",
+          name: "Build your own",
+          builder: true
+        },
+        */
         {
           id: "ballon-dor",
           name: "Ballon d'Or",
