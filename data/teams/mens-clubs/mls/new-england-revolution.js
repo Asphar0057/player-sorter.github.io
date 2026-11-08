@@ -17,12 +17,14 @@ registerTeam({
       muted: "#A9B4CE",
       primary: "#CE1126",
       onPrimary: "#FFFFFF",
-      accent: "#FFFFFF",
-      onAccent: "#0A1B3F",
+      accent: "#CE1126",
+      onAccent: "#FFFFFF",
+      photoInk: "#FFFFFF",
+      photoBg: "#CE1126",
       header: "#0A1B3F",
       onHeader: "#FFFFFF",
       headerBand: "#CE1126",
-      pattern: { type: "tipping", base: "#0A1B3F", bands: ["#CE1126", "#FFFFFF"] }
+      pattern: { type: "chevron", base: "#0A1B3F", bands: ["#CE1126"] }
     },
     away: {
       label: "Away",
@@ -32,36 +34,15 @@ registerTeam({
       muted: "#53607A",
       primary: "#0A1B3F",
       onPrimary: "#FFFFFF",
-      accent: "#2E7D52",
+      accent: "#1F5C3A",
       onAccent: "#FFFFFF",
       header: "#FFFFFF",
       onHeader: "#0A1B3F",
-      headerBand: "#2E7D52",
+      headerBand: "#1F5C3A",
       rowTint: "#0A1B3F",
       rowTintStrength: 0.14,
       rowTintFloor: 0.45,
-      pattern: { type: "zigzag", base: "#F7F8F8", bands: ["#1F4E8C", "#2E7D52"] }
-    },
-    third: {
-      label: "Third",
-      paper: "#CE1126",
-      card: "#FFFFFF",
-      onPaper: "#FFFFFF",
-      onPaperMuted: "rgba(255,255,255,0.82)",
-      paperPrimary: "#FFFFFF",
-      paperOnPrimary: "#0A1B3F",
-      line: "rgba(0,0,0,0.16)",
-      ink: "#0A1B3F",
-      muted: "#53607A",
-      primary: "#0A1B3F",
-      onPrimary: "#FFFFFF",
-      accent: "#FFFFFF",
-      onAccent: "#0A1B3F",
-      header: "#CE1126",
-      onHeader: "#FFFFFF",
-      headerBand: "#0A1B3F",
-      rowTintStrength: 0.14,
-      pattern: { type: "stripes", base: "#CE1126", bands: ["#0A1B3F"] }
+      pattern: { type: "zigzag", base: "#F7F8F8", bands: ["#1F5C3A", "#0A1B3F"] }
     }
   },
   players: [

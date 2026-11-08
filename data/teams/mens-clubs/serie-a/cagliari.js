@@ -26,13 +26,15 @@ registerTeam({
       muted: "#56607A",
       primary: "#0B1F4B",
       onPrimary: "#FFFFFF",
-      accent: "#B01E2E",
+      accent: "#0B1F4B",
       onAccent: "#FFFFFF",
-      header: "#0B1F4B",
+      photoInk: "#FFFFFF",
+      photoBg: "#0B1F4B",
+      header: "#B01E2E",
       onHeader: "#FFFFFF",
-      headerBand: "#B01E2E",
+      headerBand: "#0B1F4B",
       rowTintStrength: 0.15,
-      pattern: { type: "split", base: "#B01E2E", bands: ["#0B1F4B"] }
+      pattern: { type: "halves", base: "#B01E2E", bands: ["#0B1F4B"] }
     },
     away: {
       label: "Away",
@@ -60,15 +62,17 @@ registerTeam({
       muted: "#6B6250",
       primary: "#14110C",
       onPrimary: "#F6F0E1",
-      accent: "#B01E2E",
-      onAccent: "#FFFFFF",
+      accent: "#14110C",
+      onAccent: "#F6F0E1",
+      photoBg: "#14110C",
+      photoInk: "#DCCFB0",
       header: "#DCCFB0",
       onHeader: "#14110C",
-      headerBand: "#14110C",
+      headerBand: "#B8973E",
       rowTint: "#14110C",
       rowTintStrength: 0.14,
       rowTintFloor: 0.45,
-      pattern: { type: "solid", base: "#DCCFB0", bands: ["#14110C"] }
+      pattern: { type: "sleeves", base: "#DCCFB0", bands: ["#14110C"] }
     }
   },
   players: [
