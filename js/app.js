@@ -87,7 +87,8 @@
     { name: "Kingston", handle: "@Kingstonsmj", url: "https://x.com/Kingstonsmj", color: "#2E7D32" },
     { name: "Parthav", handle: "@Atleti_humour", url: "https://x.com/Atleti_humour", color: "#B5904D" },
     { name: "Mar", handle: "@marbadia97", url: "https://x.com/marbadia97", color: "#6C4AB6" },
-    { name: "Harsh", handle: "@Harshwa30041505", url: "https://x.com/Harshwa30041505", color: "#E4002B" }
+    { name: "Harsh", handle: "@Harshwa30041505", url: "https://x.com/Harshwa30041505", color: "#E4002B" },
+    { name: "Ivanmi", handle: "@3ivanmi", url: "https://x.com/3ivanmi", color: "#1d8bdf" }
   ];
 
   function initial(name, color, cls) {
