@@ -22,13 +22,13 @@ registerTeam({
       onPrimary: "#FFFFFF",
       accent: "#0057A8",
       onAccent: "#FFFFFF",
-      photoBg: "#0057A8",
       header: "#0057A8",
       onHeader: "#FFFFFF",
       headerBand: "#FFFFFF",
       rowTint: "#0057A8",
       rowTintStrength: 0.12,
-      pattern: { type: "stripes", base: "#0057A8", bands: ["#FFFFFF"] }
+      pattern: { type: "stripes", base: "#0057A8", bands: ["#FFFFFF"] },
+      photoBg: "#0057A8"
     },
     away: {
       label: "Away",
@@ -45,13 +45,13 @@ registerTeam({
       onPrimary: "#171B25",
       accent: "#354052",
       onAccent: "#FFFFFF",
-      photoBg: "#354052",
       header: "#171B25",
       onHeader: "#F3F6FF",
       headerBand: "#354052",
       rowTint: "#F3F6FF",
       rowTintStrength: 0.12,
       pattern: { type: "pinstripe", base: "#171B25", bands: ["#354052"] },
+      photoBg: "#354052",
       dark: true
     },
     third: {
@@ -69,13 +69,13 @@ registerTeam({
       onPrimary: "#FFFFFF",
       accent: "#A0192B",
       onAccent: "#FFFFFF",
-      photoBg: "#A0192B",
       header: "#A0192B",
       onHeader: "#FFFFFF",
       headerBand: "#00804B",
       rowTint: "#A0192B",
       rowTintStrength: 0.12,
-      pattern: { type: "tipping", base: "#A0192B", bands: ["#00804B"] }
+      pattern: { type: "tipping", base: "#A0192B", bands: ["#00804B"] },
+      photoBg: "#A0192B"
     }
   },
   players: [
