@@ -45,6 +45,12 @@ window.SQUAD_MANIFEST = {
           teams: ["ajax"]
         },
         {
+          id: "liga-portugal",
+          name: "Liga Portugal",
+          country: "Portugal",
+          teams: ["benfica"]
+        },
+        {
           id: "mls",
           name: "Major League Soccer",
           country: "United States",
@@ -80,14 +86,6 @@ window.SQUAD_MANIFEST = {
           country: "Spain",
           teams: ["leganes"]
         },
-        /*
-        {
-          id: "liga-portugal",
-          name: "Liga Portugal",
-          country: "Portugal",
-          teams: ["benfica"]
-        },
-          */
       ]
     },
     {
