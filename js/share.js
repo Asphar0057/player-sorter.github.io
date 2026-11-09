@@ -525,26 +525,28 @@
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     if (room < 150) return;
-    const s = Math.min(h / 80, (room - 24) / 160);
-    const cx = f.w - 80 * s - 24;
-    const cy = -8 * s;
+    // one big collar fan stretched across the whole room to the right of the title
+    const sy = h / 66;
+    const sx = (room - 16) / 156;
     const rad = Math.PI / 180;
     ctx.save();
     ctx.beginPath();
     ctx.rect(from, 0, room, h);
     ctx.clip();
+    ctx.translate(from + room / 2, -8 * sy);
+    ctx.scale(sx, sy);
     ctx.fillStyle = t.color || k.onHeader;
     ctx.globalAlpha = t.opacity != null ? t.opacity : 0.6;
     for (let i = 0; i < 15; i++) {
       const a0 = (43 + i * 6.4) * rad;
       const a1 = a0 + 4.6 * rad;
-      const r0 = 40 * s;
-      const r1 = (i % 2 ? 62 : 78) * s;
+      const r0 = 40;
+      const r1 = i % 2 ? 62 : 78;
       ctx.beginPath();
-      ctx.moveTo(cx + r0 * Math.cos(a0), cy + r0 * Math.sin(a0));
-      ctx.lineTo(cx + r0 * Math.cos(a1), cy + r0 * Math.sin(a1));
-      ctx.lineTo(cx + r1 * Math.cos(a1 + 0.02), cy + r1 * Math.sin(a1 + 0.02));
-      ctx.lineTo(cx + r1 * Math.cos(a0 - 0.02), cy + r1 * Math.sin(a0 - 0.02));
+      ctx.moveTo(r0 * Math.cos(a0), r0 * Math.sin(a0));
+      ctx.lineTo(r0 * Math.cos(a1), r0 * Math.sin(a1));
+      ctx.lineTo(r1 * Math.cos(a1 + 0.02), r1 * Math.sin(a1 + 0.02));
+      ctx.lineTo(r1 * Math.cos(a0 - 0.02), r1 * Math.sin(a0 - 0.02));
       ctx.closePath();
       ctx.fill();
     }
