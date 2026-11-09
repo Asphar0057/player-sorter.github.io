@@ -11,6 +11,7 @@ const RANKING_HEADERS = ["Updated", "Players", "Ranking", "Device"];
 const RANKINGS_PER_MINUTE = 300;
 const STATS_MIN = 20;
 const STATS_CACHE_SECONDS = 900;
+const COUNTS_CACHE_KEY = "counts";
 const ID_PATTERN = /^[a-z0-9-]{1,60}$/;
 const DEVICE_PATTERN = /^[A-Za-z0-9-]{8,64}$/;
 
@@ -54,6 +55,7 @@ function doPost(e) {
 function doGet(e) {
   const params = (e && e.parameter) || {};
   if (params.action === "stats") return json_(stats_(String(params.squad || "")));
+  if (params.action === "counts") return json_(counts_());
   return reply_(true);
 }
 
@@ -158,7 +160,7 @@ function saveRanking_(data) {
     : null;
   if (hit) sheet.getRange(hit.getRow(), 1, 1, row.length).setValues([row]);
   else sheet.appendRow(row);
-  CacheService.getScriptCache().remove("stats-" + squad);
+  CacheService.getScriptCache().removeAll(["stats-" + squad, COUNTS_CACHE_KEY]);
   return true;
 }
 
@@ -228,6 +230,24 @@ function stats_(squad) {
     });
   }
   cache.put(cacheKey, JSON.stringify(result), STATS_CACHE_SECONDS);
+  return result;
+}
+
+function counts_() {
+  const cache = CacheService.getScriptCache();
+  const cached = cache.get(COUNTS_CACHE_KEY);
+  if (cached) return JSON.parse(cached);
+  const book = rankingsBook_(false);
+  const counts = {};
+  if (book) {
+    book.getSheets().forEach(sheet => {
+      const name = sheet.getName();
+      if (!ID_PATTERN.test(name)) return;
+      counts[name] = Math.max(0, sheet.getLastRow() - 1);
+    });
+  }
+  const result = { ok: true, counts: counts, updated: new Date().toISOString() };
+  cache.put(COUNTS_CACHE_KEY, JSON.stringify(result), STATS_CACHE_SECONDS);
   return result;
 }
 

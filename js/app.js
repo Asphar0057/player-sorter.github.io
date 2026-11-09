@@ -491,7 +491,7 @@
         crestMarkup(team, "crest-md", home) +
         '<span class="team-tile-text">' +
           '<span class="team-tile-name">' + esc(tile.name || team.name).replace(/\n/g, "<br>") + "</span>" +
-          '<span class="team-tile-meta">' + esc(meta || team.players.length + " " + memberWord(team) + " · " + team.season) + "</span>" +
+          '<span class="team-tile-meta"' + (meta ? "" : ' data-count="' + team.id + '"') + ">" + esc(meta || team.players.length + " " + memberWord(team) + " · " + team.season) + "</span>" +
         "</span>" +
       "</button>"
     );
@@ -780,7 +780,10 @@
       const wait = animateSwitch ? Math.max(0, TAB_LEAVE_MS - (Date.now() - started)) : 0;
       setTimeout(() => {
         if (token !== navToken) return;
-        const paint = () => paintHome(section, groups, token, keepScroll, afterRender, mounted, switching, fromIndex);
+        const paint = () => {
+          paintHome(section, groups, token, keepScroll, afterRender, mounted, switching, fromIndex);
+          fillCounts();
+        };
         if (mounted || !app.firstElementChild) paint();
         else swapScreen(paint);
       }, wait);
@@ -2769,6 +2772,44 @@
 
   const STATS_URL = MANIFEST.statsUrl || MANIFEST.requestsUrl || "";
   const STATS_CACHE = {};
+  let countsCache = null;
+
+  function fetchCounts() {
+    if (!STATS_URL) return Promise.reject(new Error("no stats"));
+    if (countsCache && Date.now() - countsCache.at < 5 * 60 * 1000) return countsCache.promise;
+    const url = STATS_URL + (STATS_URL.indexOf("?") < 0 ? "?" : "&") + "action=counts";
+    const promise = fetch(url)
+      .then(r => r.json())
+      .then(data => {
+        if (!data || data.ok === false || !data.counts) throw new Error("counts");
+        return data.counts;
+      });
+    countsCache = { at: Date.now(), promise };
+    promise.catch(() => { countsCache = null; });
+    return promise;
+  }
+
+  function shortCount(n) {
+    if (n < 1000) return String(n);
+    const k = n < 100000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") : String(Math.round(n / 1000));
+    return k + "k";
+  }
+
+  function countLabel(n) {
+    return n ? shortCount(n) + " ranking" + (n === 1 ? "" : "s") : "No rankings yet";
+  }
+
+  function fillCounts() {
+    if (!app.querySelector("[data-count]")) return;
+    fetchCounts().then(counts => {
+      app.querySelectorAll("[data-count]").forEach(el => {
+        const team = TEAMS[el.dataset.count];
+        if (!team) return;
+        const n = Number(counts[team.id]) || 0;
+        el.innerHTML = (team.season ? esc(team.season) + " · " : "") + '<strong class="tile-count">' + esc(countLabel(n)) + "</strong>";
+      });
+    }).catch(() => {});
+  }
 
   function deviceId() {
     let id = storeGet("device");

@@ -778,6 +778,8 @@ body.modal-open { overflow: hidden; }
 
 .team-tile-club .team-tile-name { color: var(--tile-fg); }
 .team-tile-club .team-tile-meta { color: var(--tile-muted); }
+.tile-count { font-weight: 700; color: var(--ink); }
+.team-tile-club .tile-count { color: var(--tile-fg); }
 .team-tile-club:hover { box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18); }
 .results-actions { margin: 0 0 20px; }
 .save-view {
