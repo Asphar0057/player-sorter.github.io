@@ -1178,30 +1178,45 @@
     return out;
   }
 
-  // "weft": a solid bright band down the right edge with rows of fine dotted lines reaching out
-  // of it into the base, in many different lengths and thinning out with distance, never in
-  // patches (the France 2018 sleeve knit). Kind 0 = band and lines.
+  // "weft": a solid bright band down the right edge, with rows of fine dotted lines of many
+  // lengths reaching out of it into the base and a grain of tiny dots between them, thinning
+  // out with distance and never in patches (the France 2018 sleeve knit). Kind 0 = all of it.
   function weftShapes() {
     const out = [];
     const rnd = seeded(71), drift = noise2(29), reach = noise2(43);
-    const K = GW > 300 ? 1.6 : 1;
-    const band = 11 * K, rowGap = 1.7 * K, th = 1.0 * K, slope = 0.1;
-    const maxL = Math.min(GW - band - 4, 150 * K);
-    out.push([0, 1, [[GW + 2, -2], [GW - band, -2], [GW - band + 1.5 * K, 102], [GW + 2, 102]]]);
-    for (let y = -4; y < 106; y += rowGap) {
-      // neighbouring rows share a reach so the lines read as flowing groups, plus per-row jitter
-      const g = reach(y * 0.11, 3.7);
-      const L = Math.pow(0.05 + 0.95 * (0.55 * g + 0.45 * rnd()), 2.1) * maxL;
-      const x1 = GW - band + 1.5 * K, x0 = x1 - Math.max(4 * K, L);
-      const wob = (drift(y * 0.2, 9) - 0.5) * 2 * K;
-      const dash = (1.5 + rnd() * 1.1) * K, gap = 0.55 * K;
-      for (let x = x1; x > x0; x -= dash + gap) {
-        const xa = Math.max(x0, x - dash);
-        const ya = y + (x1 - x) * slope * 0.0 + wob, yb = ya;
-        // the lines fade slightly as they move away from the band
-        const t = (x1 - x) / Math.max(1, x1 - x0);
-        out.push([0, 1 - 0.3 * t, [[xa, ya], [x, ya], [x, yb + th], [xa, yb + th]]]);
+    const wide = GW > 300;
+    const K = wide ? 1.5 : 1;
+    const band = Math.max(11 * K, GW * 0.12);
+    const edge = GW - band;
+    const maxL = (GW - band) * (wide ? 0.95 : 0.92);
+    const rowGap = 1.9 * K, d = 0.95 * K, step = 2.15 * K;
+    const dot = (x, y, r, al) => {
+      const pts = [];
+      const n = wide ? 6 : 4;
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2 + (n === 4 ? Math.PI / 4 : 0);
+        pts.push([x + Math.cos(a) * r, y + Math.sin(a) * r]);
       }
+      out.push([0, al, pts]);
+    };
+    out.push([0, 1, [[GW + 2, -2], [edge, -2], [edge + 2 * K, 102], [GW + 2, 102]]]);
+    // dotted lines out of the band
+    for (let y = -2; y < 104; y += rowGap) {
+      const g = reach(y * 0.1, 3.7);
+      const L = Math.pow(0.12 + 0.88 * (0.6 * g + 0.4 * rnd()), 1.45) * maxL;
+      const x1 = edge + 1.5 * K;
+      const wob = (drift(y * 0.2, 9) - 0.5) * 1.2 * K;
+      for (let x = x1; x > x1 - L; x -= step) {
+        const t = (x1 - x) / maxL;
+        dot(x, y + wob, d * 0.5 * (1 + 1.1 * Math.pow(1 - t, 2.2)), 1 - 0.35 * t);
+      }
+    }
+    // grain: scattered tiny dots, denser close to the band
+    const n = Math.round((wide ? 4800 : 2300) * (GW / (wide ? 600 : 200)));
+    for (let i = 0; i < n; i++) {
+      const t = Math.pow(rnd(), 1.45);
+      const x = edge - t * maxL, y = rnd() * 100;
+      dot(x, y, (0.3 + rnd() * 0.45) * K * (1 + 0.9 * (1 - t)), 0.85 * (1 - t) + 0.1);
     }
     return out;
   }
