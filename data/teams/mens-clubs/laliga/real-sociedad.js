@@ -43,6 +43,8 @@ registerTeam({
       ink: "#F4F6FC",
       muted: "#C4CDDE",
       primary: "#F3F6FF",
+      photoBg: "#ABC0E6",
+      photoInk: "#111111",
       onPrimary: "#171B25",
       accent: "#ABC0E6",
       onAccent: "#171B25",
@@ -52,8 +54,6 @@ registerTeam({
       rowTint: "#F3F6FF",
       rowTintStrength: 0.12,
       pattern: { type: "pinstripe", base: "#171B25", bands: ["#354052"] },
-      photoInk: "#FFFFFF",
-      photoBg: "#354052",
       dark: true
     },
     third: {

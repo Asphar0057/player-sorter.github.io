@@ -62,6 +62,8 @@ registerTeam({
       muted: "#D4E2F0",
       line: "rgba(212, 226, 240, 0.16)",
       primary: "#9EC5E8",
+      photoBg: "#E50046",
+      photoInk: "#FFFFFF",
       onPrimary: "#101C38",
       accent: "#E50046",
       onAccent: "#FFFFFF",
@@ -74,8 +76,6 @@ registerTeam({
       onPaperMuted: "#D4E2F0",
       rowTint: "#9EC5E8",
       rowTintStrength: 0.15,
-      photoBg: "#315D85",
-      photoInk: "#FFFFFF",
       pattern: { type: "zigzag", base: "#101C38", bands: ["#315D85", "#243D68"] }
     }
   },

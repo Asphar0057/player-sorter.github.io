@@ -41,6 +41,8 @@ registerTeam({
       ink: "#FFF7FA",
       muted: "#E0C9D4",
       primary: "#FFFFFF",
+      photoBg: "#BD092A",
+      photoInk: "#FFFFFF",
       onPrimary: "#1A1B20",
       accent: "#BD092A",
       onAccent: "#FFFFFF",
@@ -51,8 +53,6 @@ registerTeam({
       rowTint: "#FFFFFF",
       rowTintStrength: 0.12,
       pattern: { type: "tipping", base: "#1A1B20", bands: ["#BD092A"] },
-      photoInk: "#FFFFFF",
-      photoBg: "#433D50",
       line: "#BD092A"
     },
     third: {
@@ -66,6 +66,8 @@ registerTeam({
       ink: "#24263B",
       muted: "#55576C",
       primary: "#172E52",
+      photoBg: "#172E52",
+      photoInk: "#FFFFFF",
       onPrimary: "#FFFFFF",
       accent: "#172E52",
       onAccent: "#FFFFFF",
@@ -76,8 +78,6 @@ registerTeam({
       rowTint: "#172E52",
       rowTintStrength: 0.12,
       pattern: { type: "pinstripe", base: "#88d5eb", bands: ["#FFFFFF"] },
-      photoInk: "#151C34",
-      photoBg: "#72b3e4"
     }
   },
   players: [

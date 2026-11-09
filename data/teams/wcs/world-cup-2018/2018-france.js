@@ -8,24 +8,24 @@ registerTeam({
   kits: {
     home: {
       label: "Home",
-      paper: "#1F2A44",
+      paper: "#162443",
       card: "#FFFFFF",
       onPaper: "#FFFFFF",
       onPaperMuted: "rgba(255,255,255,0.82)",
       paperPrimary: "#FFFFFF",
-      paperOnPrimary: "#1F2A44",
+      paperOnPrimary: "#162443",
       line: "rgba(0,0,0,0.16)",
       ink: "#141B2E",
       muted: "#5B6170",
-      primary: "#1F2A44",
+      primary: "#162443",
       onPrimary: "#FFFFFF",
-      accent: "#D6202C",
+      accent: "#2877ed",
       onAccent: "#FFFFFF",
-      header: "#1F2A44",
+      header: "#162443",
       onHeader: "#FFFFFF",
-      headerBand: "#D6202C",
+      headerBand: "#2877ed",
       rowTintStrength: 0.15,
-      pattern: { type: "tipping", base: "#1F2A44", bands: ["#D6202C"] }
+      pattern: { type: "hoops", base: "#162443", bands: ["#2877ed"] }
     },
     away: {
       label: "Away",
@@ -33,9 +33,9 @@ registerTeam({
       card: "#FFFFFF",
       ink: "#141B2E",
       muted: "#5B6170",
-      primary: "#1F2A44",
+      primary: "#D6202C",
       onPrimary: "#FFFFFF",
-      accent: "#D6202C",
+      accent: "rgb(25, 67, 165)",
       onAccent: "#FFFFFF",
       header: "#FFFFFF",
       onHeader: "#1F2A44",
@@ -43,7 +43,7 @@ registerTeam({
       rowTint: "#1F2A44",
       rowTintStrength: 0.2,
       rowTintFloor: 0.5,
-      pattern: { type: "tipping", base: "#FFFFFF", bands: ["#1F2A44", "#D6202C"] }
+      pattern: { type: "tipping", base: "#FFFFFF", bands: ["rgb(25, 67, 165)", "#D6202C"] }
     }
   },
   players: [

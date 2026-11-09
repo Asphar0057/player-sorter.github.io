@@ -16,8 +16,7 @@ SOURCE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
 PHOTO_MAX = 512
 WORK_MAX = 640
 QUALITY = 85
-# Dark studio portraits. u2net treats the navy backdrop as part of the kit.
-SKIP_FOLDERS = {"schalke", "2026-spain"}
+SKIP_FOLDERS = {"schalke", "2026-spain", "2022-argentina", "2018-france"}
 
 
 def has_background(img, only_jpg, path):
