@@ -24,7 +24,7 @@ registerTeam({
       header: "#039559",
       onHeader: "#FFFFFF",
       headerBand: "#EA1B32",
-      pattern: { type: "zigzag", base: "#039559", bands: ["#0B564F"]}
+      pattern: { type: "sunstone", base: "#039559", bands: ["#055A3A"] }
     },
     away: {
       label: "Away",

@@ -1178,7 +1178,7 @@
     return out;
   }
 
-  // "weft": a narrow bright seam down the right edge, then a halftone knit: thick bright rows
+  // "weft": a halftone knit that runs to the right edge (no flat block): thick bright rows
   // with tiny dark dots punched through them, the dots growing and the rows thinning with
   // distance until only thin dotted lines are left, in many different lengths. No flat block
   // (France 2018 sleeve). Kind 0 = bright rows and seam, kind 1 = dark dots (the base colour).
@@ -1187,12 +1187,11 @@
     const rnd = seeded(71), reach = noise2(43), jit = noise2(17);
     const wide = GW > 300;
     const K = wide ? 1.5 : 1;
-    const seam = Math.max(3.2 * K, GW * 0.03);
-    const edge = GW - seam;
+    const seam = 0;
+    const edge = GW + 1;
     const maxL = (GW - seam) * 0.97;
     const rowGap = 1.9 * K, step = 2.0 * K;
     const q = a => Math.round(a * 10) / 10;
-    out.push([0, 1, [[GW + 2, -2], [edge, -2], [edge + 0.8 * K, 102], [GW + 2, 102]]]);
     const rows = [];
     for (let y = -1; y < 104; y += rowGap) {
       const g = reach(y * 0.12, 3.7);
@@ -1205,11 +1204,11 @@
       const top = [], bot = [];
       for (let x = x1; x > x1 - L; x -= 6 * K) {
         const t = (x1 - x) / maxL;
-        const th = rowGap * (0.9 - 0.68 * Math.pow(t, 0.5));
+        const th = rowGap * (0.8 - 0.58 * Math.pow(t, 0.5));
         top.push([x, y - th / 2 + rowGap / 2]);
         bot.push([x, y + th / 2 + rowGap / 2]);
       }
-      const x2 = x1 - L, tt = L / maxL, th2 = rowGap * (0.9 - 0.68 * Math.pow(tt, 0.5));
+      const x2 = x1 - L, tt = L / maxL, th2 = rowGap * (0.8 - 0.58 * Math.pow(tt, 0.5));
       top.push([x2, y - th2 / 2 + rowGap / 2]); bot.push([x2, y + th2 / 2 + rowGap / 2]);
       out.push([0, q(1 - 0.45 * Math.pow(tt, 1.3)), top.concat(bot.reverse())]);
     });
@@ -1239,13 +1238,73 @@
     return out;
   }
 
+  // "sunstone": an Aztec sun stone in tone-on-tone dark lines, like the Mexico home shirt: big
+  // concentric rings made of slanted hatch slats, a ring broken into blocks, a diamond frame and
+  // a hub. Repeated along wide banners. Kind 0 = dark motif.
+  function sunstoneShapes() {
+    const out = [];
+    const A = 1;
+    const P = (cx, cy, r, a) => [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+    const ring = (cx, cy, r0, r1, n, fill, lean, skip, al) => {
+      const step = (Math.PI * 2) / n;
+      for (let i = 0; i < n; i++) {
+        if (skip && skip(i)) continue;
+        const a0 = i * step, a1 = a0 + step * fill;
+        out.push([0, al || A, [P(cx, cy, r0, a0), P(cx, cy, r0, a1), P(cx, cy, r1, a1 + lean), P(cx, cy, r1, a0 + lean)]]);
+      }
+    };
+    const solidRing = (cx, cy, r0, r1, al) => {
+      const n = 48;
+      for (let i = 0; i < n; i++) {
+        const a0 = (i / n) * Math.PI * 2, a1 = ((i + 1.05) / n) * Math.PI * 2;
+        out.push([0, al, [P(cx, cy, r0, a0), P(cx, cy, r0, a1), P(cx, cy, r1, a1), P(cx, cy, r1, a0)]]);
+      }
+    };
+    const bar = (x1, y1, x2, y2, w) => {
+      const dx = x2 - x1, dy = y2 - y1, l = Math.hypot(dx, dy) || 1, nx = -dy / l * w / 2, ny = dx / l * w / 2;
+      out.push([0, A, [[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]]);
+    };
+    const stone = (cx, cy) => {
+      // outer thick hatched ring
+      ring(cx, cy, 36, 46, 100, 0.62, 0.16);
+      solidRing(cx, cy, 45.2, 46.8, A);
+      solidRing(cx, cy, 35.2, 36.4, A);
+      // second ring split into twelve blocks
+      ring(cx, cy, 25.5, 33, 96, 0.62, 0.2, i => i % 8 === 0 || i % 8 === 7);
+      solidRing(cx, cy, 24.4, 25.6, A);
+      // inner hatched ring and hub
+      ring(cx, cy, 14, 21, 70, 0.62, 0.2);
+      solidRing(cx, cy, 20.4, 22, A);
+      solidRing(cx, cy, 13, 14.2, A);
+      solidRing(cx, cy, 5.5, 8.5, 0.5);
+      solidRing(cx, cy, 0, 4, 0.35);
+      // diamond frame with notches
+      const R = 62;
+      [[0, -1], [1, 0], [0, 1], [-1, 0]].forEach((d, i, arr) => {
+        const e = arr[(i + 1) % 4];
+        bar(cx + d[0] * R, cy + d[1] * R, cx + e[0] * R, cy + e[1] * R, 3.2);
+        bar(cx + d[0] * (R - 9), cy + d[1] * (R - 9), cx + e[0] * (R - 9), cy + e[1] * (R - 9), 1.6);
+      });
+      // small ring circles along the bottom of the frame
+      for (let j = -2; j <= 2; j++) {
+        solidRing(cx + j * 9.5, cy + 52, 2.2, 3.6, A);
+      }
+    };
+    const wide = GW > 300;
+    const spacing = wide ? 190 : 140;
+    const c0 = wide ? GW * 0.8 : 150;
+    for (let cx = c0; cx > -80; cx -= spacing) stone(cx, 50);
+    for (let cx = c0 + spacing; cx < GW + 80; cx += spacing) stone(cx, 50);
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1268,6 +1327,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "sunstone") return [b[0] || "#0A5547"];
     if (p.type === "finelines") return [b[0] || "#9BB1DF"];
     if (p.type === "weft") return [b[0] || "#2285F0", b[1] || "#08122B"];
     if (p.type === "dashes") return [b[0] || "#2D7CF0"];
