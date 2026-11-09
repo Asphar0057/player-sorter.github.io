@@ -125,7 +125,7 @@ A kit can set `headerStripes: [[colour, weight], ...]` to split the bottom band 
 - `baroque`: big solid teardrop scrolls that curl inward, like the Bembel jug print (Frankfurt away)
 - `herring`: fine herringbone chevron lines in the first band colour on `base` (New England Revolution away, Arsenal away)
 - `ripple`: soft concentric rings spreading from a point near the top right, with a very faint diagonal lattice (Cagliari third)
-- `weft`: a solid bright band down the right edge with rows of fine continuous lines running out of it in many lengths, thickest next to the band and thinning and fading with distance, with small breaks and dark nicks (France 2018 home)
+- `weft`: a solid bright band down the right edge with thin, separate rows of short dashes reaching out of it in many lengths, thinning out with distance (France 2018 home)
 - `panel-collar` (a `headerDecor` type, not a pattern): glossy panels in arcs around the neck with peach glow and rib lines, spread across the banner (Uruguay away)
 - `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
 - `burst`: radial rays fanning out from the upper right, wide wedges in the first band colour and thin streaks in the second (New England Revolution home)

@@ -1178,55 +1178,32 @@
     return out;
   }
 
-  // "weft": a solid bright band down the right edge, with rows of fine continuous lines running
-  // out of it into the base for a long way. The lines are thickest next to the band (so the
-  // rows almost merge there, always with a dark gap) and thin and fade with distance; they
-  // break up here and there, and short dark nicks cut across some of them so it never looks
-  // perfectly regular. Kind 0 = light lines and band, kind 1 = dark nicks (France 2018 sleeve).
+  // "weft": a solid bright band down the right edge with thin, separate rows of short dashes
+  // reaching out of it into the base in many different lengths, thinning out with distance
+  // (France 2018 sleeve knit). No grain, so the rows stay distinct. Kind 0.
   function weftShapes() {
     const out = [];
-    const rnd = seeded(71), drift = noise2(29), reach = noise2(43), brk = noise2(61);
+    const rnd = seeded(71), drift = noise2(29), reach = noise2(43);
     const wide = GW > 300;
     const K = wide ? 1.5 : 1;
     const band = Math.max(11 * K, GW * 0.1);
     const edge = GW - band;
-    const maxL = (GW - band) * 0.98;
-    const rowGap = 2.4 * K, seg = 4 * K;
+    const maxL = (GW - band) * 0.96;
+    const rowGap = 2.7 * K, th = 0.75 * K;
     out.push([0, 1, [[GW + 2, -2], [edge, -2], [edge + 1.5 * K, 102], [GW + 2, 102]]]);
     for (let y = -1; y < 104; y += rowGap) {
-      const g = reach(y * 0.13, 3.7);
-      const L = (0.35 + 0.65 * Math.pow(0.65 * g + 0.35 * rnd(), 0.8)) * maxL;
-      const wob = (drift(y * 0.2, 9) - 0.5) * 0.7 * K;
+      const g = reach(y * 0.12, 3.7);
+      const L = (0.18 + 0.82 * Math.pow(0.6 * g + 0.4 * rnd(), 1.1)) * maxL;
+      const wob = (drift(y * 0.2, 9) - 0.5) * 0.8 * K;
       const x1 = edge + 1.5 * K;
-      let run = null;
-      const flush = () => {
-        if (run && run.top.length > 1) {
-          out.push([0, run.al, run.top.concat(run.bot.reverse())]);
-        }
-        run = null;
-      };
-      for (let x = x1; x > x1 - L; x -= seg) {
+      for (let x = x1; x > x1 - L;) {
         const t = (x1 - x) / maxL;
-        const th = rowGap * (0.2 + 0.4 * Math.pow(1 - t, 1.3)) * (0.85 + 0.3 * rnd());
-        const gap = brk(x * 0.08 / K, y * 0.3) > 0.8 - 0.28 * t || rnd() < 0.02 + 0.06 * t;
-        if (gap) { flush(); continue; }
-        if (!run) run = { top: [], bot: [], al: 1 - 0.55 * Math.pow(t, 0.9) };
-        run.top.push([x, y + wob - th / 2]);
-        run.bot.push([x, y + wob + th / 2]);
-        if (run.top.length > 14) {
-          const lastT = run.top[run.top.length - 1], lastB = run.bot[run.bot.length - 1];
-          flush();
-          run = { top: [lastT], bot: [lastB], al: 1 - 0.55 * Math.pow(t, 0.9) };
-        }
+        const len = (1.6 + rnd() * 3.2) * K * (1 + 0.6 * (1 - t));
+        const gap = (0.5 + rnd() * 1.1) * K * (1 + 1.6 * t);
+        const xa = Math.max(x - len, x1 - L);
+        out.push([0, 1 - 0.5 * t, [[xa, y + wob], [x, y + wob], [x, y + wob + th], [xa, y + wob + th]]]);
+        x -= len + gap;
       }
-      flush();
-    }
-    // short dark nicks across the lines near the band
-    const nicks = Math.round((wide ? 70 : 30));
-    for (let i = 0; i < nicks; i++) {
-      const t = Math.pow(rnd(), 1.4) * 0.8;
-      const x = edge - t * maxL, y = Math.round(rnd() * 40) * rowGap + 0.3 * rowGap, w = (1.2 + rnd() * 3) * K, h = rowGap * 0.42;
-      out.push([1, 0.9 * (1 - 0.6 * t), [[x, y], [x + w, y], [x + w, y + h], [x, y + h]]]);
     }
     return out;
   }
