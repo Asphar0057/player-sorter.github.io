@@ -616,10 +616,133 @@
     return out;
   }
 
+  // ---- away / third kit art -------------------------------------------------------------
+
+  function seeded(seed) {
+    let s = seed;
+    return function () {
+      s = (s * 1664525 + 1013904223) % 4294967296;
+      return s / 4294967296;
+    };
+  }
+
+  // "bruise": jagged zig-zag strokes and small triangles scattered over the base, in the first
+  // band colour (Arsenal away, after the 1991-93 "bruised banana" print). Kind 0.
+  function bruiseShapes() {
+    const out = [];
+    const rnd = seeded(3);
+    const K = GW > 300 ? 1.5 : 1;
+    const n = Math.round((GW / 8.5) / K);
+    for (let i = 0; i < n; i++) {
+      let x = rnd() * (GW + 40) - 20, y = -10 + rnd() * 90;
+      const segs = 5 + Math.floor(rnd() * 5), w = (1.6 + rnd() * 1.4) * K, amp = (4 + rnd() * 4) * K;
+      const pts = [[x, y]];
+      for (let s = 0; s < segs; s++) {
+        x += (3.2 + rnd() * 2) * K;
+        y += (6 + rnd() * 3) * K;
+        pts.push([x + (s % 2 ? amp : -amp), y]);
+      }
+      const left = pts.map(q => [q[0] - w / 2, q[1]]);
+      const right = pts.map(q => [q[0] + w / 2, q[1]]).reverse();
+      out.push([0, 0.85, left.concat(right)]);
+      if (rnd() < 0.5) {
+        const tx = pts[pts.length - 1][0] + 2 * K, ty = pts[pts.length - 1][1];
+        out.push([0, 0.85, [[tx, ty], [tx + 5 * K, ty + 2 * K], [tx + 1 * K, ty + 7 * K]]]);
+      }
+    }
+    return out;
+  }
+
+  // "pole": one vertical stripe whose colour fades away downward, white base around it (Man City
+  // third). Kind 0 = top colour, kind 1 = fade colour.
+  function poleShapes() {
+    const out = [];
+    const K = GW > 300 ? 2.6 : 1;
+    const cx = GW > 300 ? GW * 0.7 : GW / 2, hw = (GW > 300 ? 9 : 7) * K;
+    const N = 24;
+    for (let i = 0; i < N; i++) {
+      const y0 = -4 + (i * 108) / N, y1 = -4 + ((i + 1) * 108) / N + 0.3;
+      const t = i / (N - 1);
+      out.push([t < 0.45 ? 0 : 1, 1 - 0.85 * t, [[cx - hw, y0], [cx + hw, y0], [cx + hw, y1], [cx - hw, y1]]]);
+    }
+    return out;
+  }
+
+  // "swirls": soft overlapping watercolour blobs in up to three band colours (West Ham third,
+  // Leverkusen away). Kinds 0-2.
+  function swirlShapes() {
+    const out = [];
+    const rnd = seeded(17);
+    const K = GW > 300 ? 1.6 : 1;
+    const n = Math.round((14 * GW) / 200 / (K > 1 ? 1.5 : 1));
+    for (let i = 0; i < n; i++) {
+      const x0 = -10 + rnd() * (GW + 20), y0 = 5 + rnd() * 90;
+      const len = (45 + rnd() * 55) * K, amp = (7 + rnd() * 9) * K, f = 0.05 + rnd() * 0.05, ph = rnd() * 6.28;
+      const w0 = (5 + rnd() * 6) * K, dir = rnd() < 0.5 ? -1 : 1;
+      const left = [], right = [];
+      for (let t = 0; t <= 1.0001; t += 0.05) {
+        const x = x0 + t * len, y = y0 + dir * amp * Math.sin(t * len * f + ph) + (t - 0.5) * 8 * K;
+        const w = w0 * (0.25 + 0.75 * Math.sin(Math.PI * t));
+        left.push([x, y - w / 2]);
+        right.push([x, y + w / 2]);
+      }
+      out.push([i % 3, 0.35 + rnd() * 0.4, left.concat(right.reverse())]);
+    }
+    return out;
+  }
+
+  // "ticks": small diagonal zig-zag marks on a staggered grid, tone-on-tone (Germany away).
+  function tickShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.7 : 1;
+    const dx = 11 * K, dy = 9 * K, l = 3.4 * K, w = 0.9 * K;
+    for (let row = 0, y = 4; y < 106; row++, y += dy) {
+      for (let x = (row % 2 ? dx / 2 : 0) + 3; x < GW + 6; x += dx) {
+        out.push([0, 0.75, [[x, y], [x + w, y], [x + l + w, y + l], [x + l, y + l]]]);
+        out.push([0, 0.75, [[x + l, y + l], [x + l + w, y + l], [x + w, y + 2 * l], [x, y + 2 * l]]]);
+      }
+    }
+    return out;
+  }
+
+  // "gridiron": diagonal navy and red stripes across the end of the card, like the striped
+  // sleeves on the Cagliari away shirt. Kind 0 = first colour, kind 1 = second colour.
+  function gridironShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.7 : 1;
+    const len = 62 * K, w = 4.6 * K, gap = 3.2 * K, lean = 0.5;
+    const q = (x0, x1) => [[x0, -5], [x1, -5], [x1 - 110 * lean, 105], [x0 - 110 * lean, 105]];
+    let x = GW - len, i = 0;
+    while (x < GW + 120) {
+      out.push([i % 2, 1, q(x, x + w)]);
+      x += w + gap;
+      i++;
+    }
+    return out;
+  }
+
+  // "hexes": a honeycomb of faintly lit hexagons in the first band colour (Man City away bees).
+  function hexShapes() {
+    const out = [];
+    const rnd = seeded(29);
+    const K = GW > 300 ? 1.6 : 1;
+    const r = 6.2 * K, h = r * Math.sqrt(3) / 2;
+    for (let row = 0, y = 0; y < 112; row++, y += h * 1.0) {
+      for (let x = (row % 2 ? r * 1.5 : 0); x < GW + r * 2; x += r * 3) {
+        if (rnd() < 0.42) continue;
+        const pts = [];
+        for (let a = 0; a < 6; a++) pts.push([x + Math.cos((a * Math.PI) / 3) * (r - 0.5), y + Math.sin((a * Math.PI) / 3) * (r - 0.5)]);
+        out.push([0, 0.12 + rnd() * 0.5, pts]);
+      }
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
-    streaks: streakShapes, swell: swellShapes, stars: starShapes
+    streaks: streakShapes, swell: swellShapes, stars: starShapes,
+    bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes
   };
   const STRIPE_CACHE = {};
 
@@ -641,6 +764,10 @@
     if (p.type === "slashes") return [red, b[1] || red];
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
+    if (p.type === "bruise" || p.type === "ticks" || p.type === "hexes") return [b[0] || "#FFFFFF"];
+    if (p.type === "pole") return [b[0] || "#1C2C5B", b[1] || "#6CABDD"];
+    if (p.type === "swirls") return [b[0] || "#2BB3E0", b[1] || b[0] || "#6FD0F0", b[2] || b[0] || "#BFE9F7"];
+    if (p.type === "gridiron") return [b[0] || "#14233F", b[1] || "#C8102E"];
     if (p.type === "swell") return [b[0] || "#BB2534", b[1] || "#7A1220"];
     if (p.type === "streaks") return [b[0] || "#FFFFFF", b[1] || "#005187"];
     if (p.type === "raglan") return [b[0] || "#FFFFFF", b[1] || "#7A1426", b[2] || "#8B0F1D"];
@@ -651,15 +778,19 @@
 
   function stripeSvg(p) {
     const c = stripeColors(p);
-    const d = c.map(() => "");
-    const al = c.map(() => 1);
+    const groups = {};
+    const order = [];
     stripeList(p.type).forEach(r => {
-      al[r[0]] = r[1];
-      d[r[0]] += "M" + r[2].map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join("L") + "Z";
+      const key = r[0] + "|" + r[1].toFixed(2);
+      if (!groups[key]) { groups[key] = ""; order.push(key); }
+      groups[key] += "M" + r[2].map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join("L") + "Z";
     });
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice">' +
       (p.type === "scatter" ? dotGridSvg(p.dots || "rgba(255,255,255,0.32)") : "") +
-      c.map((col, i) => d[i] ? '<path fill="' + col + '" opacity="' + al[i] + '" d="' + d[i] + '"/>' : "").join("") + "</svg>";
+      order.map(key => {
+        const parts = key.split("|");
+        return '<path fill="' + c[+parts[0]] + '" opacity="' + parts[1] + '" d="' + groups[key] + '"/>';
+      }).join("") + "</svg>";
   }
 
   function lineList(p) {

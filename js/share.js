@@ -231,7 +231,7 @@
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     ctx.save();
-    if (BANNER_ART.indexOf(p.type) >= 0 || p.type === "lines" || p.type === "fade") {
+    if (BANNER_ART.indexOf(p.type) >= 0 || Kits.stripes.has(p.type) || p.type === "lines" || p.type === "fade") {
       bannerArt(ctx, f, k, p, from, room, h);
       ctx.restore();
       return;

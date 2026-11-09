@@ -38,13 +38,13 @@ registerTeam({
       onPrimary: "#FFFFFF",
       accent: "#FFD400",
       onAccent: "#0A2A4A",
-      header: "#B9BDC4",
+      header: "#ECEFF3",
       onHeader: "#0A2A4A",
       headerBand: "#1F4FB5",
       rowTint: "#1F4FB5",
       rowTintStrength: 0.2,
       rowTintFloor: 0.5,
-      pattern: { type: "sleeves", base: "#B9BDC4", bands: ["#1F4FB5"] }
+      pattern: {type: "sleeves", base: "#ECEFF3", bands: ["#1F4FB5"]}
     },
     third: {
       label: "Third",
@@ -63,9 +63,9 @@ registerTeam({
       onAccent: "#073F3F",
       header: "#16B3B3",
       onHeader: "#FFFFFF",
-      headerBand: "#E8FF3A",
+      headerBand: "#D9F23C",
       rowTintStrength: 0.15,
-      pattern: { type: "gradient", base: "#16B3B3", bands: ["#0E8C8C"] }
+      pattern: {type: "waves", base: "#16B3B3", bands: ["#4CCFCF"]}
     }
   },
   players: [

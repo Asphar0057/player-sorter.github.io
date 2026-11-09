@@ -59,13 +59,13 @@ registerTeam({
       muted: "#47627A",
       primary: "#7A263A",
       onPrimary: "#FFFFFF",
-      accent: "#E8B923",
+      accent: "#27B3E6",
       onAccent: "#12283D",
-      header: "#A6CDEA",
+      header: "#D9EDF7",
       onHeader: "#12283D",
-      headerBand: "#7A263A",
+      headerBand: "#27B3E6",
       rowTintStrength: 0.14,
-      pattern: { type: "gradient", base: "#B4D6EE", bands: ["#93C2E3"] }
+      pattern: {type: "swirls", base: "#E3F1F8", bands: ["#27B3E6", "#6ACBEE", "#B3E4F5"]}
     }
   },
   players: [

@@ -64,9 +64,9 @@ registerTeam({
       onAccent: "#2A0B5E",
       header: "#6A2BD9",
       onHeader: "#FFFFFF",
-      headerBand: "#E6FF2E",
+      headerBand: "#D7FF1F",
       rowTintStrength: 0.15,
-      pattern: { type: "pinstripe", base: "#6A2BD9", bands: ["#7B3DEB"] }
+      pattern: { type: "lines", base: "#6A2BD9", bands: ["#D7FF1F"], lines: [["#D7FF1F", 0.26, 0.33]]}
     }
   },
   players: [

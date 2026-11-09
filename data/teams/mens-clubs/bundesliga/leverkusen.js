@@ -42,14 +42,14 @@ registerTeam({
       onPrimary: "#FFFFFF",
       accent: "#202441",
       onAccent: "#FFFFFF",
-      header: "#006E99",
-      onHeader: "#FFFFFF",
-      headerBand: "#008FA8",
+      header: "#C4E4EF",
+      onHeader: "#0E2A47",
+      headerBand: "#1D6FB8",
       rowTint: "#008FA8",
       rowTintStrength: 0.18,
       photoBg: "#006E99",
       photoInk: "#FFFFFF",
-      pattern: { type: "sleeves", base: "#C4E9E7", bands: ["#008FA8", "#006E99", "#67C9D5"] }
+      pattern: {type: "swirls", base: "#CFE7F1", bands: ["#1D6FB8", "#4FA3D8", "#0E4A8A"]}
     },
     third: {
       label: "Third",

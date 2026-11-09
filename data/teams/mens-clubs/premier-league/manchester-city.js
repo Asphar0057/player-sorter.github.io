@@ -48,7 +48,7 @@ registerTeam({
       header: "#111111",
       onHeader: "#FFD100",
       headerBand: "#FFD100",
-      pattern: { type: "tipping", base: "#111111", bands: ["#FFD100"] }
+      pattern: {type: "hexes", base: "#111111", bands: ["#FFD100"]}
     },
     third: {
       label: "Third",
@@ -60,13 +60,13 @@ registerTeam({
       onPrimary: "#FFFFFF",
       accent: "#6CABDD",
       onAccent: "#0B1E3D",
-      header: "#A9B2BE",
-      onHeader: "#0B1E3D",
+      header: "#FFFFFF",
+      onHeader: "#1C2C5B",
       headerBand: "#6CABDD",
       rowTint: "#1C2C5B",
       rowTintStrength: 0.2,
       rowTintFloor: 0.5,
-      pattern: { type: "centreband", base: "#A9B2BE", bands: ["#6CABDD", "#1C2C5B"] }
+      pattern: {type: "pole", base: "#FFFFFF", bands: ["#1C2C5B", "#6CABDD"]}
     }
   },
   players: [
