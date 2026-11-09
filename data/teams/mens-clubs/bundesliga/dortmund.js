@@ -5,7 +5,7 @@ registerTeam({
   monogram: "BVB",
   league: "bundesliga",
   season: "2026/27",
-  tile: { bg: "#FDE100", fg: "#111111", muted: "rgba(17,17,17,0.72)", pattern: { type: "gradient", base: "#FDE100", bands: ["#F2C200"] } },
+  tile: { bg: "#FDE100", fg: "#111111", muted: "rgba(17,17,17,0.72)", pattern: { type: "lines", base: "#FDE100", bands: ["#FFFFFF", "#111111"], lines: [["#FFFFFF", 0.2, 0.38], ["#111111", 0.275, 0.305]] } },
   kits: {
     home: {
       label: "Home",
@@ -28,7 +28,7 @@ registerTeam({
       rowTint: "#FDE100",
       rowTintStrength: 0.35,
       rowTintFloor: 0.5,
-      pattern: { type: "tipping", base: "#FDE100", bands: ["#111111", "#FFFFFF"] }
+      pattern: { type: "lines", base: "#FDE100", bands: ["#FFFFFF", "#111111"], lines: [["#FFFFFF", 0.2, 0.38], ["#111111", 0.275, 0.305]] }
     },
     away: {
       label: "Away",

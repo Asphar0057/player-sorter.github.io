@@ -82,6 +82,8 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `crosses`: thick vertical stripes in the first band colour with a fading lattice of plus signs (second band colour) growing toward the bottom (Leverkusen home)
 - `pinlines`: thick vertical stripes cut by a thin line in the base colour, with a thin line in the stripe colour down the gap between stripes (Frankfurt home)
 - `slashes`: dense steep diagonal lines in the first band colour on `base`, switching between thick and thin in diagonal zones (France home)
+- `vee`: three chevron bands (first, second and third band colour from the top) pointing down with a white gap at the centre (Germany home)
+- `lines`: any number of horizontal lines set with `lines: [[colour, from, to], ...]` (fractions of the height) on `base`; add `fade: true` to fade them out toward the right (Brazil home, Dortmund home)
 - `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
 - `burst`: radial rays fanning out from the upper right, wide wedges in the first band colour and thin streaks in the second (New England Revolution home)
 - `thick-waves`: bold wavy stripes in the first band colour across `base` (USA home)

@@ -381,13 +381,26 @@
     return out;
   }
 
-  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes() };
+  // "vee": three chevron bands pointing down with a white gap at the centre, like the 1990
+  // style Germany shirt. Kinds 0, 1, 2 take the three band colours from top to bottom.
+  function veeShapes() {
+    const out = [];
+    const slope = 0.4, thick = 14.8, gap = 4;
+    [-22, -7.6, 6.8].forEach((y0, kind) => {
+      out.push([kind, 1, [[-1, y0 - 0.5], [100 - gap, y0 + (101 - gap) * slope], [100 - gap, y0 + (101 - gap) * slope + thick], [-1, y0 + thick - 0.5]]]);
+      out.push([kind, 1, [[201, y0 - 0.5], [100 + gap, y0 + (101 - gap) * slope], [100 + gap, y0 + (101 - gap) * slope + thick], [201, y0 + thick - 0.5]]]);
+    });
+    return out;
+  }
+
+  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes() };
 
   function stripeColors(p) {
     const b = p.bands || [];
     const red = b[0] || "#E31B2B";
     if (p.type === "crosses") return [red, b[1] || mix("#000000", red, 0.3)];
     if (p.type === "slashes") return [red, b[1] || red];
+    if (p.type === "vee") return [b[0] || "#111111", b[1] || "#E31835", b[2] || "#E8A824"];
     return [red, p.base, b[1] || red];
   }
 
@@ -399,6 +412,19 @@
     });
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice">' +
       c.map((col, i) => d[i] ? '<path fill="' + col + '" d="' + d[i] + '"/>' : "").join("") + "</svg>";
+  }
+
+  function lineList(p) {
+    return (p.lines && p.lines.length ? p.lines : [[(p.bands && p.bands[0]) || "#000000", 0.3, 0.34]]);
+  }
+
+  function linesSvg(p) {
+    const rects = lineList(p).map(l => '<rect x="0" y="' + (l[1] * 100) + '" width="100" height="' + ((l[2] - l[1]) * 100) + '" fill="' + l[0] + '"/>').join("");
+    const fade = p.fade
+      ? '<defs><linearGradient id="f" x1="0" x2="1" y1="0" y2="0"><stop offset="0.25" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>' +
+        '<mask id="m"><rect width="100" height="100" fill="url(#f)"/></mask></defs><g mask="url(#m)">' + rects + "</g>"
+      : rects;
+    return "url('data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">' + fade + "</svg>") + "') center / 100% 100% no-repeat, " + p.base;
   }
 
   function pct(n) {
@@ -482,6 +508,9 @@
     }
     if (p.type === "diamonds") {
       return diamondsSvg(p);
+    }
+    if (p.type === "lines") {
+      return linesSvg(p);
     }
     if (p.type === "tipping") {
       const c = b.length ? b : ["#000000"];
@@ -791,6 +820,24 @@
       });
       ctx.closePath();
       ctx.fill();
+    } else if (p.type === "lines") {
+      const off = document.createElement("canvas");
+      off.width = Math.max(1, Math.round(w));
+      off.height = Math.max(1, Math.round(h));
+      const o = off.getContext("2d");
+      lineList(p).forEach(l => {
+        o.fillStyle = l[0];
+        o.fillRect(0, off.height * l[1], off.width, off.height * (l[2] - l[1]));
+      });
+      if (p.fade) {
+        const g = o.createLinearGradient(0, 0, off.width, 0);
+        g.addColorStop(0.25, "rgba(0,0,0,1)");
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        o.globalCompositeOperation = "destination-in";
+        o.fillStyle = g;
+        o.fillRect(0, 0, off.width, off.height);
+      }
+      ctx.drawImage(off, x, y, w, h);
     } else if (p.type === "tipping") {
       const c = b.length ? b : ["#000000"];
       TIP.forEach(([from, to], i) => {
