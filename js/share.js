@@ -568,7 +568,7 @@
     const gl = ctx.createLinearGradient(0, h, 0, h - h * 0.4);
     gl.addColorStop(0, color); gl.addColorStop(1, "rgba(0,0,0,0)");
     ctx.globalAlpha = 0.15; ctx.fillStyle = gl;
-    ctx.fillRect(0, h - h * 0.4, f.w, h * 0.4);
+    ctx.fillRect(h * 0.2, h - h * 0.4, f.w - h * 0.4, h * 0.4);
     ctx.globalAlpha = 1;
     draw(h * 0.09, 1);
     draw(f.w - h * 0.09, -1);
@@ -735,6 +735,21 @@
         ctx.fillStyle = st[0];
         ctx.fillRect(0, yy, f.w, Math.ceil(hh));
         yy += hh;
+      });
+    } else if (k.headerDecor && k.headerDecor.type === "neon-curves") {
+      // the band runs only between the two curves; each curve grows out of its end, and a thin
+      // triangle fills the corner beyond it
+      const hh = f.head - 14, trim = hh * 0.2;
+      ctx.fillStyle = k.headerBand;
+      ctx.fillRect(trim, hh, f.w - 2 * trim, 14);
+      [[0, 1], [f.w, -1]].forEach(e => {
+        ctx.beginPath();
+        ctx.moveTo(e[0], f.head);
+        ctx.lineTo(e[0] + e[1] * (trim + 1), f.head);
+        ctx.lineTo(e[0] + e[1] * (trim + 1), hh);
+        ctx.lineTo(e[0], hh * 0.68);
+        ctx.closePath();
+        ctx.fill();
       });
     } else {
       ctx.fillStyle = k.headerBand;
