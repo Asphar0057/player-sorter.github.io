@@ -246,34 +246,53 @@
       polys + '<circle cx="148" cy="34" r="46" fill="url(#h)"/></svg>';
   }
 
-  // Angular "shard" texture on a 200x100 grid with contrasting sleeve panels at both ends
-  // (West Ham 2026/27 home). Entries are [kind, alpha, points]: kind 0 = dark shard or pixel
-  // block (second band colour), kind 1 = sleeve panel (first band colour).
+  // Blocky "bento shard" texture on a 200x100 grid with contrasting sleeve panels at both
+  // ends (West Ham 2026/27 home). Entries are [kind, alpha, points]: kind 0 = dark block
+  // (second band colour), kind 1 = sleeve panel (first band colour). Blocks of mixed sizes are
+  // packed on a 5-unit grid, denser along diagonal streaks, some cut on the diagonal.
   const SHARDS = (function () {
     const out = [];
-    let seed = 7;
+    let seed = 11;
     const rnd = function () {
       seed = (seed * 1664525 + 1013904223) % 4294967296;
       return seed / 4294967296;
     };
-    for (let i = 0; i < 46; i++) {
-      const x = 22 + rnd() * 156;
-      const y = -10 + rnd() * 100;
-      const w = 2.5 + rnd() * 6;
-      const len = 22 + rnd() * 60;
-      const lean = 0.42;
-      out.push([0, 0.22 + rnd() * 0.3, [[x, y], [x + w, y], [x + w - len * lean, y + len], [x - len * lean, y + len]]]);
+    const U = 5, cols = 40, rows = 20;
+    const used = [];
+    for (let r = 0; r < rows; r++) used.push(new Array(cols).fill(false));
+    const sizes = [[1, 1], [2, 1], [1, 2], [2, 2], [2, 2], [3, 2], [2, 3], [3, 1], [1, 3]];
+    function free(c, r, w, h) {
+      if (c + w > cols || r + h > rows) return false;
+      for (let j = r; j < r + h; j++) for (let i = c; i < c + w; i++) if (used[j][i]) return false;
+      return true;
     }
-    for (let i = 0; i < 90; i++) {
-      const left = i % 2 === 0;
-      const gx = Math.floor(rnd() * 9);
-      const gy = Math.floor(rnd() * 20);
-      const x = left ? 21 + gx * 3.4 - gy * 0.4 : 179 - gx * 3.4 + gy * 0.4;
-      const y = gy * 5;
-      out.push([0, 0.3 + rnd() * 0.3, [[x, y], [x + 3, y], [x + 3, y + 3], [x, y + 3]]]);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 4; c < cols - 4; c++) {
+        if (used[r][c]) continue;
+        const streak = 0.5 + 0.5 * Math.sin((c + r * 0.9) * 0.5);
+        if (rnd() > 0.3 + 0.7 * streak) continue;
+        const pick = sizes[Math.floor(rnd() * sizes.length)];
+        let w = pick[0], h = pick[1];
+        if (!free(c, r, w, h)) { w = 1; h = 1; }
+        for (let j = r; j < r + h; j++) for (let i = c; i < c + w; i++) used[j][i] = true;
+        const x = c * U + 0.5, y = r * U + 0.5, bw = w * U - 1, bh = h * U - 1;
+        const a = 0.28 + rnd() * 0.62;
+        const cut = rnd();
+        let pts = [[x, y], [x + bw, y], [x + bw, y + bh], [x, y + bh]];
+        if (cut > 0.72 && bw >= 4 && bh >= 4) pts = [[x, y], [x + bw, y], [x, y + bh]];
+        else if (cut > 0.5 && bw >= 4 && bh >= 4) pts = [[x + bw, y], [x + bw, y + bh], [x, y + bh]];
+        out.push([0, a, pts]);
+      }
     }
     out.push([1, 1, [[0, 0], [19, 0], [11, 100], [0, 100]]]);
     out.push([1, 1, [[200, 0], [181, 0], [189, 100], [200, 100]]]);
+    for (let i = 0; i < 70; i++) {
+      const left = i % 2 === 0;
+      const gx = Math.floor(rnd() * 5);
+      const gy = Math.floor(rnd() * 20);
+      const x = left ? 20 - gx * 3.2 - gy * 0.4 : 177 + gx * 3.2 + gy * 0.4;
+      out.push([0, 0.3 + rnd() * 0.3, [[x, gy * 5], [x + 3, gy * 5], [x + 3, gy * 5 + 3], [x, gy * 5 + 3]]]);
+    }
     return out;
   })();
 

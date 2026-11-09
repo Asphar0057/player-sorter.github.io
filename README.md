@@ -79,7 +79,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `cross`: Nordic cross on `base`, the first band colour as the wide cross and the second as the thin inner cross, set left of centre like the flag (Norway)
 - `diamonds`: three coloured diamonds on top of `base` (Germany)
 - `waves`: wavy lines in the band colour across `base` (Portugal home)
-- `shards`: angular dark shards and pixel blocks across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
+- `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
 - `burst`: radial rays fanning out from the upper right, wide wedges in the first band colour and thin streaks in the second (New England Revolution home)
 - `thick-waves`: bold wavy stripes in the first band colour across `base` (USA home)
 - `chevron`: a chevron in the band colour across `base` (Portugal away)
