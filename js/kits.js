@@ -1048,13 +1048,36 @@
     return out;
   }
 
+  // "flash": broad diagonal lightning slabs with stepped, jagged edges, tone-on-tone (Dortmund
+  // away). Kind 0.
+  function flashShapes() {
+    const out = [];
+    const rnd = seeded(61);
+    const K = GW > 300 ? 1.5 : 1;
+    const lean = 0.7, gap = 26 * K;
+    for (let i = -3; i * gap < GW + 120; i++) {
+      const x0 = i * gap + rnd() * 6;
+      const wd = (12 + rnd() * 14) * K;
+      const left = [], right = [];
+      let off = 0;
+      for (let y = -6; y <= 106; y += 13 * K) {
+        off = (rnd() - 0.5) * 9 * K;
+        const bx = x0 - (y - 50) * lean;
+        left.push([bx + off, y]);
+        right.push([bx + wd + off * 0.6 + (rnd() - 0.5) * 6 * K, y + 5 * K]);
+      }
+      out.push([0, 0.35 + rnd() * 0.5, left.concat(right.reverse())]);
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1077,6 +1100,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "flash") return [b[0] || "#2B2B2B"];
     if (p.type === "bruise" || p.type === "hexes") return [b[0] || "#FFFFFF"];
     if (p.type === "pole") return [b[0] || "#1C2C5B", b[1] || "#6CABDD"];
     if (p.type === "contours" || p.type === "golden" || p.type === "skewchecks" || p.type === "vbars") return [b[0] || "#FFFFFF"];

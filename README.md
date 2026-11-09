@@ -121,6 +121,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `marble`: flowing ink-marbling ribbons in up to three band colours, thickening toward the right on banners (Leverkusen away)
 - `rings`: feathered spray-paint circles plus a solid side panel at the right end (West Ham third)
 A kit can set `headerStripes: [[colour, weight], ...]` to split the bottom band of the share image into several stripes (Arsenal, Liverpool, West Ham).
+- `flash`: broad diagonal lightning slabs with jagged edges, tone-on-tone (Dortmund away)
 - `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
 - `burst`: radial rays fanning out from the upper right, wide wedges in the first band colour and thin streaks in the second (New England Revolution home)
 - `thick-waves`: bold wavy stripes in the first band colour across `base` (USA home)
