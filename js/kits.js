@@ -1531,13 +1531,41 @@
     return out;
   }
 
+  // "twotone": the left of the kit is the base colour and the right part a lighter colour (first
+  // band colour) with a sawtooth join at `split` (default 50%) of the width, and tone-on-tone
+  // jagged Z-shaped ribbons in lighter and darker shades over the lighter part (Barcelona third).
+  // Kinds: 0 = lighter part, 1 = lighter ribbons, 2 = darker ribbons.
+  function twoToneShapes() {
+    const out = [];
+    const rnd = seeded(77);
+    const K = GW > 300 ? 1.6 : 1;
+    const xm = GW * (GW > 300 ? 0.5 : 0.3);
+    const tooth = 2.7 * K, amp = 2.1 * K;
+    const edge = [[xm, -2]];
+    for (let y = 1, i = 0; y < 104; y += tooth, i++) edge.push([xm + (i % 2 ? amp : -amp), y]);
+    edge.push([xm, 104]);
+    out.push([0, 1, edge.concat([[GW + 2, 104], [GW + 2, -2]])]);
+    const n = Math.max(5, Math.round((GW - xm) / (13 * K)));
+    for (let r = 0; r < n; r++) {
+      let x = xm + 10 * K + rnd() * (GW - xm - 14 * K);
+      const wd = (3 + rnd() * 7) * K;
+      const left = [], right = [];
+      for (let y = -6; y < 110; y += 7 + rnd() * 10) {
+        x += (rnd() - 0.5) * 11 * K;
+        left.push([x, y]); right.push([x + wd * (0.6 + rnd() * 0.8), y + 2 + rnd() * 5]);
+      }
+      out.push([r % 3 === 0 ? 2 : 1, 0.18 + rnd() * 0.3, left.concat(right.reverse())]);
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes, rulestripes: ruleStripeShapes, multistripes: multiStripeShapes, prism: prismShapes, railstripes: railStripeShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes, rulestripes: ruleStripeShapes, multistripes: multiStripeShapes, prism: prismShapes, railstripes: railStripeShapes, twotone: twoToneShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1560,6 +1588,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "twotone") return [b[0] || "#97D7CF", b[1] || "#C4EEE8", b[2] || "#6FC4BA"];
     if (p.type === "railstripes") return [b[0] || "#C8302A", b[1] || "#262F61", b[2] || "#8E99A8"];
     if (p.type === "prism") return [b[0] || "#3A3D43", b[1] || b[0] || "#4A4E55"];
     if (p.type === "multistripes") { stripeColors.cur = b.length ? b : ["#FFFFFF"]; return stripeColors.cur; }

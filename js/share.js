@@ -164,6 +164,7 @@
       ctx.fillRect(0, 0, f.w, h);
       return;
     }
+    if (p.full) { from = 0; room = f.w; }
     if (room < 150) return;
     const s = h / 100;
     const W = room / s;
@@ -211,7 +212,7 @@
       if (p.type === "scatter") Kits.stripes.dots(o, 0, 0, s, p.dots || "rgba(255,255,255,0.32)", W);
       Kits.shards(o, 0, 0, s, Kits.stripes.colors(p), Kits.stripes.list(p.type, W));
     }
-    if (p.type !== "lines" || !p.fade) {
+    if ((p.type !== "lines" || !p.fade) && !p.full) {
       // soften the edge nearest the title
       const g = o.createLinearGradient(0, 0, off.width, 0);
       g.addColorStop(0, "rgba(0,0,0,0)");

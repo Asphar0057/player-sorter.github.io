@@ -56,13 +56,13 @@ registerTeam({
       onPrimary: "#FFFFFF",
       accent: "#0F2342",
       onAccent: "#FFFFFF",
-      header: "#BFE3D0",
-      onHeader: "#0F2342",
-      headerBand: "#1D4E9E",
+      header: "#05C8CA",
+      onHeader: "#16244C",
+      headerBand: "#1B2A78",
       rowTint: "#1D4E9E",
       rowTintStrength: 0.2,
       rowTintFloor: 0.5,
-      pattern: { type: "split", base: "#BFE3D0", bands: ["#5E8C7E"] }
+      pattern: { type: "twotone", full: true, base: "#05C8CA", bands: ["#97D7CF", "#C4EEE8", "#6FC4BA"] }
     }
   },
   players: [
