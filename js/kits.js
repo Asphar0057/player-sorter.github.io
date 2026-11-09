@@ -657,13 +657,19 @@
   // third). Kind 0 = top colour, kind 1 = fade colour.
   function poleShapes() {
     const out = [];
-    const K = GW > 300 ? 2.6 : 1;
-    const cx = GW > 300 ? GW * 0.7 : GW / 2, hw = (GW > 300 ? 9 : 7) * K;
-    const N = 24;
+    const K = GW > 300 ? 2.2 : 1;
+    const cx = GW > 300 ? GW * 0.7 : GW / 2;
+    const bar = 2.6 * K, mid = 7.5 * K;
+    const N = 34;
     for (let i = 0; i < N; i++) {
       const y0 = -4 + (i * 108) / N, y1 = -4 + ((i + 1) * 108) / N + 0.3;
-      const t = i / (N - 1);
-      out.push([t < 0.45 ? 0 : 1, 1 - 0.85 * t, [[cx - hw, y0], [cx + hw, y0], [cx + hw, y1], [cx - hw, y1]]]);
+      const ym = (y0 + y1) / 2;
+      const t = Math.min(1, Math.abs(ym - 48) / 50);
+      const a = 0.12 + 0.88 * Math.pow(t, 1.1);
+      const sq = (x0, x1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+      out.push([1, a * 0.9, sq(cx - mid, cx + mid)]);
+      out.push([0, a, sq(cx - mid - bar, cx - mid)]);
+      out.push([0, a, sq(cx + mid, cx + mid + bar)]);
     }
     return out;
   }
@@ -738,11 +744,271 @@
     return out;
   }
 
+  // ---- second round of kit art ----------------------------------------------------------
+
+  // Smooth 2D value noise in [0, 1].
+  function noise2(seed) {
+    const h = (ix, iy) => {
+      let n = (ix * 374761393 + iy * 668265263 + seed * 2147483647) | 0;
+      n = (n ^ (n >>> 13)) * 1274126177;
+      n = n ^ (n >>> 16);
+      return ((n >>> 0) % 100000) / 100000;
+    };
+    const sm = t => t * t * (3 - 2 * t);
+    return (x, y) => {
+      const ix = Math.floor(x), iy = Math.floor(y), fx = sm(x - ix), fy = sm(y - iy);
+      const a = h(ix, iy), b = h(ix + 1, iy), c = h(ix, iy + 1), d = h(ix + 1, iy + 1);
+      return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
+    };
+  }
+
+  // "contours": fine wavy lines that follow a drifting noise field, so neighbouring lines run
+  // together like contour lines and break up in places (the Villarreal 2026/27 kits). Kind 0.
+  function contourShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.7 : 1;
+    const warp = noise2(7), warp2 = noise2(19), gate = noise2(31);
+    const gap = 3.3 * K, w = 0.85 * K;
+    for (let yb = -10; yb < 112; yb += gap) {
+      let run = null;
+      const flush = () => {
+        if (run && run.length > 2) {
+          out.push([0, 0.55, run.map(q => [q[0], q[1] - w / 2]).concat(run.map(q => [q[0], q[1] + w / 2]).reverse())]);
+        }
+        run = null;
+      };
+      for (let x = -6; x <= GW + 6; x += 3) {
+        const y = yb + 8 * K * (warp(x * 0.03 / K, yb * 0.025) * 2 - 1) + 3.2 * K * (warp2(x * 0.1 / K, yb * 0.05) * 2 - 1);
+        if (gate(x * 0.045 / K + 3, yb * 0.05) > 0.3) {
+          if (!run) run = [];
+          run.push([x, y]);
+        } else {
+          flush();
+        }
+      }
+      flush();
+    }
+    return out;
+  }
+
+  // "golden": the golden-ratio construction (golden rectangle, squares, circle and spiral arcs)
+  // drawn in fine lines, with small fleurons and a tile patch around it (Fiorentina third).
+  function goldenShapes() {
+    const out = [];
+    const A = 0.8, lw = GW > 300 ? 1.25 : 0.95;
+    const seg = (x1, y1, x2, y2, w) => {
+      const dx = x2 - x1, dy = y2 - y1, l = Math.hypot(dx, dy) || 1;
+      const nx = -dy / l * w / 2, ny = dx / l * w / 2;
+      out.push([0, A, [[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]]);
+    };
+    const arc = (cx, cy, r, a0, a1, w) => {
+      const n = 14;
+      let px = cx + Math.cos(a0) * r, py = cy + Math.sin(a0) * r;
+      for (let i = 1; i <= n; i++) {
+        const a = a0 + ((a1 - a0) * i) / n, x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+        seg(px, py, x, y, w);
+        px = x; py = y;
+      }
+    };
+    const fleuron = (x, y, r) => {
+      out.push([0, 0.6, [[x, y - r * 1.5], [x + r * 0.45, y], [x, y + r * 1.5], [x - r * 0.45, y]]]);
+      out.push([0, 0.6, [[x - r * 1.5, y], [x, y - r * 0.45], [x + r * 1.5, y], [x, y + r * 0.45]]]);
+      out.push([0, 0.6, [[x + r * 2.1, y - r * 0.5], [x + r * 2.6, y], [x + r * 2.1, y + r * 0.5], [x + r * 1.6, y]]]);
+    };
+    const phi = 1.6180339887;
+    const H = GW > 300 ? 74 : 66;
+    const W = H * phi;
+    const cx = GW > 300 ? GW * 0.68 : GW / 2;
+    let x0 = cx - W / 2, y0 = 17, w = W, h = H;
+    seg(x0, y0, x0 + w, y0, lw); seg(x0 + w, y0, x0 + w, y0 + h, lw); seg(x0 + w, y0 + h, x0, y0 + h, lw); seg(x0, y0 + h, x0, y0, lw);
+    let side = 0;
+    for (let i = 0; i < 8; i++) {
+      const s = Math.min(w, h);
+      if (side === 0) {
+        arc(x0 + s, y0 + s, s, Math.PI, Math.PI * 1.5, lw * 1.25);
+        seg(x0 + s, y0, x0 + s, y0 + h, lw * 0.8);
+        x0 += s; w -= s;
+      } else if (side === 1) {
+        arc(x0 + s, y0 + s, s, -Math.PI / 2, 0, lw * 1.25);
+        seg(x0, y0 + s, x0 + w, y0 + s, lw * 0.8);
+        y0 += s; h -= s;
+      } else if (side === 2) {
+        arc(x0 + w - s, y0 + h - s, s, 0, Math.PI / 2, lw * 1.25);
+        seg(x0 + w - s, y0, x0 + w - s, y0 + h, lw * 0.8);
+        w -= s;
+      } else {
+        arc(x0 + s, y0 + h - s, s, Math.PI / 2, Math.PI, lw * 1.25);
+        seg(x0, y0 + h - s, x0 + w, y0 + h - s, lw * 0.8);
+        h -= s;
+      }
+      side = (side + 1) % 4;
+      if (Math.min(w, h) < 2) break;
+    }
+    arc(cx - W / 2 + H / 2, 17 + H / 2, H / 2, 0, Math.PI * 2, lw);
+    [[-0.78, 0.2], [-0.62, 0.62], [0.74, 0.28], [0.64, 0.7], [-0.9, 0.85]].forEach(p => fleuron(cx + p[0] * W * 0.62, p[1] * 100, 2.4));
+    for (let r = 0; r < 6; r++) {
+      for (let c = 0; c < 6; c++) {
+        const px = cx + W * 0.62 + c * 5.5, py = 60 + r * 5.5;
+        out.push([0, 0.4, [[px, py + 2.7], [px + 2.7, py], [px + 5.4, py + 2.7], [px + 2.7, py + 5.4]]]);
+      }
+    }
+    return out;
+  }
+
+  // "vtex": rows of downward-pointing dark triangles with thin light rules, tone-on-tone (the
+  // Arsenal away "V" texture). Kind 0 = triangle, kind 1 = rule.
+  function vtexShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.5 : 1;
+    const rowH = 19 * K, tw = 28 * K;
+    for (let row = 0, y = -4; y < 108; row++, y += rowH) {
+      for (let x = (row % 2 ? tw / 2 : 0) - tw; x < GW + tw; x += tw) {
+        out.push([0, 0.75, [[x, y], [x + tw, y], [x + tw / 2, y + rowH - 1]]]);
+      }
+      out.push([1, 0.4, [[-2, y + rowH - 1.2], [GW + 2, y + rowH - 1.2], [GW + 2, y + rowH - 0.2], [-2, y + rowH - 0.2]]]);
+      const off = row % 2 ? 0 : tw / 2;
+      for (let x = 0; x < GW + tw; x += tw) {
+        out.push([1, 0.22, [[x + off - 0.4, y + rowH * 0.3], [x + off + 0.4, y + rowH * 0.3], [x + off + 0.4, y + rowH], [x + off - 0.4, y + rowH]]]);
+      }
+    }
+    return out;
+  }
+
+  // "skewchecks": a skewed, blurred-looking checkerboard of uneven cells (Liverpool third).
+  function skewcheckShapes() {
+    const out = [];
+    const rnd = seeded(13);
+    const K = GW > 300 ? 1.6 : 1;
+    for (let y = -6, row = 0; y < 106; row++) {
+      const rh = (10 + rnd() * 9) * K, sk = (rnd() - 0.5) * 10 * K;
+      let x = -20 + rnd() * 10;
+      let on = row % 2 === 0;
+      while (x < GW + 20) {
+        const cw = (11 + rnd() * 10) * K;
+        if (on) {
+          const a = 0.35 + rnd() * 0.6;
+          out.push([0, a, [[x + sk, y], [x + cw + sk, y], [x + cw - sk, y + rh], [x - sk, y + rh]]]);
+        }
+        x += cw;
+        on = !on;
+      }
+      y += rh;
+    }
+    return out;
+  }
+
+  // "bees": a tone-on-tone grid of worker bees (Man City away). Kind 0 = body, kind 1 = wings.
+  function beeShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.5 : 1;
+    const dx = 40 * K, dy = 34 * K, s = 1.25 * K;
+    const ell = (cx, cy, rx, ry, rot) => {
+      const pts = [];
+      for (let i = 0; i < 14; i++) {
+        const a = (i / 14) * Math.PI * 2, x = Math.cos(a) * rx, y = Math.sin(a) * ry;
+        pts.push([cx + x * Math.cos(rot) - y * Math.sin(rot), cy + x * Math.sin(rot) + y * Math.cos(rot)]);
+      }
+      return pts;
+    };
+    for (let row = 0, y = 6; y < 112; row++, y += dy) {
+      for (let x = (row % 2 ? dx / 2 : 0) + 8; x < GW + dx; x += dx) {
+        out.push([1, 0.65, ell(x - 6.5 * s, y - 1 * s, 7.5 * s, 3.4 * s, -0.55)]);
+        out.push([1, 0.65, ell(x + 6.5 * s, y - 1 * s, 7.5 * s, 3.4 * s, 0.55)]);
+        out.push([0, 0.8, ell(x, y + 3 * s, 3.4 * s, 6.6 * s, 0)]);
+        out.push([0, 0.8, ell(x, y - 5 * s, 2.6 * s, 2.6 * s, 0)]);
+        [0, 3, 6].forEach(o => out.push([1, 0.9, [[x - 3.4 * s, y + (o + 1) * s], [x + 3.4 * s, y + (o + 1) * s], [x + 3.4 * s, y + (o + 1.8) * s], [x - 3.4 * s, y + (o + 1.8) * s]]]));
+      }
+    }
+    return out;
+  }
+
+  // "vbars": wide soft vertical bars each flanked by a thin rule, tone-on-tone (Dortmund third).
+  function vbarShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.7 : 1;
+    const p = 14 * K;
+    for (let x = 2; x < GW + p; x += p) {
+      out.push([0, 0.55, [[x, -2], [x + 6 * K, -2], [x + 6 * K, 102], [x, 102]]]);
+      out.push([0, 0.35, [[x + 10 * K, -2], [x + 10.9 * K, -2], [x + 10.9 * K, 102], [x + 10 * K, 102]]]);
+    }
+    return out;
+  }
+
+  // "marble": flowing, ink-marbling-like ribbons in up to three band colours that swell and thin
+  // along a drifting noise field (Leverkusen away). Kinds: 0 = deepest, 1 = middle, 2 = lightest.
+  // On banners it thickens toward the right edge, where the sleeves are.
+  function marbleShapes() {
+    const out = [];
+    const warp = noise2(3), warp2 = noise2(11), tone = noise2(23), width = noise2(37);
+    const K = GW > 300 ? 1.6 : 1;
+    const gap = 2.6 * K;
+    for (let yb = -12; yb < 114; yb += gap) {
+      const parts = [];
+      let run = null;
+      for (let x = -6; x <= GW + 6; x += 3) {
+        const rt = GW > 300 ? Math.min(1, Math.max(0, (x / GW - 0.05) / 0.7)) : 0.8;
+        const rightness = rt * rt * (3 - 2 * rt);
+        const y = yb + 12 * K * (warp(x * 0.028 / K, yb * 0.02) * 2 - 1) + 4.5 * K * (warp2(x * 0.09 / K, yb * 0.05) * 2 - 1);
+        const t = tone(x * 0.04 / K, yb * 0.045);
+        const w = (2.7 + 4.6 * width(x * 0.07 / K + 5, yb * 0.06)) * K * (0.15 + 0.95 * rightness);
+        const kind = t > 0.6 ? 0 : t > 0.38 ? 1 : 2;
+        if (w > 0.7 * K) {
+          if (run && run.kind !== kind) { parts.push(run); run = null; }
+          if (!run) run = { kind, pts: [] };
+          run.pts.push([x, y, w]);
+        } else if (run) {
+          parts.push(run);
+          run = null;
+        }
+      }
+      if (run) parts.push(run);
+      parts.forEach(r => {
+        if (r.pts.length < 2) return;
+        out.push([r.kind, 0.88, r.pts.map(q => [q[0], q[1] - q[2] / 2]).concat(r.pts.map(q => [q[0], q[1] + q[2] / 2]).reverse())]);
+      });
+    }
+    return out;
+  }
+
+  // "rings": soft spray-paint circles drawn as feathered rings, plus a solid side panel at the
+  // right end (West Ham third). Kind 0 = ring, kind 1 = panel.
+  function ringShapes() {
+    const out = [];
+    const rnd = seeded(23);
+    const K = GW > 300 ? 1.7 : 1;
+    const circle = (cx, cy, r, n) => {
+      const pts = [];
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2;
+        pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
+      }
+      return pts;
+    };
+    const taken = [];
+    const count = Math.round((5 * GW) / 200 / (K > 1 ? 1.2 : 1));
+    for (let tries = 0; tries < 400 && taken.length < count; tries++) {
+      const r = (20 + rnd() * 26) * K, cx = rnd() * GW, cy = rnd() * 100;
+      if (taken.some(t => Math.hypot(cx - t[0], cy - t[1]) < (r + t[2]) * 0.7)) continue;
+      taken.push([cx, cy, r]);
+      [[5.2, 0.12], [3.6, 0.2], [2.4, 0.3], [1.4, 0.45]].forEach(b => {
+        const o = circle(cx, cy, r + b[0] * K, 36), i = circle(cx, cy, r - b[0] * K, 36);
+        for (let j = 0; j < 36; j++) {
+          const j2 = (j + 1) % 36;
+          out.push([0, b[1], [o[j], o[j2], i[j2], i[j]]]);
+        }
+      });
+    }
+    out.push([1, 1, [[GW + 1, -1], [GW - 34 * K, -1], [GW - 28 * K, 101], [GW + 1, 101]]]);
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
-    bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes
+    bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
+    contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes
   };
   const STRIPE_CACHE = {};
 
@@ -766,6 +1032,11 @@
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "bruise" || p.type === "ticks" || p.type === "hexes") return [b[0] || "#FFFFFF"];
     if (p.type === "pole") return [b[0] || "#1C2C5B", b[1] || "#6CABDD"];
+    if (p.type === "contours" || p.type === "golden" || p.type === "skewchecks" || p.type === "vbars") return [b[0] || "#FFFFFF"];
+    if (p.type === "vtex") return [b[0] || "#0E1642", b[1] || "#3E5CB0"];
+    if (p.type === "bees") return [b[0] || "#2E2B28", b[1] || b[0] || "#2E2B28"];
+    if (p.type === "marble") return [b[0] || "#1B3358", b[1] || "#4F7FA6", b[2] || "#CFE3EA"];
+    if (p.type === "rings") return [b[0] || "#1FA6C4", b[1] || "#1A9AB0"];
     if (p.type === "swirls") return [b[0] || "#2BB3E0", b[1] || b[0] || "#6FD0F0", b[2] || b[0] || "#BFE9F7"];
     if (p.type === "gridiron") return [b[0] || "#14233F", b[1] || "#C8102E"];
     if (p.type === "swell") return [b[0] || "#BB2534", b[1] || "#7A1220"];

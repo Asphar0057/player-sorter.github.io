@@ -44,7 +44,8 @@ registerTeam({
       rowTint: "#7A263A",
       rowTintStrength: 0.16,
       rowTintFloor: 0.45,
-      pattern: { type: "tipping", base: "#F8F5F2", bands: ["#7A263A", "#6CB4E8"] }
+      headerStripes: [["#7A263A", 1], ["#6CB4E8", 1]],
+      pattern: {type: "plain", base: "#F8F5F2", bands: ["#7A263A"]}
     },
     third: {
       label: "Third",
@@ -59,13 +60,13 @@ registerTeam({
       muted: "#47627A",
       primary: "#7A263A",
       onPrimary: "#FFFFFF",
-      accent: "#27B3E6",
+      accent: "#1B97AE",
       onAccent: "#12283D",
-      header: "#D9EDF7",
+      header: "#B8E0EA",
       onHeader: "#12283D",
-      headerBand: "#27B3E6",
+      headerBand: "#1B97AE",
       rowTintStrength: 0.14,
-      pattern: {type: "swirls", base: "#E3F1F8", bands: ["#27B3E6", "#6ACBEE", "#B3E4F5"]}
+      pattern: {type: "rings", base: "#B8E0EA", bands: ["#1FA6C4", "#1B97AE"]}
     }
   },
   players: [

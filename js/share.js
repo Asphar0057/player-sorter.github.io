@@ -571,8 +571,19 @@
       ctx.fillRect(0, 0, f.w, f.head);
     headerPattern(ctx, f, k, clearX);
         headerCollar(ctx, f, k, clearX);
-    ctx.fillStyle = k.headerBand;
-    ctx.fillRect(0, f.head - 14, f.w, 14);
+    if (k.headerStripes && k.headerStripes.length) {
+      const total = k.headerStripes.reduce((n, st) => n + st[1], 0);
+      let yy = f.head - 14;
+      k.headerStripes.forEach(st => {
+        const hh = (14 * st[1]) / total;
+        ctx.fillStyle = st[0];
+        ctx.fillRect(0, yy, f.w, Math.ceil(hh));
+        yy += hh;
+      });
+    } else {
+      ctx.fillStyle = k.headerBand;
+      ctx.fillRect(0, f.head - 14, f.w, 14);
+    }
 
     if (crestImg) {
       const inner = k.crestBg ? crestSize * 0.68 : crestSize;

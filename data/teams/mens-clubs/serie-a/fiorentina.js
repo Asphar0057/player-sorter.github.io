@@ -257,7 +257,8 @@ registerTeam({
       "headerBand": "#FFFFFF",
       "rowTint": "#7A2630",
       "rowTintStrength": 0.12,
-      "pattern": {"type": "ornament", "base": "#1F4DB0", "bands": ["#143A8C"]},
+      "headerStripes": [["#F6F7E4", 3], ["#E0343B", 2]],
+      "pattern": {"type": "golden", "base": "#1E50C1", "bands": ["#6F92EA"]},
       "dark": true
     }
   }

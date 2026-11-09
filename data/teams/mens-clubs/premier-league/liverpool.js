@@ -24,7 +24,7 @@ registerTeam({
       onAccent: "#5A0A16",
       header: "#C8102E",
       onHeader: "#FFFFFF",
-      headerBand: "#F6EB61",
+      headerBand: "#FFFFFF",
       rowTintStrength: 0.15,
       pattern: { type: "scatter", base: "#C8102E", bands: ["#FFFFFF", "#F7B4BE"] }
     },
@@ -44,7 +44,8 @@ registerTeam({
       rowTint: "#C8102E",
       rowTintStrength: 0.2,
       rowTintFloor: 0.5,
-      pattern: { type: "tipping", base: "#E9E9EC", bands: ["#C8102E", "#6B6E73"] }
+      headerStripes: [["#A31F3A", 6], ["#FFFFFF", 1.5], ["#A31F3A", 2.5]],
+      pattern: {type: "lines", base: "#FFFFFF", bands: ["#A31F3A"], lines: [["#A31F3A", 0.26, 0.35], ["#A31F3A", 0.4, 0.43]]}
     },
     third: {
       label: "Third",
@@ -60,8 +61,8 @@ registerTeam({
       onAccent: "#FFFFFF",
       header: "#141012",
       onHeader: "#C9CCD1",
-      headerBand: "#FFFFFF",
-      pattern: {type: "checks", base: "#141012", bands: ["#5E1A32"]}
+      headerBand: "#B8BCC4",
+      pattern: {type: "skewchecks", base: "#12100F", bands: ["#6B1D38"]}
     }
   },
   players: [
