@@ -214,12 +214,16 @@
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice"><g fill="' + c + '">' + circles + "</g></svg>";
   }
 
+  // Width of the grid the shape generators below build for. Cards use 200; share banners ask
+  // for a wider grid (see stripeList / shardList / burstList) so the art fills their shape.
+  let GW = 200;
+
   // Radial ray burst on a 200x100 grid, centred near the top-right like the crest on the
   // New England Revolution home shirt. Wide wedges use the first band colour, thin streaks
   // the second (or white). Each entry is [kind, points] where kind 0 = wedge, 1 = streak.
-  const BURST = (function () {
+  function burstList(W) {
     const out = [];
-    const cx = 148, cy = 34, far = 320, n = 26;
+    const cx = W * 0.74, cy = 34, far = Math.max(320, W * 1.6), n = 26;
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2 + 0.11;
       const wide = (i % 3 !== 1);
@@ -230,7 +234,9 @@
       out.push([wide ? 0 : 1, pts]);
     }
     return out;
-  })();
+  }
+
+  const BURST = burstList(200);
 
   function burstColors(p) {
     const b = p.bands || [];
@@ -250,14 +256,15 @@
   // ends (West Ham 2026/27 home). Entries are [kind, alpha, points]: kind 0 = dark block
   // (second band colour), kind 1 = sleeve panel (first band colour). Blocks of mixed sizes are
   // packed on a 5-unit grid, denser along diagonal streaks, some cut on the diagonal.
-  const SHARDS = (function () {
+  function shardList(W) {
     const out = [];
+    const E = W - 70;
     let seed = 11;
     const rnd = function () {
       seed = (seed * 1664525 + 1013904223) % 4294967296;
       return seed / 4294967296;
     };
-    const U = 5, cols = 40, rows = 20;
+    const U = 5, cols = Math.round(W / 5), rows = 20;
     const used = [];
     for (let r = 0; r < rows; r++) used.push(new Array(cols).fill(false));
     const sizes = [[1, 1], [2, 1], [1, 2], [2, 2], [2, 2], [3, 2], [2, 3], [3, 1], [1, 3]];
@@ -287,19 +294,21 @@
     // Sleeve panels (no shapes on them) with a checkered strip along their inner edge.
     const sq = 2.6;
     out.push([1, 1, [[-1, 0], [19, 0], [11, 100], [-1, 100]]]);
-    out.push([1, 1, [[201, 0], [130, 0], [138, 100], [201, 100]]]);
+    out.push([1, 1, [[W + 1, 0], [E, 0], [E + 8, 100], [W + 1, 100]]]);
     for (let r = 0; r * sq < 100; r++) {
       const y = r * sq;
       [0, 1].forEach(c => {
         if ((r + c) % 2) return;
         const lx = 19 - (y + sq / 2) * 0.08 - (c + 1) * sq;
-        const rx = 130 + (y + sq / 2) * 0.08 + c * sq;
+        const rx = E + (y + sq / 2) * 0.08 + c * sq;
         out.push([0, 0.85, [[lx, y], [lx + sq, y], [lx + sq, y + sq], [lx, y + sq]]]);
         out.push([0, 0.85, [[rx, y], [rx + sq, y], [rx + sq, y + sq], [rx, y + sq]]]);
       });
     }
     return out;
-  })();
+  }
+
+  const SHARDS = shardList(200);
 
   function shardColors(p) {
     const b = p.bands || [];
@@ -335,7 +344,7 @@
     const out = [];
     const period = 44, width = 20, first = 6;
     const rect = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < Math.ceil((GW - first) / period); i++) {
       const x0 = first + i * period;
       out.push([0, 1, rect(x0, -1, width, 102)]);
       if (kind === "crosses") {
@@ -366,7 +375,7 @@
   function slashShapes() {
     const out = [];
     const lean = 0.55, gap = 4.2, zone = 21;
-    for (let i = -16; i < 60; i++) {
+    for (let i = -16; i < Math.ceil(GW / gap) + 13; i++) {
       const xr = i * gap;
       const xAt = y => xr + (y - 50) * lean;
       let ya = -10, kind = -1;
@@ -390,10 +399,10 @@
   // style Germany shirt. Kinds 0, 1, 2 take the three band colours from top to bottom.
   function veeShapes() {
     const out = [];
-    const slope = 0.4, thick = 14.8, gap = 4;
+    const slope = 40 / (GW / 2), thick = 14.8, gap = 4, mid = GW / 2;
     [-14, 0.4, 14.8].forEach((y0, kind) => {
-      out.push([kind, 1, [[-1, y0 - 0.5], [100 - gap, y0 + (101 - gap) * slope], [100 - gap, y0 + (101 - gap) * slope + thick], [-1, y0 + thick - 0.5]]]);
-      out.push([kind, 1, [[201, y0 - 0.5], [100 + gap, y0 + (101 - gap) * slope], [100 + gap, y0 + (101 - gap) * slope + thick], [201, y0 + thick - 0.5]]]);
+      out.push([kind, 1, [[-1, y0 - 0.5], [mid - gap, y0 + (mid + 1 - gap) * slope], [mid - gap, y0 + (mid + 1 - gap) * slope + thick], [-1, y0 + thick - 0.5]]]);
+      out.push([kind, 1, [[GW + 1, y0 - 0.5], [mid + gap, y0 + (mid + 1 - gap) * slope], [mid + gap, y0 + (mid + 1 - gap) * slope + thick], [GW + 1, y0 + thick - 0.5]]]);
     });
     return out;
   }
@@ -413,17 +422,17 @@
       return circles.every(c => taken.every(t => Math.hypot(c[0] - t[0], c[1] - t[1]) > c[2] + t[2] + 1.6));
     };
     let placed = 0;
-    for (let tries = 0; tries < 900 && placed < 60; tries++) {
+    for (let tries = 0; tries < 900 * GW / 200 && placed < Math.round(60 * GW / 200); tries++) {
       const isTri = placed % 3 === 2;
       if (isTri) {
-        const cx = rnd() * 200, cy = -2 + rnd() * 104;
+        const cx = rnd() * GW, cy = -2 + rnd() * 104;
         const s = 3.2 + rnd() * 3.6;
         if (!clear([[cx, cy, s * 1.25]])) continue;
         const flip = rnd() < 0.5 ? -1 : 1;
         out.push([1, 0.5, [[cx - s * flip, cy + s], [cx + s * flip, cy + s], [cx + (rnd() - 0.5) * s, cy - s]]]);
         taken.push([cx, cy, s * 1.25]);
       } else {
-        const cx = rnd() * 200, cy = -2 + rnd() * 104;
+        const cx = rnd() * GW, cy = -2 + rnd() * 104;
         const len = 8 + rnd() * 22;
         const ang = (rnd() < 0.5 ? 1 : -1) * (0.5 + rnd() * 0.95);
         const dx = Math.cos(ang) * len / 2, dy = Math.sin(ang) * len / 2;
@@ -440,11 +449,11 @@
   }
 
   // Tiny vector dots on a staggered grid behind the scatter shapes.
-  function dotGrid(ctx, ox, oy, s, color) {
+  function dotGrid(ctx, ox, oy, s, color, W) {
     ctx.fillStyle = color;
     ctx.beginPath();
     for (let row = 0, y = 1.7; y < 100; row++, y = 1.7 + row * 3.4) {
-      for (let x = 1.7 + (row % 2 ? 1.7 : 0); x < 200; x += 3.4) {
+      for (let x = 1.7 + (row % 2 ? 1.7 : 0); x < (W || 200); x += 3.4) {
         ctx.moveTo(ox + (x + 0.4) * s, oy + y * s);
         ctx.arc(ox + x * s, oy + y * s, 0.4 * s, 0, Math.PI * 2);
       }
@@ -452,8 +461,8 @@
     ctx.fill();
   }
 
-  function dotGridSvg(color) {
-    return '<defs><pattern id="d" width="3.4" height="3.4" patternUnits="userSpaceOnUse"><circle cx="0.85" cy="0.85" r="0.4" fill="' + color + '"/><circle cx="2.55" cy="2.55" r="0.4" fill="' + color + '"/></pattern></defs><rect width="200" height="100" fill="url(#d)"/>';
+  function dotGridSvg(color, W) {
+    return '<defs><pattern id="d" width="3.4" height="3.4" patternUnits="userSpaceOnUse"><circle cx="0.85" cy="0.85" r="0.4" fill="' + color + '"/><circle cx="2.55" cy="2.55" r="0.4" fill="' + color + '"/></pattern></defs><rect width="' + (W || 200) + '" height="100" fill="url(#d)"/>';
   }
 
   // "raglan": a white band with a checkered edge on both sides and a thick maroon band
@@ -461,12 +470,13 @@
   // it survives the cropping a home-page card applies. Kinds: 0 band, 1 stripe, 2 check squares.
   function raglanShapes() {
     const out = [];
-    const lean = 0.09, sq = 2.6;
+    const lean = 0.09, sq = GW > 300 ? 3.4 : 2.6;
     const shear = (x, y) => [x + (y - 50) * lean, y];
     const quad = (x1, x2, y1, y2) => [shear(x1, y1), shear(x2, y1), shear(x2, y2), shear(x1, y2)];
-    const x0 = 138, x1 = 178;
+    const K = GW > 300 ? 2.2 : 1;
+    const x0 = GW - 62 * K, x1 = GW - 22 * K;
     out.push([0, 1, quad(x0, x1, -10, 110)]);
-    [[x0 - 12, x0], [x1, x1 + 12]].forEach(p => out.push([1, 1, quad(p[0], p[1], -10, 110)]));
+    [[x0 - 12 * K, x0], [x1, x1 + 12 * K]].forEach(p => out.push([1, 1, quad(p[0], p[1], -10, 110)]));
     for (let r = 0; r * sq < 120; r++) {
       const y = -10 + r * sq;
       [x0, x0 + sq, x1 - sq * 2, x1 - sq].forEach((cx, c) => {
@@ -489,7 +499,7 @@
     };
     const gap = 4.2, w = 1.5, step = 4;
     const curve = (xr, y) => xr + 16 * Math.sin((y / 100) * Math.PI * 2 + xr * 0.012) + 5 * Math.sin(y * 0.13 + xr * 0.02);
-    for (let xr = -20; xr < 220; xr += gap) {
+    for (let xr = -20; xr < GW + 20; xr += gap) {
       let run = null;
       const flush = () => {
         if (run && run.length > 2) {
@@ -522,7 +532,7 @@
     const wave = (x, y) => y + amp * Math.sin(x * k + phase);
     for (let y = -30; y < 135; y += period) {
       const top = [], bot = [], shadow = [];
-      for (let x = -10; x <= 210; x += 4) {
+      for (let x = -10; x <= GW + 10; x += 4) {
         top.push([x, wave(x, y)]);
         bot.push([x, wave(x, y) + band]);
       }
@@ -537,9 +547,10 @@
   // first band colour on the base, like the USA 2026 away shirt. Kind 0 = star.
   function starShapes() {
     const out = [];
-    const r = 5.2, dx = 23, dy = 17;
+    const K = GW > 300 ? 1.7 : 1;
+    const r = 5.2 * K, dx = 23 * K, dy = 17 * K;
     for (let row = 0, y = 4; y < 112; row++, y += dy) {
-      for (let x = (row % 2 ? dx / 2 : 0) + 4; x < 214; x += dx) {
+      for (let x = (row % 2 ? dx / 2 : 0) + 4; x < GW + 14; x += dx) {
         const pts = [];
         for (let i = 0; i < 10; i++) {
           const rr = i % 2 ? r * 0.4 : r;
@@ -557,7 +568,9 @@
   function ornamentShapes() {
     const out = [];
     const A = 0.8;
-    const seg = (x1, y1, x2, y2, w) => {
+    const LW = GW > 300 ? 1.7 : 1;
+    const seg = (x1, y1, x2, y2, w0) => {
+      const w = w0 * LW;
       const dx = x2 - x1, dy = y2 - y1, l = Math.hypot(dx, dy) || 1;
       const nx = -dy / l * w / 2, ny = dx / l * w / 2;
       out.push([0, A, [[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]]);
@@ -581,7 +594,10 @@
         out.push([0, A, [[cx + q[0] * r * 0.5 - 0.7, cy + q[1] * r * 0.5 - 0.7], [cx + q[0] * r * 0.5 + 0.7, cy + q[1] * r * 0.5 - 0.7], [cx + q[0] * r * 0.5 + 0.7, cy + q[1] * r * 0.5 + 0.7], [cx + q[0] * r * 0.5 - 0.7, cy + q[1] * r * 0.5 + 0.7]]]);
       });
     };
-    [[100, 50], [-10, 50], [210, 50]].forEach((c, n) => {
+    const centres = [];
+    for (let c = GW / 2; c < GW + 120; c += 110) centres.push([c, 50]);
+    for (let c = GW / 2 - 110; c > -120; c -= 110) centres.push([c, 50]);
+    centres.forEach((c, n) => {
       const cx = c[0], cy = c[1];
       [[10, 0.5], [15, 0.4], [34, 0.5], [38, 0.4], [60, 0.5], [64, 0.4], [86, 0.5]].forEach(d => diamond(cx, cy, d[0] * 1.9 / 1.9 * 1.4, d[0] * 0.95, d[1]));
       knot(cx, cy, 4.2);
@@ -600,7 +616,23 @@
     return out;
   }
 
-  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes(), scatter: scatterShapes(), ornament: ornamentShapes(), raglan: raglanShapes(), streaks: streakShapes(), swell: swellShapes(), stars: starShapes() };
+  const STRIPE_GEN = {
+    crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
+    vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
+    streaks: streakShapes, swell: swellShapes, stars: starShapes
+  };
+  const STRIPE_CACHE = {};
+
+  // Shapes for a pattern on a grid W units wide (100 high). Cards use the default 200.
+  function stripeList(type, W) {
+    const w = Math.round(W || 200);
+    const key = type + ":" + w;
+    if (!STRIPE_CACHE[key]) {
+      GW = w;
+      try { STRIPE_CACHE[key] = STRIPE_GEN[type](); } finally { GW = 200; }
+    }
+    return STRIPE_CACHE[key];
+  }
 
   function stripeColors(p) {
     const b = p.bands || [];
@@ -621,7 +653,7 @@
     const c = stripeColors(p);
     const d = c.map(() => "");
     const al = c.map(() => 1);
-    STRIPE_SHAPES[p.type].forEach(r => {
+    stripeList(p.type).forEach(r => {
       al[r[0]] = r[1];
       d[r[0]] += "M" + r[2].map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join("L") + "Z";
     });
@@ -649,7 +681,7 @@
 
   function css(p) {
     const b = p.bands || [];
-    if (STRIPE_SHAPES[p.type]) {
+    if (STRIPE_GEN[p.type]) {
       return "url('data:image/svg+xml," + encodeURIComponent(stripeSvg(p)) + "') center / cover no-repeat, " + p.base;
     }
     if (p.type === "shards") {
@@ -916,14 +948,14 @@
       });
       ctx.closePath();
       ctx.fill();
-    } else if (STRIPE_SHAPES[p.type]) {
+    } else if (STRIPE_GEN[p.type]) {
       const s = Math.max(w / 200, h / 100);
       ctx.save();
       ctx.beginPath();
       ctx.rect(x, y, w, h);
       ctx.clip();
       if (p.type === "scatter") dotGrid(ctx, x + (w - 200 * s) / 2, y + (h - 100 * s) / 2, s, p.dots || "rgba(255,255,255,0.32)");
-      paintShards(ctx, x + (w - 200 * s) / 2, y + (h - 100 * s) / 2, s, stripeColors(p), STRIPE_SHAPES[p.type]);
+      paintShards(ctx, x + (w - 200 * s) / 2, y + (h - 100 * s) / 2, s, stripeColors(p), stripeList(p.type));
       ctx.restore();
     } else if (p.type === "shards") {
       const s = Math.max(w / 200, h / 100);
@@ -1131,5 +1163,5 @@
     return !!c && (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255 > 0.85;
   }
 
-  window.Kits = { ids, get, css, draw, mix, isLight, dots: DOTS, burst: BURST, shards: paintShards, stripes: { colors: stripeColors, shapes: STRIPE_SHAPES, dots: dotGrid } };
+  window.Kits = { ids, get, css, draw, mix, isLight, dots: DOTS, burst: BURST, burstList, shardList, shardColors, burstColors, shards: paintShards, stripes: { colors: stripeColors, list: stripeList, has: type => !!STRIPE_GEN[type], dots: dotGrid } };
 })();

@@ -34,7 +34,8 @@ registerTeam({
       onHeader: "#FFFFFF",
       headerBand: "#0B1F4B",
       rowTintStrength: 0.15,
-      pattern: { type: "halves", base: "#B01E2E", bands: ["#0B1F4B"] }
+      pattern: { type: "halves", base: "#B01E2E", bands: ["#0B1F4B"] },
+      headerPattern: { type: "fade", base: "#B01E2E", bands: ["#0F2A6B"], range: [0.5, 0.62] }
     },
     away: {
       label: "Away",
