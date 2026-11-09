@@ -1103,13 +1103,34 @@
     return out;
   }
 
+  // "herring": fine herringbone chevron lines in the first band colour that pile into large
+  // upward-pointing arrows, plus a solid panel in the second colour at the right end like the
+  // raglan sleeve (New England Revolution away). Kind 0 = lines, kind 1 = panel.
+  function herringShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.5 : 1;
+    const zw = 30 * K, amp = 15 * K, gap = 4.4 * K, w = 2.5 * K;
+    for (let y0 = -16 * K; y0 < 112; y0 += gap) {
+      const top = [], bot = [];
+      for (let x = -zw; x <= GW + zw; x += zw / 4) {
+        const ph = ((x % zw) + zw) % zw / zw;
+        const yy = y0 + amp * Math.abs(ph * 2 - 1);
+        top.push([x, yy]);
+        bot.push([x, yy + w]);
+      }
+      out.push([0, 0.95, top.concat(bot.reverse())]);
+    }
+    out.push([1, 1, [[GW + 1, -1], [GW - 30 * K, -1], [GW - 22 * K, 101], [GW + 1, 101]]]);
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1132,6 +1153,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "herring") return [b[0] || "#2DB8A6", b[1] || "#2A3F94"];
     if (p.type === "flash" || p.type === "baroque") return [b[0] || "#2B2B2B"];
     if (p.type === "bruise" || p.type === "hexes") return [b[0] || "#FFFFFF"];
     if (p.type === "pole") return [b[0] || "#1C2C5B", b[1] || "#6CABDD"];
