@@ -34,7 +34,8 @@ registerTeam({
       onHeader: "#FFFFFF",
       headerBand: "#0B1F4B",
       rowTintStrength: 0.15,
-      pattern: { type: "halves", base: "#B01E2E", bands: ["#0B1F4B"] }
+      pattern: { type: "halves", base: "#B01E2E", bands: ["#0B1F4B"] },
+      headerPattern: { type: "fade", base: "#B01E2E", bands: ["#0F2A6B"], range: [0.5, 0.62] }
     },
     away: {
       label: "Away",
@@ -52,11 +53,11 @@ registerTeam({
       rowTint: "#0B1F4B",
       rowTintStrength: 0.16,
       rowTintFloor: 0.45,
-      pattern: { type: "tipping", base: "#F7F7F8", bands: ["#B01E2E", "#0B1F4B"] }
+      pattern: {type: "gridiron", base: "#F7F7F8", bands: ["#14233F", "#C8102E"]}
     },
     third: {
       label: "Third",
-      paper: "#DCCFB0",
+      paper: "#B2A397",
       card: "#F6F0E1",
       ink: "#14110C",
       muted: "#6B6250",
@@ -66,13 +67,13 @@ registerTeam({
       onAccent: "#F6F0E1",
       photoBg: "#14110C",
       photoInk: "#DCCFB0",
-      header: "#DCCFB0",
+      header: "#97877E",
       onHeader: "#14110C",
-      headerBand: "#B8973E",
+      headerBand: "#14110C",
       rowTint: "#14110C",
       rowTintStrength: 0.14,
       rowTintFloor: 0.45,
-      pattern: { type: "sleeves", base: "#DCCFB0", bands: ["#14110C"] }
+      pattern: {type: "ripple", base: "#97877E", bands: ["#7C6C61", "#C2B6AB"]}
     }
   },
   players: [

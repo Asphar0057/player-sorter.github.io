@@ -45,11 +45,11 @@ registerTeam({
       header: "#111111",
       onHeader: "#FDE100",
       headerBand: "#FDE100",
-      pattern: { type: "zigzag", base: "#111111", bands: ["#2A2A2A"] }
+      pattern: {type: "flash", base: "#151515", bands: ["#4A4A4A"]}
     },
     third: {
       label: "Third",
-      paper: "#6A2BD9",
+      paper: "#7B44A0",
       card: "#FFFFFF",
       onPaper: "#FFFFFF",
       onPaperMuted: "rgba(255,255,255,0.82)",
@@ -62,11 +62,11 @@ registerTeam({
       onPrimary: "#FFFFFF",
       accent: "#E6FF2E",
       onAccent: "#2A0B5E",
-      header: "#6A2BD9",
+      header: "#7B44A0",
       onHeader: "#FFFFFF",
-      headerBand: "#E6FF2E",
+      headerBand: "#D4F82C",
       rowTintStrength: 0.15,
-      pattern: { type: "pinstripe", base: "#6A2BD9", bands: ["#7B3DEB"] }
+      pattern: {type: "vbars", base: "#7B44A0", bands: ["#9A66C2"]}
     }
   },
   players: [
