@@ -158,7 +158,7 @@
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     ctx.save();
-    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles", "chevron", "sleeves", "centreband", "band", "cross", "dots"].indexOf(p.type) >= 0) {
+    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles", "chevron", "sleeves", "centreband", "band", "cross", "dots", "thick-waves"].indexOf(p.type) >= 0) {
       if (room < 150) {
         ctx.restore();
         return;
@@ -240,6 +240,23 @@
         ctx.strokeStyle = colors[i % colors.length];
         ctx.lineWidth = 2.2;
         ctx.globalAlpha = 0.3 + ((i % 4) + 1) * 0.12;
+        ctx.stroke();
+      }
+    } else if (p.type === "thick-waves") {
+      const colors = p.bands && p.bands.length ? p.bands : [band];
+      const rows = 5;
+      const amplitude = Math.min(h * 0.18, 16);
+      const phase = 0.75;
+      for (let i = 0; i < rows; i++) {
+        const yBase = ((i + 0.5) / rows) * h;
+        ctx.beginPath();
+        for (let x = 0; x <= f.w; x += 10) {
+          const y = yBase + Math.sin((x / 120) * Math.PI * 2 + phase) * amplitude;
+          if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = colors[i % colors.length];
+        ctx.lineWidth = 20;
+        ctx.globalAlpha = 1;
         ctx.stroke();
       }
     } else if (p.type === "sash") {
