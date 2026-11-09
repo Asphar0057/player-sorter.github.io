@@ -158,7 +158,7 @@
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     ctx.save();
-    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles", "chevron", "sleeves", "centreband", "band", "cross", "dots", "thick-waves"].indexOf(p.type) >= 0) {
+    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles", "chevron", "sleeves", "centreband", "band", "cross", "dots", "thick-waves", "burst", "shards", "crosses", "pinlines", "slashes", "vee", "scatter", "ornament", "raglan", "streaks", "swell", "stars"].indexOf(p.type) >= 0) {
       if (room < 150) {
         ctx.restore();
         return;
@@ -308,9 +308,10 @@
       const edge = p.bands && p.bands[0] ? p.bands[0] : k.onHeader;
       const mid = p.bands && p.bands[1] ? p.bands[1] : edge;
       ctx.fillStyle = edge;
-      ctx.fillRect(from + room * 0.33, 0, room * (0.67 - 0.33), h);
+      const [start, innerStart, innerEnd, end] = p.stops || [0.33, 0.39, 0.61, 0.67];
+      ctx.fillRect(from + room * start, 0, room * (end - start), h);
       ctx.fillStyle = mid;
-      ctx.fillRect(from + room * 0.39, 0, room * (0.61 - 0.39), h);
+      ctx.fillRect(from + room * innerStart, 0, room * (innerEnd - innerStart), h);
     } else if (p.type === "band") {
       const edge = p.bands && p.bands[0] ? p.bands[0] : k.onHeader;
       const mid = p.bands && p.bands[1] ? p.bands[1] : edge;
@@ -369,6 +370,28 @@
       for (let r = 0; r < 4; r++) {
         for (let q = r % 2; q < cols; q += 2) ctx.fillRect(x0 + q * cell, r * cell, cell, cell);
       }
+    } else if (Kits.stripes.shapes[p.type]) {
+      const s = Math.max(room / 200, h / 100);
+      if (p.type === "scatter") Kits.stripes.dots(ctx, from + (room - 200 * s) / 2, (h - 100 * s) / 2, s, p.dots || "rgba(255,255,255,0.32)");
+      Kits.shards(ctx, from + (room - 200 * s) / 2, (h - 100 * s) / 2, s, Kits.stripes.colors(p), Kits.stripes.shapes[p.type]);
+    } else if (p.type === "shards") {
+      const s = Math.max(room / 200, h / 100);
+      Kits.shards(ctx, from + (room - 200 * s) / 2, (h - 100 * s) / 2, s, [(p.bands && p.bands[1]) || "#000000", (p.bands && p.bands[0]) || band]);
+    } else if (p.type === "burst") {
+      const colors = [(p.bands && p.bands[0]) || band, (p.bands && p.bands[1]) || "#FFFFFF"];
+      const s = Math.max(room / 200, h / 100);
+      const ox = from + (room - 200 * s) / 2;
+      const oy = (h - 100 * s) / 2;
+      Kits.burst.forEach(r => {
+        ctx.globalAlpha = r[0] ? 0.9 : 0.58;
+        ctx.fillStyle = colors[r[0]];
+        ctx.beginPath();
+        r[1].forEach((q, i) => {
+          if (i === 0) ctx.moveTo(ox + q[0] * s, oy + q[1] * s); else ctx.lineTo(ox + q[0] * s, oy + q[1] * s);
+        });
+        ctx.closePath();
+        ctx.fill();
+      });
     } else if (p.type === "dots") {
       const s = Math.max(room / 200, h / 100);
       const ox = from + (room - 200 * s) / 2;

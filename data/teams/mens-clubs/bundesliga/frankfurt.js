@@ -5,7 +5,7 @@ registerTeam({
   monogram: "SGE",
   league: "bundesliga",
   season: "2026/27",
-  tile: { bg: "#121318", fg: "#F5F5F2", muted: "rgba(245,245,242,0.72)", pattern: { type: "stripes", base: "#121318", bands: ["#E31B3B", "#C8102E"] } },
+  tile: { bg: "#121318", fg: "#F5F5F2", muted: "rgba(245,245,242,0.72)", pattern: { type: "pinlines", base: "#111111", bands: ["#E1020C"] } },
   kits: {
     home: {
       label: "Home",
@@ -25,14 +25,13 @@ registerTeam({
       rowTint: "#E1020C",
       rowTintStrength: 0.25,
       rowTintFloor: 0.5,
-      pattern: { type: "stripes", base: "#111111", bands: ["#E1020C"] }
+      pattern: { type: "pinlines", base: "#111111", bands: ["#E1020C"] }
     },
     away: {
       label: "Away",
       dark: true,
       paper: "#252A30",
       card: "#C5C9CA",
-      photoBg: "#E8E8E5",
       labelBg: "#C5C9CA",
       ink: "#121318",
       muted: "#3D454D",
@@ -42,6 +41,8 @@ registerTeam({
       paperOnPrimary: "#FFFFFF",
       line: "rgba(0,0,0,0.12)",
       primary: "#E1020C",
+      photoBg: "#E1020C",
+      photoInk: "#FFFFFF",
       onPrimary: "#FFFFFF",
       accent: "#E8E8E5",
       onAccent: "#121318",
@@ -67,8 +68,8 @@ registerTeam({
       paperPrimary: "#FFFFFF",
       paperOnPrimary: "#344B60",
       line: "rgba(255,255,255,0.12)",
-      primary: "#344B60",
-      onPrimary: "#FFFFFF",
+      primary: "#FFFFFF",
+      onPrimary: "#344B60",
       accent: "#8299AA",
       onAccent: "#FFFFFF",
       header: "#526779",

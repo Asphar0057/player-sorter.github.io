@@ -198,10 +198,10 @@ registerTeam({
       "rowTint": "#5A348B",
       "rowTintStrength": 0.12,
       "pattern": {
-        "type": "solid",
+        "type": "ornament",
         "base": "#5A348B",
         "bands": [
-          "#7145A5"
+          "#2E1259"
         ]
       },
       "dark": true

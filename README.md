@@ -84,7 +84,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `hoops`: horizontal bands (can alternate several colours)
 - `bolts`: plain `base` with two thin lightning-bolt stripes near the edges
 - `gradient`: `base` fading top to bottom into the band colour
-- `fade`: `base` on the left half, softly blending into the band colour on the right (Cagliari's home-page card)
+- `fade`: `base` on the left half, softly blending into the band colour on the right (Cagliari's home-page card); set `range: [from, to]` (fractions of the width) to control where the blend happens
 - `split`: `base` on the left, band colour on the right, divided by a vertical zigzag
 - `sleeves`: `base` body with band-coloured shoulders and sleeves (Arsenal home)
 - `zigzag`: horizontal zigzag lines across `base`, cycling through the band colours
@@ -95,6 +95,19 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `cross`: Nordic cross on `base`, the first band colour as the wide cross and the second as the thin inner cross, set left of centre like the flag (Norway)
 - `diamonds`: three coloured diamonds on top of `base` (Germany)
 - `waves`: wavy lines in the band colour across `base` (Portugal home)
+- `crosses`: thick vertical stripes in the first band colour with a fading lattice of plus signs (second band colour) growing toward the bottom (Leverkusen home)
+- `pinlines`: thick vertical stripes cut by a thin line in the base colour, with a thin line in the stripe colour down the gap between stripes (Frankfurt home)
+- `slashes`: dense steep diagonal lines in the first band colour on `base`, switching between thick and thin in diagonal zones (France home)
+- `vee`: three chevron bands (first, second and third band colour from the top) pointing down with a white gap at the centre (Germany home)
+- `lines`: any number of horizontal lines set with `lines: [[colour, from, to], ...]` (fractions of the height) on `base`; add `fade: true` to fade them out toward the right (Brazil home, Dortmund home)
+- `scatter`: thin slashes at assorted angles (first band colour) and soft translucent triangles (second band colour), none touching, scattered over `base` on a grid of tiny vector dots (`dots` sets their colour) (Liverpool home)
+- `ornament`: delicate tone-on-tone line work (nested diamonds, small knot motifs, dotted lines) in the first band colour on `base` (Fiorentina home)
+- `raglan`: a white band with a checkered edge on both sides and a thick band in the second band colour either side, on `base`; it sits at the right end of the card like a sleeve (Arsenal home)
+- `streaks`: fine parallel lines in the first band colour sweeping through the card in a big S curve, broken into runs so they stay faint (Villarreal home)
+- `swell`: wide rolling bands in the first band colour with a darker shadow edge (second band colour) under each one, on `base` (USA home)
+- `stars`: upright five-point stars, all the same size, on a regular staggered grid in the first band colour on `base` (USA away)
+- `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
+- `burst`: radial rays fanning out from the upper right, wide wedges in the first band colour and thin streaks in the second (New England Revolution home)
 - `thick-waves`: bold wavy stripes in the first band colour across `base` (USA home)
 - `chevron`: a chevron in the band colour across `base` (Portugal away)
 - `checks`: checkerboard of `base` and the band colour (Fulham away)
@@ -104,7 +117,8 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 
 A kit can set `photoBg` to colour behind player photos (defaults to `accent`) and `photoInk` for the shirt number shown when a photo is missing (defaults to `onAccent`). `labelBg` colours the name label under the photo on the voting cards (defaults to `card`). A kit can also set `headerDecor: { type: "collar", color, opacity }` to draw an extra decoration in the share image header, to the right of the title (Uruguay away uses the collar panels). `paperBg` takes any CSS background (for example a gradient) and paints it behind the squad pages instead of the flat `paper` colour; keep `paper` set to a matching solid colour (both Ballon d'Or kits use this). `cardBorder` draws a thin outline in that colour around the cards, roster tiles and result rows (the Ballon d'Or Black kit uses a soft gold). `metal` is a list of colours that gives the squad title, main buttons, VS badge and share-image title a metallic gradient (the Ballon d'Or Black kit uses gold).
 
-A team can set `photoFit: "contain"` when its player photos are cut-outs that should sit fully inside the voting card instead of filling it (Deportivo uses this). A team can set `squadLabel` and `memberLabel` to replace the words "squad" and "players" (the Ballon d'Or lists use "nominees"), and players without a shirt `number` simply show no number. In the manifest, a section can set `tab` to a shorter name for its home-page tab.
+A team can set `tile.name` (use `
+` for a line break) to change how its name is written on its home-page card (Dortmund puts "Dortmund" under "Borussia"). A team can set `photoFit: "contain"` when its player photos are cut-outs that should sit fully inside the voting card instead of filling it (Deportivo uses this). A team can set `squadLabel` and `memberLabel` to replace the words "squad" and "players" (the Ballon d'Or lists use "nominees"), and players without a shirt `number` simply show no number. In the manifest, a section can set `tab` to a shorter name for its home-page tab.
 
 A manifest group with `builder: true` (and no `teams`) shows the "Build your own ranking" tile instead of squads; it currently sits first in Specials. The builder lives at `#/build-your-own`. People search every player on the site and pick 5 to 25, choose Neutral or any squad's colours, and sort them like a normal squad. Each player appears once: their newest club squad wins, then their national team, then Specials lists, matched by name plus nationality (the club's `nation` code, or the national team's `monogram`). Photos and crests always come from that player's own squad. Custom lists never count towards community rankings. "Share list" makes a link like `?list=atletico-madrid:alvarez.arsenal:saka&n=Name&c=arsenal` that loads the same list for someone else.
 

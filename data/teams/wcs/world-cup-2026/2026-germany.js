@@ -23,7 +23,7 @@ registerTeam({
       rowTint: "#D3112E",
       rowTintStrength: 0.12,
       rowTintFloor: 0.5,
-      pattern: { type: "diamonds", base: "#FFFFFF", bands: ["#111111", "#E31835", "#E8A824"] }
+      pattern: { type: "vee", base: "#FFFFFF", bands: ["#111111", "#E31835", "#E8A824"] }
     },
     away: {
       label: "Away",
