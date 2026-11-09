@@ -542,10 +542,10 @@
       seed = (seed * 1664525 + 1013904223) % 4294967296;
       return seed / 4294967296;
     };
-    for (let row = 0, y = -2; y < 112; row++, y += 19) {
-      for (let x = (row % 2 ? 13 : 1); x < 212; x += 25) {
-        const cx = x + (rnd() - 0.5) * 8, cy = y + (rnd() - 0.5) * 6;
-        const r = 6.5 + rnd() * 4.5, rot = (rnd() - 0.5) * 0.6 - Math.PI / 2;
+    for (let row = 0, y = -2; y < 112; row++, y += 12) {
+      for (let x = (row % 2 ? 8 : 1); x < 212; x += 15.5) {
+        const cx = x + (rnd() - 0.5) * 5, cy = y + (rnd() - 0.5) * 4;
+        const r = 3.6 + rnd() * 2.8, rot = (rnd() - 0.5) * 0.6 - Math.PI / 2;
         const pts = [];
         for (let i = 0; i < 10; i++) {
           const rr = i % 2 ? r * 0.4 : r;
