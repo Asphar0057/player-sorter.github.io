@@ -49,6 +49,22 @@ The dry run lists which photos still have a solid background. The real run cuts 
 
 `optimize_photos.py` then converts any .jpg/.png/.webp in a `players` folder to a 512px .webp (about 25 KB instead of 100+ KB) and shrinks crests to 256px. Files that are already optimised are skipped, so it is safe to run every time.
 
+Squad pages on the club's own site usually already include a portrait per player (on Monaco they are the `*_effectif.png` files). To pull those in and name them after the ids in the squad file:
+
+```
+python tools/download_photos.py "https://www.asmonaco.com/en/pros/players" --team monaco --dry-run
+python tools/download_photos.py "https://www.asmonaco.com/en/pros/players" --team monaco
+```
+
+`--team` is a squad id or a path to the team file. Photos land in that squad's `players` folder, and the club logo is saved next to it as `crest.png`. Use `--out some/folder` before the team file exists; files are then named from the player name on the site. Cut out the backgrounds before optimising, and leave the World Cup photos alone:
+
+```
+python tools/remove_backgrounds.py --skip wcs
+python tools/optimize_photos.py
+```
+
+A site that draws the squad entirely with JavaScript, with no portraits in the page HTML, cannot be read this way.
+
 
 ## Adding a squad
 
