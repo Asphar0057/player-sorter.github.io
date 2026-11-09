@@ -697,15 +697,33 @@
     return out;
   }
 
-  // "ticks": small diagonal zig-zag marks on a staggered grid, tone-on-tone (Germany away).
+  // "ticks": a faint zig-zag (herringbone) texture with small stacks of three diamonds spread
+  // out in a staggered grid (Germany away). Kind 0 = diamonds (first band colour), kind 1 = the
+  // zig-zag texture (second band colour).
   function tickShapes() {
     const out = [];
     const K = GW > 300 ? 1.7 : 1;
-    const dx = 11 * K, dy = 9 * K, l = 3.4 * K, w = 0.9 * K;
-    for (let row = 0, y = 4; y < 106; row++, y += dy) {
-      for (let x = (row % 2 ? dx / 2 : 0) + 3; x < GW + 6; x += dx) {
-        out.push([0, 0.75, [[x, y], [x + w, y], [x + l + w, y + l], [x + l, y + l]]]);
-        out.push([0, 0.75, [[x + l, y + l], [x + l + w, y + l], [x + w, y + 2 * l], [x, y + 2 * l]]]);
+    // zig-zag texture: rows of chevron lines
+    const rowH = 7 * K, zw = 9 * K, zh = 3.4 * K;
+    for (let y = 2; y < 106; y += rowH) {
+      let up = true;
+      const pts = [];
+      for (let x = -zw; x < GW + zw; x += zw) {
+        pts.push([x, y + (up ? 0 : zh)]);
+        up = !up;
+      }
+      const left = pts.map(q => [q[0], q[1] - 0.45 * K]);
+      const right = pts.map(q => [q[0], q[1] + 0.45 * K]).reverse();
+      out.push([1, 0.3, left.concat(right)]);
+    }
+    // stacked diamonds
+    const dx = 38 * K, dy = 46 * K, w = 1.9 * K, h = 2.7 * K, step = 3.9 * K;
+    for (let row = 0, y = 10; y < 108; row++, y += dy) {
+      for (let x = (row % 2 ? dx / 2 : 0) + 9; x < GW + dx; x += dx) {
+        for (let i = 0; i < 3; i++) {
+          const cy = y + (i - 1) * step;
+          out.push([0, 0.95, [[x, cy - h], [x + w, cy], [x, cy + h], [x - w, cy]]]);
+        }
       }
     }
     return out;
@@ -762,24 +780,24 @@
     };
   }
 
-  // "contours": fine wavy lines that follow a drifting noise field, so neighbouring lines run
-  // together like contour lines and break up in places (the Villarreal 2026/27 kits). Kind 0.
+  // "contours": long, smooth wavy lines that swell and settle with a slow noise field, nested
+  // like topographic contours (the Villarreal 2026/27 kits). Kind 0.
   function contourShapes() {
     const out = [];
     const K = GW > 300 ? 1.7 : 1;
-    const warp = noise2(7), warp2 = noise2(19), gate = noise2(31);
-    const gap = 3.3 * K, w = 0.85 * K;
-    for (let yb = -10; yb < 112; yb += gap) {
+    const warp = noise2(7), tilt = noise2(19), gate = noise2(31);
+    const gap = 4.1 * K, w = 0.85 * K;
+    for (let yb = -14; yb < 116; yb += gap) {
       let run = null;
       const flush = () => {
-        if (run && run.length > 2) {
-          out.push([0, 0.55, run.map(q => [q[0], q[1] - w / 2]).concat(run.map(q => [q[0], q[1] + w / 2]).reverse())]);
+        if (run && run.length > 3) {
+          out.push([0, 0.5, run.map(q => [q[0], q[1] - w / 2]).concat(run.map(q => [q[0], q[1] + w / 2]).reverse())]);
         }
         run = null;
       };
-      for (let x = -6; x <= GW + 6; x += 3) {
-        const y = yb + 8 * K * (warp(x * 0.03 / K, yb * 0.025) * 2 - 1) + 3.2 * K * (warp2(x * 0.1 / K, yb * 0.05) * 2 - 1);
-        if (gate(x * 0.045 / K + 3, yb * 0.05) > 0.3) {
+      for (let x = -6; x <= GW + 6; x += 2.5) {
+        const y = yb + 9 * K * (warp(x * 0.018 / K, yb * 0.02) * 2 - 1) + 3 * K * (tilt(x * 0.035 / K, yb * 0.03) * 2 - 1);
+        if (gate(x * 0.022 / K + 3, yb * 0.03) > 0.1) {
           if (!run) run = [];
           run.push([x, y]);
         } else {
@@ -792,66 +810,87 @@
   }
 
   // "golden": the golden-ratio construction (golden rectangle, squares, circle and spiral arcs)
-  // drawn in fine lines, with small fleurons and a tile patch around it (Fiorentina third).
+  // centred in the middle, with lattice tiles, fleurons and quatrefoil circles around it
+  // (Fiorentina third).
   function goldenShapes() {
     const out = [];
-    const A = 0.8, lw = GW > 300 ? 1.25 : 0.95;
-    const seg = (x1, y1, x2, y2, w) => {
+    const A = 0.75, lw = GW > 300 ? 1.2 : 0.95;
+    const seg = (x1, y1, x2, y2, w, al) => {
       const dx = x2 - x1, dy = y2 - y1, l = Math.hypot(dx, dy) || 1;
       const nx = -dy / l * w / 2, ny = dx / l * w / 2;
-      out.push([0, A, [[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]]);
+      out.push([0, al || A, [[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]]);
     };
-    const arc = (cx, cy, r, a0, a1, w) => {
-      const n = 14;
+    const arc = (cx, cy, r, a0, a1, w, al) => {
+      const n = 16;
       let px = cx + Math.cos(a0) * r, py = cy + Math.sin(a0) * r;
       for (let i = 1; i <= n; i++) {
         const a = a0 + ((a1 - a0) * i) / n, x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
-        seg(px, py, x, y, w);
+        seg(px, py, x, y, w, al);
         px = x; py = y;
       }
     };
+    const diamond = (x, y, rx, ry, al) => out.push([0, al, [[x, y - ry], [x + rx, y], [x, y + ry], [x - rx, y]]]);
     const fleuron = (x, y, r) => {
-      out.push([0, 0.6, [[x, y - r * 1.5], [x + r * 0.45, y], [x, y + r * 1.5], [x - r * 0.45, y]]]);
-      out.push([0, 0.6, [[x - r * 1.5, y], [x, y - r * 0.45], [x + r * 1.5, y], [x, y + r * 0.45]]]);
-      out.push([0, 0.6, [[x + r * 2.1, y - r * 0.5], [x + r * 2.6, y], [x + r * 2.1, y + r * 0.5], [x + r * 1.6, y]]]);
+      diamond(x, y, r * 0.5, r * 1.6, 0.6);
+      diamond(x, y, r * 1.6, r * 0.5, 0.6);
+      diamond(x + r * 2.4, y, r * 0.5, r * 0.5, 0.6);
+      diamond(x - r * 2.4, y, r * 0.5, r * 0.5, 0.6);
+    };
+    const lattice = (x, y, n, cell, al) => {
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) diamond(x + i * cell, y + j * cell, cell * 0.42, cell * 0.42, al);
+    };
+    const quatrefoil = (x, y, r) => {
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(d => arc(x + d[0] * r * 0.6, y + d[1] * r * 0.6, r * 0.62, 0, Math.PI * 2, 0.7, 0.45));
     };
     const phi = 1.6180339887;
-    const H = GW > 300 ? 74 : 66;
+    const H = GW > 300 ? 72 : 62;
     const W = H * phi;
-    const cx = GW > 300 ? GW * 0.68 : GW / 2;
-    let x0 = cx - W / 2, y0 = 17, w = W, h = H;
+    const cx = GW / 2, cy = 50;
+    let x0 = cx - W / 2, y0 = cy - H / 2, w = W, h = H;
     seg(x0, y0, x0 + w, y0, lw); seg(x0 + w, y0, x0 + w, y0 + h, lw); seg(x0 + w, y0 + h, x0, y0 + h, lw); seg(x0, y0 + h, x0, y0, lw);
+    // circle in the first (left) square
+    arc(x0 + H / 2, cy, H / 2, 0, Math.PI * 2, lw * 0.9);
     let side = 0;
     for (let i = 0; i < 8; i++) {
       const s = Math.min(w, h);
       if (side === 0) {
-        arc(x0 + s, y0 + s, s, Math.PI, Math.PI * 1.5, lw * 1.25);
+        arc(x0 + s, y0 + s, s, Math.PI, Math.PI * 1.5, lw * 1.2);
         seg(x0 + s, y0, x0 + s, y0 + h, lw * 0.8);
         x0 += s; w -= s;
       } else if (side === 1) {
-        arc(x0 + s, y0 + s, s, -Math.PI / 2, 0, lw * 1.25);
+        arc(x0 + s, y0 + s, s, -Math.PI / 2, 0, lw * 1.2);
         seg(x0, y0 + s, x0 + w, y0 + s, lw * 0.8);
         y0 += s; h -= s;
       } else if (side === 2) {
-        arc(x0 + w - s, y0 + h - s, s, 0, Math.PI / 2, lw * 1.25);
+        arc(x0 + w - s, y0 + h - s, s, 0, Math.PI / 2, lw * 1.2);
         seg(x0 + w - s, y0, x0 + w - s, y0 + h, lw * 0.8);
         w -= s;
       } else {
-        arc(x0 + s, y0 + h - s, s, Math.PI / 2, Math.PI, lw * 1.25);
+        arc(x0 + s, y0 + h - s, s, Math.PI / 2, Math.PI, lw * 1.2);
         seg(x0, y0 + h - s, x0 + w, y0 + h - s, lw * 0.8);
         h -= s;
       }
       side = (side + 1) % 4;
       if (Math.min(w, h) < 2) break;
     }
-    arc(cx - W / 2 + H / 2, 17 + H / 2, H / 2, 0, Math.PI * 2, lw);
-    [[-0.78, 0.2], [-0.62, 0.62], [0.74, 0.28], [0.64, 0.7], [-0.9, 0.85]].forEach(p => fleuron(cx + p[0] * W * 0.62, p[1] * 100, 2.4));
-    for (let r = 0; r < 6; r++) {
-      for (let c = 0; c < 6; c++) {
-        const px = cx + W * 0.62 + c * 5.5, py = 60 + r * 5.5;
-        out.push([0, 0.4, [[px, py + 2.7], [px + 2.7, py], [px + 5.4, py + 2.7], [px + 2.7, py + 5.4]]]);
-      }
+    // ornament around the figure, repeated across a wide banner
+    const half = W / 2 + 6;
+    const spots = [];
+    for (let off = -3; off <= 3; off++) {
+      if (off === 0) continue;
+      spots.push(cx + off * (GW > 300 ? 62 : 52));
     }
+    spots.forEach((sx, idx) => {
+      if (sx < -10 || sx > GW + 10) return;
+      if (Math.abs(sx - cx) < half) return;
+      fleuron(sx, idx % 2 ? 22 : 74, 2.6);
+      lattice(sx - 8, idx % 2 ? 56 : 12, 4, 4.4, 0.4);
+      quatrefoil(sx + 4, idx % 2 ? 22 : 80, 7);
+    });
+    // around the centre in the card window
+    fleuron(cx - W * 0.62, 14, 2.4); fleuron(cx + W * 0.62, 14, 2.4);
+    lattice(cx - W * 0.7, 76, 5, 4.4, 0.4); lattice(cx + W * 0.34, 76, 5, 4.4, 0.4);
+    quatrefoil(cx - W * 0.66, 50, 7); quatrefoil(cx + W * 0.66, 50, 7);
     return out;
   }
 
@@ -874,7 +913,8 @@
     return out;
   }
 
-  // "skewchecks": a skewed, blurred-looking checkerboard of uneven cells (Liverpool third).
+  // "skewchecks": a skewed, blurred-looking checkerboard of uneven cells, with some cells cut
+  // into triangles (Liverpool third).
   function skewcheckShapes() {
     const out = [];
     const rnd = seeded(13);
@@ -885,9 +925,15 @@
       let on = row % 2 === 0;
       while (x < GW + 20) {
         const cw = (11 + rnd() * 10) * K;
-        if (on) {
-          const a = 0.35 + rnd() * 0.6;
-          out.push([0, a, [[x + sk, y], [x + cw + sk, y], [x + cw - sk, y + rh], [x - sk, y + rh]]]);
+        const a = 0.35 + rnd() * 0.6;
+        const tl = [x + sk, y], tr = [x + cw + sk, y], br = [x + cw - sk, y + rh], bl = [x - sk, y + rh];
+        const roll = rnd();
+        if (roll < 0.34) {
+          // triangle: either half of the cell, drawn whether or not the cell is "on"
+          out.push([0, a, roll < 0.17 ? [tl, tr, bl] : [tr, br, bl]]);
+          if (on) out.push([0, a * 0.7, roll < 0.17 ? [tr, br, bl] : [tl, tr, bl]]);
+        } else if (on) {
+          out.push([0, a, [tl, tr, br, bl]]);
         }
         x += cw;
         on = !on;
@@ -1030,7 +1076,8 @@
     if (p.type === "slashes") return [red, b[1] || red];
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
-    if (p.type === "bruise" || p.type === "ticks" || p.type === "hexes") return [b[0] || "#FFFFFF"];
+    if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "bruise" || p.type === "hexes") return [b[0] || "#FFFFFF"];
     if (p.type === "pole") return [b[0] || "#1C2C5B", b[1] || "#6CABDD"];
     if (p.type === "contours" || p.type === "golden" || p.type === "skewchecks" || p.type === "vbars") return [b[0] || "#FFFFFF"];
     if (p.type === "vtex") return [b[0] || "#0E1642", b[1] || "#3E5CB0"];

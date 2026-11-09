@@ -40,11 +40,11 @@ registerTeam({
       onPrimary: "#6CF3E4",
       accent: "#6CF3E4",
       onAccent: "#001231",
-      header: "#0A2248",
+      header: "#22304F",
       onHeader: "#ffffff",
       headerBand: "#6CF3E4",
       rowTintStrength: 0.1,
-      pattern: {type: "ticks", base: "#0A2248", bands: ["#59D8C8"]}
+      pattern: {type: "ticks", base: "#22304F", bands: ["#5FD8C8", "#6E86B8"]}
     }
   },
   players: [

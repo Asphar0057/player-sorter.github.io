@@ -238,7 +238,7 @@ registerTeam({
     },
     "third": {
       "label": "Third",
-      "paper": "#1F4DB0",
+      "paper": "#2252BD",
       "onPaper": "#FFFFFF",
       "onPaperMuted": "#7A2630",
       "card": "#FFFFFF",
@@ -252,13 +252,13 @@ registerTeam({
       "onAccent": "#FFFFFF",
       "photoBg": "#B93246",
       "labelBg": "#FFFFFF",
-      "header": "#1F4DB0",
+      "header": "#2252BD",
       "onHeader": "#FFFFFF",
       "headerBand": "#FFFFFF",
       "rowTint": "#7A2630",
       "rowTintStrength": 0.12,
       "headerStripes": [["#F6F7E4", 3], ["#E0343B", 2]],
-      "pattern": {"type": "golden", "base": "#1E50C1", "bands": ["#6F92EA"]},
+      "pattern": {"type": "golden", "base": "#2252BD", "bands": ["#6F92EA"]},
       "dark": true
     }
   }
