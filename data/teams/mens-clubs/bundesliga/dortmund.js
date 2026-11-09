@@ -45,7 +45,7 @@ registerTeam({
       header: "#111111",
       onHeader: "#FDE100",
       headerBand: "#FDE100",
-      pattern: {type: "flash", base: "#151515", bands: ["#383838"]}
+      pattern: {type: "flash", base: "#151515", bands: ["#4A4A4A"]}
     },
     third: {
       label: "Third",

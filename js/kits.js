@@ -659,18 +659,21 @@
     const out = [];
     const K = GW > 300 ? 2.2 : 1;
     const cx = GW > 300 ? GW * 0.7 : GW / 2;
-    const bw = 6.5 * K, far = 14 * K;
-    const N = 36;
+    const bw = 7.5 * K, gap = 0.5 * K;
+    const N = 90;
+    const prof = t => 0.04 + 0.96 * Math.pow(Math.abs(2 * t - 1), 1.5);
     for (let i = 0; i < N; i++) {
       const y0 = -4 + (i * 108) / N, y1 = -4 + ((i + 1) * 108) / N + 0.3;
-      const t0 = Math.min(1, Math.max(0, (y0 + 4) / 46)), t1 = Math.min(1, Math.max(0, (y1 + 4) / 46));
-      const lo = bw / 2 + 1.2 * K;
-      const c0 = lo + (far - lo) * (1 - t0), c1 = lo + (far - lo) * (1 - t1);
-      const g = (y0 + 4) / 108;
+      const ya = (y0 + 4) / 108, yb = (y1 + 4) / 108;
+      const al = prof((ya + yb) / 2);
+      // the upper part leans outward so the two bars open into the V of the collar
+      const lean = t => 6 * K * Math.max(0, 1 - t / 0.3);
       [-1, 1].forEach(s => {
-        const quad = [[cx + s * (c0 - bw / 2), y0], [cx + s * (c0 + bw / 2), y0], [cx + s * (c1 + bw / 2), y1], [cx + s * (c1 - bw / 2), y1]];
-        out.push([0, 0.95 * (1 - 0.9 * g), quad]);
-        out.push([1, 0.2 + 0.75 * g, quad]);
+        const inner = cx + s * gap / 2, outer = cx + s * (gap / 2 + bw);
+        const li = s * lean(ya), lj = s * lean(yb);
+        let quad = [[inner + li * 0.6, y0], [outer + li, y0], [outer + lj, y1], [inner + lj * 0.6, y1]];
+        if (i === 0) quad = [[inner + li * 0.6, y0 + 9], [outer + li, y0], [outer + lj, y1], [inner + lj * 0.6, y1]];
+        out.push([s < 0 ? 0 : 1, al, quad]);
       });
     }
     return out;
@@ -1050,11 +1053,19 @@
     return out;
   }
 
-  // "flash": a single large lightning bolt stretched across the whole width, tone-on-tone
-  // (Dortmund away). Kind 0.
+  // "flash": many faint lightning strikes, one per vertical layer, each running the full height
+  // and side by side across the width (Dortmund away). Kind 0.
   function flashShapes() {
-    const pts = [[0.5, -0.06], [0.98, -0.06], [0.7, 0.42], [1.04, 0.42], [0.06, 1.06], [0.36, 0.56], [-0.04, 0.56]];
-    return [[0, 0.4, pts.map(q => [q[0] * GW, q[1] * 100])]];
+    const out = [];
+    const rnd = seeded(61);
+    const K = GW > 300 ? 1.6 : 1;
+    const step = 21 * K, Wb = 30 * K;
+    const bolt = [[0.5, -0.06], [0.98, -0.06], [0.68, 0.42], [1.04, 0.42], [0.04, 1.06], [0.36, 0.56], [-0.05, 0.56]];
+    for (let x = -10 * K; x < GW + 20; x += step) {
+      const dx = (rnd() - 0.5) * 6 * K;
+      out.push([0, 0.12 + rnd() * 0.2, bolt.map(q => [x + dx + q[0] * Wb, q[1] * 100])]);
+    }
+    return out;
   }
 
   // "baroque": big teardrop scrolls that curl inward, like the Bembel jug pattern (Frankfurt away).

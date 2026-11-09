@@ -107,7 +107,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `swell`: wide rolling bands in the first band colour with a darker shadow edge (second band colour) under each one, on `base` (USA home)
 - `stars`: upright five-point stars, all the same size, on a regular staggered grid in the first band colour on `base` (USA away)
 - `bruise`: jagged zig-zag strokes and small triangles in the first band colour on `base` (Arsenal away)
-- `pole`: two equal vertical bars that fade from the first colour to the second down their length and open into a V at the top, on `base` (Man City third)
+- `pole`: two touching vertical bars (first colour left, second right) that are strong at the top and bottom and fade out in the middle, opening into a V at the top, on `base` (Man City third)
 - `swirls`: flowing watercolour ribbons in up to three band colours on `base` (West Ham third, Leverkusen away)
 - `ticks`: equal-height chevron rows alternating two tones (second band colour on `base`) with small stacks of three diamonds (first band colour) on a staggered grid (Germany away)
 - `gridiron`: diagonal stripes alternating the first two band colours across the end of the card (Cagliari away)
@@ -121,7 +121,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `marble`: flowing ink-marbling ribbons in up to three band colours, thickening toward the right on banners (Leverkusen away)
 - `rings`: feathered spray-paint circles plus a solid side panel at the right end (West Ham third)
 A kit can set `headerStripes: [[colour, weight], ...]` to split the bottom band of the share image into several stripes (Arsenal, Liverpool, West Ham).
-- `flash`: a single large lightning bolt stretched across the width, tone-on-tone (Dortmund away)
+- `flash`: many faint lightning strikes, one per vertical layer, side by side across the width (Dortmund away)
 - `baroque`: big solid teardrop scrolls that curl inward, like the Bembel jug print (Frankfurt away)
 - `herring`: fine herringbone chevron lines in the first band colour on `base` (New England Revolution away, Arsenal away)
 - `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)

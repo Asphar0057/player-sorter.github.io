@@ -184,8 +184,8 @@
       });
       if (p.fade) {
         const g = o.createLinearGradient(0, 0, off.width, 0);
-        g.addColorStop(0.45, "rgba(0,0,0,1)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
+        g.addColorStop(0, "rgba(0,0,0,0)");
+        g.addColorStop(0.55, "rgba(0,0,0,1)");
         o.globalCompositeOperation = "destination-in";
         o.fillStyle = g;
         o.fillRect(0, 0, off.width, off.height);

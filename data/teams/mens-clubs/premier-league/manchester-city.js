@@ -66,7 +66,7 @@ registerTeam({
       rowTint: "#1C2C5B",
       rowTintStrength: 0.2,
       rowTintFloor: 0.5,
-      pattern: {type: "pole", base: "#FFFFFF", bands: ["#123F8C", "#8CC8F0"]}
+      pattern: {type: "pole", base: "#FFFFFF", bands: ["#17408F", "#86BFEA"]}
     }
   },
   players: [
