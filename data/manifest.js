@@ -193,13 +193,11 @@ window.SQUAD_MANIFEST = {
       name: "Specials",
       tab: "Specials",
       groups: [
-        /*
         {
           id: "build-your-own",
           name: "Build your own",
           builder: true
         },
-        */
         {
           id: "ballon-dor",
           name: "Ballon d'Or",

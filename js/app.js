@@ -498,7 +498,7 @@
   }
 
   function blobColours(group) {
-    const all = (group.teams || []).filter(id => INDEX[id]);
+    const all = orderedIds(group);
     const hidden = all.slice(SHOW_FIRST).filter(id => TEAMS[id]);
     const source = hidden.length ? hidden : all.slice(0, SHOW_FIRST).filter(id => TEAMS[id]);
     const colours = [];
@@ -519,8 +519,20 @@
     );
   }
 
-  function visibleIds(group) {
+  const PINNED_FIRST = new Set(["atletico-madrid"]);
+  let rankCounts = null;
+
+  function orderedIds(group) {
     const ids = (group.teams || []).filter(id => INDEX[id]);
+    if (!rankCounts) return ids;
+    const pinned = ids.filter(id => PINNED_FIRST.has(id));
+    const rest = ids.filter(id => !PINNED_FIRST.has(id));
+    rest.sort((a, b) => (Number(rankCounts[b]) || 0) - (Number(rankCounts[a]) || 0));
+    return pinned.concat(rest);
+  }
+
+  function visibleIds(group) {
+    const ids = orderedIds(group);
     return EXPANDED[group.id] ? ids : ids.slice(0, SHOW_FIRST);
   }
 
@@ -834,7 +846,7 @@
     }
 
     groups.forEach(group => {
-      const hidden = (group.teams || []).filter(id => INDEX[id]).slice(SHOW_FIRST);
+      const hidden = orderedIds(group).slice(SHOW_FIRST);
       if (EXPANDED[group.id] || !hidden.length || hidden.every(id => TEAMS[id])) return;
       Promise.all(hidden.map(ensureTeam)).then(() => {
         if (token !== navToken) return;
@@ -2933,6 +2945,7 @@
   const STATS_URL = MANIFEST.statsUrl || MANIFEST.requestsUrl || "";
   const STATS_CACHE = {};
   let countsCache = null;
+  rankCounts = storeGet("rank-counts");
 
   function fetchCounts() {
     if (!STATS_URL) return Promise.reject(new Error("no stats"));
@@ -2959,9 +2972,23 @@
     return n ? shortCount(n) + " ranking" + (n === 1 ? "" : "s") : "No rankings yet";
   }
 
+  function homeOrder(sectionId) {
+    const section = SECTIONS.find(s => s.id === sectionId);
+    return section ? (section.groups || []).map(g => visibleIds(g).join(",")).join("|") : "";
+  }
+
   function fillCounts() {
     if (!app.querySelector("[data-count]")) return;
     fetchCounts().then(counts => {
+      const body = app.querySelector(".home-body");
+      const sectionId = body ? body.dataset.section : "";
+      const before = homeOrder(sectionId);
+      rankCounts = counts;
+      storeSet("rank-counts", counts);
+      if (body && !searching() && before !== homeOrder(sectionId)) {
+        renderHome(sectionId, navToken, true);
+        return;
+      }
       app.querySelectorAll("[data-count]").forEach(el => {
         const team = TEAMS[el.dataset.count];
         if (!team) return;
