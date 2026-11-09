@@ -160,6 +160,23 @@
     return "url('data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">' + paths + '</svg>') + "') center / 100% 100% no-repeat, " + p.base;
   }
 
+  function thickWavesSvg(p) {
+    const color = (p.bands && p.bands[0]) || "#FFFFFF";
+    const rows = 6;
+    const amplitude = 6.4;
+    const phase = 0.75;
+    const paths = Array.from({ length: rows }, (_, i) => {
+      const y = (i + 0.5) * (100 / rows);
+      const d = Array.from({ length: 26 }, (_, j) => {
+        const x = (j / 25) * 100;
+        const yy = y + Math.sin((x / 100) * Math.PI * 4 + phase) * amplitude;
+        return (j === 0 ? "M" : "L") + " " + x + " " + yy;
+      }).join(" ");
+      return '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="8" stroke-linecap="round" opacity="1"/>';
+    }).join("");
+    return "url('data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">' + paths + '</svg>') + "') center / 100% 100% no-repeat, " + p.base;
+  }
+
   function chevronSvg(p) {
     const color = (p.bands && p.bands[0]) || "#FFFFFF";
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="0,0 50,100 100,0" fill="' + color + '"/></svg>';
@@ -234,6 +251,9 @@
     }
     if (p.type === "waves") {
       return wavesSvg(p);
+    }
+    if (p.type === "thick-waves") {
+      return thickWavesSvg(p);
     }
     if (p.type === "lightning") {
       const c = b[0] || "#FFFFFF";
@@ -415,6 +435,30 @@
         ctx.lineWidth = Math.max(1.0, h * 0.006);
         ctx.lineCap = "round";
         ctx.globalAlpha = 0.24 + ((i % 4) + 1) * 0.14;
+        ctx.stroke();
+      }
+      ctx.restore();
+    } else if (p.type === "thick-waves") {
+      const color = b[0] || "#FFFFFF";
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+      ctx.clip();
+      const rows = Math.max(8, Math.round(h / 12));
+      const amplitude = h * 0.04;
+      const phase = 0.75;
+      for (let i = 0; i < rows; i++) {
+        const waveY = y + ((i + 0.5) / rows) * h;
+        ctx.beginPath();
+        for (let q = 0; q <= 80; q++) {
+          const px = x + (q / 80) * w;
+          const py = waveY + Math.sin((q / 80) * Math.PI * 2 * 2 + phase) * amplitude;
+          if (q === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = color;
+        ctx.lineWidth = Math.max(5, h * 0.03);
+        ctx.lineCap = "round";
+        ctx.globalAlpha = 1;
         ctx.stroke();
       }
       ctx.restore();
