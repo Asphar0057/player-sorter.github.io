@@ -88,6 +88,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `ornament`: delicate tone-on-tone line work (nested diamonds, small knot motifs, dotted lines) in the first band colour on `base` (Fiorentina home)
 - `raglan`: a white band with a checkered edge on both sides and a thick band in the second band colour either side, on `base`; it sits at the right end of the card like a sleeve (Arsenal home)
 - `streaks`: fine parallel lines in the first band colour sweeping through the card in a big S curve, broken into runs so they stay faint (Villarreal home)
+- `swell`: wide rolling bands in the first band colour with a darker shadow edge (second band colour) under each one, on `base` (USA home)
 - `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
 - `burst`: radial rays fanning out from the upper right, wide wedges in the first band colour and thin streaks in the second (New England Revolution home)
 - `thick-waves`: bold wavy stripes in the first band colour across `base` (USA home)

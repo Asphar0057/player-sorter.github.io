@@ -514,6 +514,25 @@
     return out;
   }
 
+  // "swell": wide rolling bands in the first band colour with a darker shadow under each one,
+  // like the USA 2026 home shirt. Kind 0 = band, kind 1 = shadow edge (second band colour).
+  function swellShapes() {
+    const out = [];
+    const period = 21, band = 11.5, amp = 7, k = (Math.PI * 2) / 105, phase = 0.9;
+    const wave = (x, y) => y + amp * Math.sin(x * k + phase);
+    for (let y = -30; y < 135; y += period) {
+      const top = [], bot = [], shadow = [];
+      for (let x = -10; x <= 210; x += 4) {
+        top.push([x, wave(x, y)]);
+        bot.push([x, wave(x, y) + band]);
+      }
+      const botRev = bot.slice().reverse();
+      out.push([1, 0.85, bot.map(q => [q[0], q[1] - 0.6]).concat(bot.slice().reverse().map(q => [q[0], q[1] + 2.6]))]);
+      out.push([0, 1, top.concat(botRev)]);
+    }
+    return out;
+  }
+
   // "ornament": delicate tone-on-tone line work (nested diamonds with small knot motifs and
   // dotted lines) in the first band colour, like the Fiorentina 2026/27 home shirt.
   function ornamentShapes() {
@@ -562,7 +581,7 @@
     return out;
   }
 
-  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes(), scatter: scatterShapes(), ornament: ornamentShapes(), raglan: raglanShapes(), streaks: streakShapes() };
+  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes(), scatter: scatterShapes(), ornament: ornamentShapes(), raglan: raglanShapes(), streaks: streakShapes(), swell: swellShapes() };
 
   function stripeColors(p) {
     const b = p.bands || [];
@@ -570,6 +589,7 @@
     if (p.type === "crosses") return [red, b[1] || mix("#000000", red, 0.3)];
     if (p.type === "slashes") return [red, b[1] || red];
     if (p.type === "ornament") return [b[0] || "#000000"];
+    if (p.type === "swell") return [b[0] || "#BB2534", b[1] || "#7A1220"];
     if (p.type === "streaks") return [b[0] || "#FFFFFF", b[1] || "#005187"];
     if (p.type === "raglan") return [b[0] || "#FFFFFF", b[1] || "#7A1426", b[2] || "#8B0F1D"];
     if (p.type === "scatter") return [b[0] || "#FFFFFF", b[1] || "#F7B4BE"];
