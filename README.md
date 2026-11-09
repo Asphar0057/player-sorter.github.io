@@ -113,7 +113,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `gridiron`: diagonal stripes alternating the first two band colours across the end of the card (Cagliari away)
 - `hexes`: a honeycomb of faintly lit hexagons in the first band colour (Man City away)
 - `contours`: fine wavy contour-like lines in the first band colour that drift and break up on `base` (Villarreal, all three kits)
-- `golden`: the single golden-ratio figure from the Fiorentina centenary shirt (near-square frame split at the golden section, a big circle through it, one small spiral) alone in the centre on very large, faint geometric tiles (Fiorentina third)
+- `golden`: a proper golden rectangle with nested squares, the circle in the first square and the continuous Fibonacci spiral, centred and filling the banner height, on very large faint geometric tiles (Fiorentina third)
 - `vtex`: rows of downward-pointing dark triangles with thin light rules, tone-on-tone (Arsenal away)
 - `skewchecks`: a skewed, uneven checkerboard in the first band colour (Liverpool third)
 - `bees`: a tone-on-tone grid of worker bees (Man City away)

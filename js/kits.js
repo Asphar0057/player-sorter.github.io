@@ -836,28 +836,44 @@
       }
     };
     const diamond = (x, y, rx, ry, al) => out.push([0, al, [[x, y - ry], [x + rx, y], [x, y + ry], [x - rx, y]]]);
+    const phi = 1.6180339887;
     const cx = GW / 2, cy = 50;
-    const H = GW > 300 ? 66 : 58, Wd = H * 0.93;
-    const x0 = cx - Wd / 2, y0 = cy - H / 2 + 3;
-    // frame
-    seg(x0, y0, x0 + Wd, y0, lw); seg(x0 + Wd, y0, x0 + Wd, y0 + H, lw); seg(x0 + Wd, y0 + H, x0, y0 + H, lw); seg(x0, y0 + H, x0, y0, lw);
-    // golden-section splits
-    const gx = x0 + Wd * 0.618, gy = y0 + H * 0.382;
-    seg(gx, y0, gx, y0 + H, lw * 0.8);
-    seg(x0, gy, gx, gy, lw * 0.8);
-    // big circle through the frame
-    arc(cx, y0 + H * 0.48, H * 0.56, 0, Math.PI * 2, lw * 0.9);
-    // small spiral at the upper left
-    let sx = x0 + Wd * 0.26, sy = y0 + H * 0.19, r = H * 0.16;
-    for (let i = 0; i < 4; i++) {
-      const a0 = Math.PI + i * (Math.PI / 2);
-      arc(sx, sy, r, a0, a0 + Math.PI / 2, lw * 0.9);
-      if (i === 0) { sx += r * 0.35; sy += r * 0.35; }
-      r *= 0.62;
+    const H = GW > 300 ? 90 : 74, Wd = H * phi;
+    const lwf = GW > 300 ? 1.5 : 1.2;
+    let x0 = cx - Wd / 2, y0 = cy - H / 2, w = Wd, h = H;
+    // the golden rectangle
+    seg(x0, y0, x0 + w, y0, lwf, 0.9); seg(x0 + w, y0, x0 + w, y0 + h, lwf, 0.9);
+    seg(x0 + w, y0 + h, x0, y0 + h, lwf, 0.9); seg(x0, y0 + h, x0, y0, lwf, 0.9);
+    // circle inscribed in the first square
+    arc(x0 + H / 2, cy, H / 2, 0, Math.PI * 2, lwf * 0.8, 0.7);
+    // successive squares with the quarter-circle arcs that make the spiral
+    let side = 0;
+    for (let i = 0; i < 9; i++) {
+      const s = Math.min(w, h);
+      if (s < 1.5) break;
+      if (side === 0) {
+        arc(x0 + s, y0 + s, s, Math.PI, Math.PI * 1.5, lwf * 1.3, 0.95);
+        seg(x0 + s, y0, x0 + s, y0 + h, lwf * 0.8, 0.85);
+        x0 += s; w -= s;
+      } else if (side === 1) {
+        arc(x0, y0 + s, s, -Math.PI / 2, 0, lwf * 1.3, 0.95);
+        seg(x0, y0 + s, x0 + w, y0 + s, lwf * 0.8, 0.85);
+        y0 += s; h -= s;
+      } else if (side === 2) {
+        arc(x0 + w - s, y0, s, 0, Math.PI / 2, lwf * 1.3, 0.95);
+        seg(x0 + w - s, y0, x0 + w - s, y0 + h, lwf * 0.8, 0.85);
+        w -= s;
+      } else {
+        arc(x0 + w, y0 + h - s, s, Math.PI / 2, Math.PI, lwf * 1.3, 0.95);
+        seg(x0, y0 + h - s, x0 + w, y0 + h - s, lwf * 0.8, 0.85);
+        h -= s;
+      }
+      side = (side + 1) % 4;
     }
+    const Wd2 = Wd, H2 = H;
     // very large faint tiles spread over the whole background
     const gxs = GW > 300 ? 118 : 92, gys = 78;
-    const figHalf = Wd / 2 + H * 0.12;
+    const figHalf = Wd2 / 2 + H2 * 0.08;
     let n = 0;
     for (let row = -1; row < 3; row++) {
       for (let x = -gxs / 3 + (row % 2 ? gxs / 2 : 0); x < GW + gxs; x += gxs) {
