@@ -308,8 +308,8 @@
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice">' + polys + "</svg>";
   }
 
-  function paintShards(ctx, ox, oy, s, colors) {
-    SHARDS.forEach(r => {
+  function paintShards(ctx, ox, oy, s, colors, list) {
+    (list || SHARDS).forEach(r => {
       ctx.globalAlpha = r[1];
       ctx.fillStyle = colors[r[0]];
       ctx.beginPath();
@@ -322,12 +322,68 @@
     ctx.globalAlpha = 1;
   }
 
+  // Vertical stripe patterns built from shapes on a 200x100 grid. Entries are [kind, alpha, points].
+  // "crosses": thick stripes whose lower part fills with a fading lattice of plus signs
+  // (Leverkusen home). "pinlines": thick stripes cut by a thin line in the base colour, with a
+  // thin line in the stripe colour running down the gap between stripes (Frankfurt home).
+  function stripeShapes(kind) {
+    const out = [];
+    const period = 44, width = 20, first = 6;
+    const rect = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+    for (let i = 0; i < 5; i++) {
+      const x0 = first + i * period;
+      out.push([0, 1, rect(x0, -1, width, 102)]);
+      if (kind === "crosses") {
+        const step = 5.6;
+        for (let r = 0; r * step < 104; r++) {
+          const y = r * step;
+          const t = Math.max(0, Math.min(1, (y - 10) / 74));
+          if (t < 0.1) continue;
+          const arm = 0.4 + 1.9 * Math.pow(t, 1.2);
+          const th = 0.5 + 1.0 * t;
+          const off = r % 2 ? step / 2 : 0;
+          for (let x = x0 + step / 2 + off - (off ? step : 0); x < x0 + width; x += step) {
+            if (x - arm < x0 || x + arm > x0 + width) continue;
+            out.push([1, 1, rect(x - arm, y - th / 2, arm * 2, th)]);
+            out.push([1, 1, rect(x - th / 2, y - arm, th, arm * 2)]);
+          }
+        }
+      } else {
+        out.push([1, 1, rect(x0 + width / 2 - 0.9, -1, 1.8, 102)]);
+        out.push([2, 1, rect(x0 + width + (period - width) / 2 - 0.7, -1, 1.4, 102)]);
+      }
+    }
+    return out;
+  }
+
+  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines") };
+
+  function stripeColors(p) {
+    const b = p.bands || [];
+    const red = b[0] || "#E31B2B";
+    if (p.type === "crosses") return [red, b[1] || mix("#000000", red, 0.3)];
+    return [red, p.base, b[1] || red];
+  }
+
+  function stripeSvg(p) {
+    const c = stripeColors(p);
+    const d = c.map(() => "");
+    STRIPE_SHAPES[p.type].forEach(r => {
+      d[r[0]] += "M" + r[2].map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join("L") + "Z";
+    });
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice">' +
+      c.map((col, i) => d[i] ? '<path fill="' + col + '" d="' + d[i] + '"/>' : "").join("") + "</svg>";
+  }
+
   function pct(n) {
     return (n * 100).toFixed(2) + "%";
   }
 
   function css(p) {
     const b = p.bands || [];
+    if (p.type === "crosses" || p.type === "pinlines") {
+      return "url('data:image/svg+xml," + encodeURIComponent(stripeSvg(p)) + "') center / cover no-repeat, " + p.base;
+    }
     if (p.type === "shards") {
       return "url('data:image/svg+xml," + encodeURIComponent(shardsSvg(p)) + "') center / cover no-repeat, " + p.base;
     }
@@ -586,6 +642,14 @@
       });
       ctx.closePath();
       ctx.fill();
+    } else if (p.type === "crosses" || p.type === "pinlines") {
+      const s = Math.max(w / 200, h / 100);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+      ctx.clip();
+      paintShards(ctx, x + (w - 200 * s) / 2, y + (h - 100 * s) / 2, s, stripeColors(p), STRIPE_SHAPES[p.type]);
+      ctx.restore();
     } else if (p.type === "shards") {
       const s = Math.max(w / 200, h / 100);
       ctx.save();
@@ -773,5 +837,5 @@
     return !!c && (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255 > 0.85;
   }
 
-  window.Kits = { ids, get, css, draw, mix, isLight, dots: DOTS, burst: BURST, shards: paintShards };
+  window.Kits = { ids, get, css, draw, mix, isLight, dots: DOTS, burst: BURST, shards: paintShards, stripes: { colors: stripeColors, shapes: STRIPE_SHAPES } };
 })();
