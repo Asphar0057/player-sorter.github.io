@@ -246,12 +246,72 @@
       polys + '<circle cx="148" cy="34" r="46" fill="url(#h)"/></svg>';
   }
 
+  // Angular "shard" texture on a 200x100 grid with contrasting sleeve panels at both ends
+  // (West Ham 2026/27 home). Entries are [kind, alpha, points]: kind 0 = dark shard or pixel
+  // block (second band colour), kind 1 = sleeve panel (first band colour).
+  const SHARDS = (function () {
+    const out = [];
+    let seed = 7;
+    const rnd = function () {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+    for (let i = 0; i < 46; i++) {
+      const x = 22 + rnd() * 156;
+      const y = -10 + rnd() * 100;
+      const w = 2.5 + rnd() * 6;
+      const len = 22 + rnd() * 60;
+      const lean = 0.42;
+      out.push([0, 0.22 + rnd() * 0.3, [[x, y], [x + w, y], [x + w - len * lean, y + len], [x - len * lean, y + len]]]);
+    }
+    for (let i = 0; i < 90; i++) {
+      const left = i % 2 === 0;
+      const gx = Math.floor(rnd() * 9);
+      const gy = Math.floor(rnd() * 20);
+      const x = left ? 21 + gx * 3.4 - gy * 0.4 : 179 - gx * 3.4 + gy * 0.4;
+      const y = gy * 5;
+      out.push([0, 0.3 + rnd() * 0.3, [[x, y], [x + 3, y], [x + 3, y + 3], [x, y + 3]]]);
+    }
+    out.push([1, 1, [[0, 0], [19, 0], [11, 100], [0, 100]]]);
+    out.push([1, 1, [[200, 0], [181, 0], [189, 100], [200, 100]]]);
+    return out;
+  })();
+
+  function shardColors(p) {
+    const b = p.bands || [];
+    return [b[1] || "#000000", b[0] || "#FFFFFF"];
+  }
+
+  function shardsSvg(p) {
+    const c = shardColors(p);
+    const polys = SHARDS.map(r => '<polygon fill="' + c[r[0]] + '" opacity="' + r[1].toFixed(2) + '" points="' +
+      r[2].map(q => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" ") + '"/>').join("");
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice">' + polys + "</svg>";
+  }
+
+  function paintShards(ctx, ox, oy, s, colors) {
+    SHARDS.forEach(r => {
+      ctx.globalAlpha = r[1];
+      ctx.fillStyle = colors[r[0]];
+      ctx.beginPath();
+      r[2].forEach((q, i) => {
+        if (i === 0) ctx.moveTo(ox + q[0] * s, oy + q[1] * s); else ctx.lineTo(ox + q[0] * s, oy + q[1] * s);
+      });
+      ctx.closePath();
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  }
+
   function pct(n) {
     return (n * 100).toFixed(2) + "%";
   }
 
   function css(p) {
     const b = p.bands || [];
+    if (p.type === "shards") {
+      return "url('data:image/svg+xml," + encodeURIComponent(shardsSvg(p)) + "') center / cover no-repeat, " + p.base;
+    }
     if (p.type === "burst") {
       return "url('data:image/svg+xml," + encodeURIComponent(burstSvg(p)) + "') center / cover no-repeat, " + p.base;
     }
@@ -507,6 +567,14 @@
       });
       ctx.closePath();
       ctx.fill();
+    } else if (p.type === "shards") {
+      const s = Math.max(w / 200, h / 100);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+      ctx.clip();
+      paintShards(ctx, x + (w - 200 * s) / 2, y + (h - 100 * s) / 2, s, shardColors(p));
+      ctx.restore();
     } else if (p.type === "burst") {
       const c = burstColors(p);
       const s = Math.max(w / 200, h / 100);
@@ -686,5 +754,5 @@
     return !!c && (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255 > 0.85;
   }
 
-  window.Kits = { ids, get, css, draw, mix, isLight, dots: DOTS, burst: BURST };
+  window.Kits = { ids, get, css, draw, mix, isLight, dots: DOTS, burst: BURST, shards: paintShards };
 })();
