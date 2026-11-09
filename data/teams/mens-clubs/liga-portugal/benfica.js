@@ -68,7 +68,7 @@ registerTeam({
   players: [
     { id: "trubin", name: "Anatoliy Trubin", number: 1, position: "GK", nation: "UKR" },
     { id: "samu", name: "Samuel Soares", number: 24, position: "GK", nation: "POR" },
-    { id: "diogo_ferreira", name: "Diogo Ferreira", number: 50, position: "GK", nation: "POR" },
+    { id: "diogo-ferreira", name: "Diogo Ferreira", number: 50, position: "GK", nation: "POR" },
 
 
     { id: "lenglet", name: "Clément Lenglet", number: 2, position: "DF", nation: "FRA" },
@@ -76,10 +76,10 @@ registerTeam({
     { id: "bah", name: "Alexander Bah", number: 6, position: "DF", nation: "DEN" },
     { id: "dahl", name: "Samuel Dahl", number: 26, position: "DF", nation: "SWE" },
     { id: "indio", name: "Gabriel Índio", number: 33, position: "DF", nation: "BRA" },
-    { id: "el_karouani", name: "Souffian El Karouani", number: 34, position: "DF", nation: "MAR" },
+    { id: "el-karouani", name: "Souffian El Karouani", number: 34, position: "DF", nation: "MAR" },
     { id: "tomas", name: "Tomás Araújo", number: 44, position: "DF", nation: "POR" },
     { id: "banjaqui", name: "Daniel Banjaqui", number: 58, position: "DF", nation: "POR" },
-    { id: "jose_neto", name: "José Neto", number: 62, position: "DF", nation: "POR" },
+    { id: "jose-neto", name: "José Neto", number: 62, position: "DF", nation: "POR" },
 
     { id: "enzo", name: "Enzo Barrenechea", number: 5, position: "MF", nation: "ARG" },
     { id: "aursnes", name: "Fredrik Aursnes", number: 8, position: "MF", nation: "NOR" },
@@ -89,7 +89,7 @@ registerTeam({
     { id: "barreiro", name: "Leandro Barreiro", number: 18, position: "MF", nation: "LUX" },
     { id: "echeverri", name: "Claudio Echeverri", number: 30, position: "MF", nation: "ARG" },
     { id: "palhinha", name: "João Palhinha", number: 36, position: "MF", nation: "POR" },
-    { id: "goncalo_moreira", name: "Gonçalo Moreira", number: 77, position: "MF", nation: "POR" },
+    { id: "goncalo-moreira", name: "Gonçalo Moreira", number: 77, position: "MF", nation: "POR" },
 
     { id: "lukebakio", name: "Dodi Lukébakio", number: 11, position: "FW", nation: "BEL" },
     { id: "pavlidis", name: "Vangelis Pavlidis", number: 14, position: "FW", nation: "GRE" },
