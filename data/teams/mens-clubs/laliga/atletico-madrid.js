@@ -40,10 +40,11 @@ registerTeam({
       onPrimary: "#0D0E10",
       accent: "#F2F3EE",
       onAccent: "#0D0E10",
+      headerDecor: { type: "neon-curves", color: "#D7FF1F" },
       header: "#0B0B0C",
       onHeader: "#D7FF1F",
       headerBand: "#D7FF1F",
-      pattern: { type: "prism", base: "#0B0C0E", bands: ["#3A3D43", "#6A6E77", "#D7FF1F"] }
+      pattern: { type: "prism", base: "#0B0C0E", bands: ["#3A3D43", "#6A6E77"] }
     },
     third: {
       label: "Third",

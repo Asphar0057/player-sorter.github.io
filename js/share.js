@@ -534,8 +534,44 @@
     ctx.restore();
   }
 
+  // Two thin, sharp-tipped neon curves like a cubic graph, one near each end of the banner (the
+  // flank panels of the Atletico away shirt). Soft glow behind each.
+  function neonCurves(ctx, f, k, t) {
+    const h = f.head - 14;
+    const color = t.color || "#D7FF1F";
+    const draw = (cx, dir) => {
+      const amp = h * 0.17, wmax = h * 0.042, n = 60;
+      const L = [], R = [];
+      for (let i = 0; i <= n; i++) {
+        const u = i / n, v = u * 2 - 1;
+        const x = cx + dir * amp * (v * v * v - 0.35 * v);
+        const w = wmax * Math.pow(Math.sin(Math.PI * u), 0.75);
+        L.push([x - w / 2, u * h]); R.push([x + w / 2, u * h]);
+      }
+      const path = pts => { ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); };
+      [[2.8, 0.1], [1.9, 0.16]].forEach(g => {
+        const gl = [], gr = [];
+        for (let i = 0; i <= n; i++) {
+          const u = i / n, v = u * 2 - 1;
+          const x = cx + dir * amp * (v * v * v - 0.35 * v), w = wmax * g[0] * Math.pow(Math.sin(Math.PI * u), 0.75);
+          gl.push([x - w / 2, u * h]); gr.push([x + w / 2, u * h]);
+        }
+        ctx.globalAlpha = g[1]; ctx.fillStyle = color;
+        path(gl.concat(gr.reverse())); ctx.closePath(); ctx.fill();
+      });
+      ctx.globalAlpha = 1; ctx.fillStyle = color;
+      path(L.concat(R.reverse())); ctx.closePath(); ctx.fill();
+    };
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, f.w, h); ctx.clip();
+    draw(f.w * 0.022 + h * 0.1, 1);
+    draw(f.w - f.w * 0.022 - h * 0.1, -1);
+    ctx.restore();
+  }
+
   function headerCollar(ctx, f, k, clearX) {
     const t = k.headerDecor;
+    if (t && t.type === "neon-curves") return neonCurves(ctx, f, k, t);
     if (!t || (t.type !== "collar" && t.type !== "panel-collar")) return;
     const h = f.head - 14;
     const from = Math.max(clearX || 0, 0);
