@@ -26,7 +26,7 @@ registerTeam({
       headerBand: "#005187",
       rowTint: "#005187",
       rowTintStrength: 0.14,
-      pattern: { type: "streaks", base: "#FFE11B", bands: ["#E8BE00"] }
+      pattern: { type: "streaks", base: "#FFE11B", bands: ["#B88F00"] }
     },
     away: {
       label: "Away",

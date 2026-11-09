@@ -487,7 +487,7 @@
       seed = (seed * 1664525 + 1013904223) % 4294967296;
       return seed / 4294967296;
     };
-    const gap = 4.2, w = 1.05, step = 4;
+    const gap = 4.2, w = 1.5, step = 4;
     const curve = (xr, y) => xr + 16 * Math.sin((y / 100) * Math.PI * 2 + xr * 0.012) + 5 * Math.sin(y * 0.13 + xr * 0.02);
     for (let xr = -20; xr < 220; xr += gap) {
       let run = null;
@@ -495,7 +495,7 @@
         if (run && run.length > 2) {
           const left = run.map(q => [q[0] - w / 2, q[1]]);
           const right = run.map(q => [q[0] + w / 2, q[1]]).reverse();
-          out.push([0, 0.6, left.concat(right)]);
+          out.push([0, 0.85, left.concat(right)]);
         }
         run = null;
       };
