@@ -1476,7 +1476,12 @@
       for (let j = -1; j < rows; j++) {
         const x0 = i * P - j * sh, y = j * h - 4;
         // one dark grey triangle per step; the near-black base shows between the bands
-        out.push([0, 1, [[x0, y + h], [x0, y], [x0 + w, y + h]]]);
+        // brightness drifts smoothly across the strip (a soft light from the top right)
+        const cx = x0 + w * 0.35, cy = y + h * 0.65;
+        const lit = Math.max(0, Math.min(1, 0.45 + 0.4 * (cx / Math.max(GW, 1)) + 0.25 * (1 - cy / 100)));
+        out.push([0, 0.55 + 0.45 * lit, [[x0, y + h], [x0, y], [x0 + w, y + h]]]);
+        // a slim soft highlight along the slope of each peak
+        out.push([1, 0.1 + 0.3 * lit, [[x0 + w * 0.06, y + h * 0.9], [x0 + w * 0.06, y + h * 0.25], [x0 + w * 0.68, y + h * 0.9]]]);
       }
     }
     return out;
@@ -1511,7 +1516,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
-    if (p.type === "prism") return [b[0] || "#3A3D43", b[1] || "#26282D", b[2] || "#4A4E55", "#050506"];
+    if (p.type === "prism") return [b[0] || "#3A3D43", b[1] || b[0] || "#4A4E55"];
     if (p.type === "multistripes") { stripeColors.cur = b.length ? b : ["#FFFFFF"]; return stripeColors.cur; }
     if (p.type === "rulestripes") return [b[0] || "#FFFFFF", b[0] || "#FFFFFF", p.base, b[1] || "#262F61"];
     if (p.type === "scrolls") return [b[0] || "#D6C9B0"];
