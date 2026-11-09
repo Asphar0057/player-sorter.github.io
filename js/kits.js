@@ -878,24 +878,32 @@
       side = (side + 1) % 4;
       if (Math.min(w, h) < 2) break;
     }
-    // ornament around the figure, repeated across a wide banner
-    const half = W / 2 + 6;
-    const spots = [];
-    for (let off = -3; off <= 3; off++) {
-      if (off === 0) continue;
-      spots.push(cx + off * (GW > 300 ? 62 : 52));
+    // large tone-on-tone geometric tiles spread over the whole background like a texture
+    const gx = GW > 300 ? 70 : 54, gy = 50;
+    const figHalf = W / 2 + 5;
+    let n = 0;
+    for (let row = -1; row < 3; row++) {
+      for (let x = -gx / 2 + (row % 2 ? gx / 2 : 0); x < GW + gx; x += gx) {
+        const y = 12 + row * gy;
+        n++;
+        if (Math.abs(x - cx) < figHalf && y > 4 && y < 96) continue;
+        const kind = n % 4;
+        if (kind === 0) {
+          const c = 9;
+          for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) diamond(x - 18 + i * c, y - 18 + j * c, c * 0.46, c * 0.46, 0.3);
+        } else if (kind === 1) {
+          [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(d => arc(x + d[0] * 9, y + d[1] * 9, 10, 0, Math.PI * 2, 1.1, 0.34));
+          arc(x, y, 19, 0, Math.PI * 2, 0.9, 0.3);
+        } else if (kind === 2) {
+          diamond(x, y, 6, 19, 0.36); diamond(x, y, 19, 6, 0.36);
+          diamond(x + 26, y, 5, 5, 0.36); diamond(x - 26, y, 5, 5, 0.36);
+          diamond(x, y + 25, 5, 5, 0.36); diamond(x, y - 25, 5, 5, 0.36);
+        } else {
+          for (let r = 1; r <= 3; r++) diamond(x, y, 8 * r, 8 * r, 0.14 + 0.05 * r);
+          arc(x, y, 6, 0, Math.PI * 2, 1.3, 0.4);
+        }
+      }
     }
-    spots.forEach((sx, idx) => {
-      if (sx < -10 || sx > GW + 10) return;
-      if (Math.abs(sx - cx) < half) return;
-      fleuron(sx, idx % 2 ? 22 : 74, 2.6);
-      lattice(sx - 8, idx % 2 ? 56 : 12, 4, 4.4, 0.4);
-      quatrefoil(sx + 4, idx % 2 ? 22 : 80, 7);
-    });
-    // around the centre in the card window
-    fleuron(cx - W * 0.62, 14, 2.4); fleuron(cx + W * 0.62, 14, 2.4);
-    lattice(cx - W * 0.7, 76, 5, 4.4, 0.4); lattice(cx + W * 0.34, 76, 5, 4.4, 0.4);
-    quatrefoil(cx - W * 0.66, 50, 7); quatrefoil(cx + W * 0.66, 50, 7);
     return out;
   }
 
