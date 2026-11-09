@@ -401,17 +401,32 @@
       const white = p.bands && p.bands[0] ? p.bands[0] : "#FFFFFF";
       const blue = p.bands && p.bands[1] ? p.bands[1] : "#00205B";
       const centerX = f.w * 0.65;
-      const startX = f.w * 0.49;
+      const startX = f.w * 0.3;
       const whiteWidth = Math.min(h * 0.12, f.w * 0.05);
       const blueWidth = whiteWidth * 1.05;
       const whiteSpan = whiteWidth * 2.2;
       const blueSpan = blueWidth * 1.15;
-      ctx.fillStyle = white;
-      ctx.fillRect(centerX - whiteSpan / 2, 0, whiteSpan, h);
-      ctx.fillRect(startX, h * 0.5 - whiteSpan / 2, f.w - startX, whiteSpan);
-      ctx.fillStyle = blue;
-      ctx.fillRect(centerX - blueSpan / 2, 0, blueSpan, h);
-      ctx.fillRect(startX, h * 0.5 - blueSpan / 2, f.w, blueSpan);
+      const off = document.createElement("canvas");
+      off.width = f.w;
+      off.height = Math.ceil(h);
+      const o = off.getContext("2d");
+      o.fillStyle = white;
+      o.fillRect(centerX - whiteSpan / 2, 0, whiteSpan, h);
+      o.fillRect(startX, h * 0.5 - whiteSpan / 2, f.w - startX, whiteSpan);
+      o.fillStyle = blue;
+      o.fillRect(centerX - blueSpan / 2, 0, blueSpan, h);
+      o.fillRect(startX, h * 0.5 - blueSpan / 2, f.w, blueSpan);
+      // the arm fades out toward the title; the upright stays solid
+      const g = o.createLinearGradient(0, 0, f.w, 0);
+      const up = Math.max(0.01, (centerX - whiteSpan / 2) / f.w);
+      g.addColorStop(0, "rgba(0,0,0,0)");
+      g.addColorStop(startX / f.w, "rgba(0,0,0,0)");
+      g.addColorStop(up, "rgba(0,0,0,1)");
+      g.addColorStop(1, "rgba(0,0,0,1)");
+      o.globalCompositeOperation = "destination-in";
+      o.fillStyle = g;
+      o.fillRect(0, 0, off.width, off.height);
+      ctx.drawImage(off, 0, 0);
     } else if (p.type === "tipping") {
       const colors = p.bands && p.bands.length ? p.bands : [k.onHeader];
       const bandH = Math.round(f.head * 0.035);
@@ -520,34 +535,132 @@
 
   function headerCollar(ctx, f, k, clearX) {
     const t = k.headerDecor;
-    if (!t || t.type !== "collar") return;
+    if (!t || (t.type !== "collar" && t.type !== "panel-collar")) return;
     const h = f.head - 14;
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     if (room < 150) return;
-    const s = Math.min(h / 80, (room - 24) / 160);
-    const cx = f.w - 80 * s - 24;
-    const cy = -8 * s;
+    if (t.type === "panel-collar") return panelCollar(ctx, k, t, from, room, h);
+    const sy = h / 66;
+    const sx = (room - 16) / 156;
     const rad = Math.PI / 180;
     ctx.save();
     ctx.beginPath();
     ctx.rect(from, 0, room, h);
     ctx.clip();
+    ctx.translate(from + room / 2, -8 * sy);
+    ctx.scale(sx, sy);
     ctx.fillStyle = t.color || k.onHeader;
     ctx.globalAlpha = t.opacity != null ? t.opacity : 0.6;
     for (let i = 0; i < 15; i++) {
       const a0 = (43 + i * 6.4) * rad;
       const a1 = a0 + 4.6 * rad;
-      const r0 = 40 * s;
-      const r1 = (i % 2 ? 62 : 78) * s;
+      const r0 = 40;
+      const r1 = i % 2 ? 62 : 78;
       ctx.beginPath();
-      ctx.moveTo(cx + r0 * Math.cos(a0), cy + r0 * Math.sin(a0));
-      ctx.lineTo(cx + r0 * Math.cos(a1), cy + r0 * Math.sin(a1));
-      ctx.lineTo(cx + r1 * Math.cos(a1 + 0.02), cy + r1 * Math.sin(a1 + 0.02));
-      ctx.lineTo(cx + r1 * Math.cos(a0 - 0.02), cy + r1 * Math.sin(a0 - 0.02));
+      ctx.moveTo(r0 * Math.cos(a0), r0 * Math.sin(a0));
+      ctx.lineTo(r0 * Math.cos(a1), r0 * Math.sin(a1));
+      ctx.lineTo(r1 * Math.cos(a1 + 0.02), r1 * Math.sin(a1 + 0.02));
+      ctx.lineTo(r1 * Math.cos(a0 - 0.02), r1 * Math.sin(a0 - 0.02));
       ctx.closePath();
       ctx.fill();
     }
+    ctx.restore();
+  }
+
+  // Glossy panel collar spread across the banner, like the Uruguay 2026 away shirt: two arcs of
+  // trapezoid panels around the neck and a row of long blocks hanging below them, each panel
+  // brightest in the middle with a peach glow, divided by thin peach rib lines.
+  function panelCollar(ctx, k, t, from, room, h) {
+    const off = document.createElement("canvas");
+    off.width = Math.ceil(room);
+    off.height = Math.ceil(h);
+    const o = off.getContext("2d");
+    panelCollarArt(o, k, t, 0, room, h);
+    // fade the whole collar out toward the title, smoothly over the left half
+    const g = o.createLinearGradient(0, 0, room, 0);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(0.12, "rgba(0,0,0,0.12)");
+    g.addColorStop(0.3, "rgba(0,0,0,0.5)");
+    g.addColorStop(0.5, "rgba(0,0,0,0.85)");
+    g.addColorStop(0.65, "rgba(0,0,0,1)");
+    g.addColorStop(1, "rgba(0,0,0,1)");
+    o.globalCompositeOperation = "destination-in";
+    o.fillStyle = g;
+    o.fillRect(0, 0, off.width, off.height);
+    ctx.drawImage(off, from, 0);
+  }
+
+  function panelCollarArt(ctx, k, t, from, room, h) {
+    const blue = t.color || "#3B63FF";
+    const deep = t.deep || "#12207F";
+    const glow = t.glow || "#F2A98B";
+    const rad = Math.PI / 180;
+    const cx = from + room / 2, cy = -0.42 * h;
+    const rx = room * 0.4, ry = h * 1.0;
+    const P = (kk, a) => [cx + rx * kk * Math.cos(a * rad), cy + ry * kk * Math.sin(a * rad)];
+    const rings = [
+      { k0: 0.40, k1: 0.66, n: 13, a0: 26, a1: 154, gap: 0.3, glow: 0.3 },
+      { k0: 0.72, k1: 1.0, n: 11, a0: 20, a1: 160, gap: 0.3, glow: 0.28 },
+      { k0: 1.06, k1: 1.7, n: 6, a0: 32, a1: 148, gap: 0.45, glow: 0.2 }
+    ];
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(from, 0, room, h);
+    ctx.clip();
+    rings.forEach((rg, ri) => {
+      const step = (rg.a1 - rg.a0) / rg.n;
+      for (let i = 0; i < rg.n; i++) {
+        const w = step * (1 - rg.gap);
+        const a = rg.a0 + i * step + (step - w) / 2;
+        const p0 = P(rg.k0, a), p1 = P(rg.k0, a + w), p2 = P(rg.k1, a + w), p3 = P(rg.k1, a);
+        const mx = (p0[0] + p1[0] + p2[0] + p3[0]) / 4, my = (p0[1] + p1[1] + p2[1] + p3[1]) / 4;
+        const edge = 1;
+        const centre = 1 - Math.min(1, Math.abs(a - 90) / 90) * 0.35;
+        ctx.globalAlpha = edge * (0.75 + 0.25 * centre);
+        const g = ctx.createLinearGradient((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2, (p2[0] + p3[0]) / 2, (p2[1] + p3[1]) / 2);
+        if (ri === 2) {
+          g.addColorStop(0, blue);
+          g.addColorStop(0.55, deep);
+          g.addColorStop(1, "rgba(27,47,168,0)");
+        } else {
+          g.addColorStop(0, deep);
+          g.addColorStop(0.5, blue);
+          g.addColorStop(1, deep);
+        }
+        ctx.save();
+        ctx.shadowColor = blue;
+        ctx.shadowBlur = h * 0.03;
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p3[0], p3[1]);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+        // peach glow in the middle of the panel
+        const r = Math.hypot(p1[0] - p0[0], p3[1] - p0[1]) * 0.55 + h * 0.05;
+        const gx = ri === 2 ? (p0[0] + p1[0]) / 2 : mx, gy = ri === 2 ? (p0[1] + p1[1]) / 2 + (p3[1] - p0[1]) * 0.18 : my;
+        const rgd = ctx.createRadialGradient(gx, gy, 0, gx, gy, r);
+        rgd.addColorStop(0, glow);
+        rgd.addColorStop(1, "rgba(242,169,139,0)");
+        ctx.globalAlpha *= rg.glow;
+        ctx.fillStyle = rgd;
+        ctx.beginPath();
+        ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p3[0], p3[1]);
+        ctx.closePath();
+        ctx.fill();
+        // thin peach rib lines in the gap beside the panel
+        if (i % 2 === 0) {
+          const q0 = P(rg.k0 + (rg.k1 - rg.k0) * 0.08, a - step * 0.12), q1 = P(rg.k1 - (rg.k1 - rg.k0) * 0.1, a - step * 0.12);
+          ctx.globalAlpha = edge * 0.7;
+          ctx.strokeStyle = glow;
+          ctx.lineWidth = Math.max(1, h * 0.011);
+          ctx.beginPath();
+          ctx.moveTo(q0[0], q0[1]); ctx.lineTo(q1[0], q1[1]);
+          ctx.stroke();
+        }
+      }
+    });
     ctx.restore();
   }
 

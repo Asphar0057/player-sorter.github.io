@@ -1156,13 +1156,270 @@
     return out;
   }
 
+  // "dashes": rows of short horizontal dashes that gather into dense, bright zones and thin out
+  // into the base, like the speed-line texture on the France 2018 sleeves. Kind 0.
+  function dashShapes() {
+    const out = [];
+    const rnd = seeded(97), zone = noise2(53);
+    const K = GW > 300 ? 1.5 : 1;
+    const rowGap = 2.1 * K, h = 0.95 * K;
+    for (let row = 0, y = -2; y < 104; row++, y += rowGap) {
+      let x = rnd() * 6 * K - 4;
+      while (x < GW + 6) {
+        const len = (2 + rnd() * 8) * K;
+        const dens = zone(x * 0.02 / K + 2, y * 0.045) * 0.75 + (1 - x / GW) * 0.25;
+        if (rnd() < dens * dens * 1.5) {
+          const xo = (row % 2) * 1.3 * K;
+          out.push([0, 0.55 + 0.45 * dens, [[x + xo, y], [x + xo + len, y], [x + xo + len, y + h], [x + xo, y + h]]]);
+        }
+        x += len + (0.8 + rnd() * 3.2) * K;
+      }
+    }
+    return out;
+  }
+
+  // "weft": a halftone knit that runs to the right edge (no flat block): thick bright rows
+  // with tiny dark dots punched through them, the dots growing and the rows thinning with
+  // distance until only thin dotted lines are left, in many different lengths. No flat block
+  // (France 2018 sleeve). Kind 0 = bright rows and seam, kind 1 = dark dots (the base colour).
+  function weftShapes() {
+    const out = [];
+    const rnd = seeded(71), reach = noise2(43), jit = noise2(17);
+    const wide = GW > 300;
+    const K = wide ? 1.5 : 1;
+    const seam = 0;
+    const edge = GW + 1;
+    const maxL = (GW - seam) * 0.97;
+    const rowGap = 1.9 * K, step = 2.0 * K;
+    const q = a => Math.round(a * 10) / 10;
+    const rows = [];
+    for (let y = -1; y < 104; y += rowGap) {
+      const g = reach(y * 0.12, 3.7);
+      const L = (0.22 + 0.78 * Math.pow(0.6 * g + 0.4 * rnd(), 0.9)) * maxL;
+      rows.push([y, L]);
+    }
+    // bright rows: thick at the seam, thin far away
+    rows.forEach(r => {
+      const y = r[0], L = r[1], x1 = edge + 0.8 * K;
+      const top = [], bot = [];
+      for (let x = x1; x > x1 - L; x -= 6 * K) {
+        const t = (x1 - x) / maxL;
+        const th = rowGap * (0.8 - 0.58 * Math.pow(t, 0.5));
+        top.push([x, y - th / 2 + rowGap / 2]);
+        bot.push([x, y + th / 2 + rowGap / 2]);
+      }
+      const x2 = x1 - L, tt = L / maxL, th2 = rowGap * (0.8 - 0.58 * Math.pow(tt, 0.5));
+      top.push([x2, y - th2 / 2 + rowGap / 2]); bot.push([x2, y + th2 / 2 + rowGap / 2]);
+      out.push([0, q(1 - 0.45 * Math.pow(tt, 1.3)), top.concat(bot.reverse())]);
+    });
+    // dark dots punched through the rows, bigger the farther from the seam
+    rows.forEach(r => {
+      const y = r[0], L = r[1], x1 = edge + 0.8 * K;
+      for (let x = x1 - step * 0.5; x > x1 - L; x -= step) {
+        const t = (x1 - x) / maxL;
+        const sz = rowGap * (0.14 + 0.55 * Math.pow(t, 0.6)) * (0.85 + 0.3 * jit(x * 0.3, y * 0.4));
+        if (rnd() < 0.08) continue;
+        const cx = x, cy = y + rowGap / 2;
+        out.push([1, 1, [[cx - sz / 2, cy - sz / 2], [cx + sz / 2, cy - sz / 2], [cx + sz / 2, cy + sz / 2], [cx - sz / 2, cy + sz / 2]]]);
+      }
+    });
+    return out;
+  }
+
+  // "finelines": very fine, slightly darker vertical lines across the whole base, like the
+  // woven pinstripes on the Uruguay 2026 home shirt. Kind 0 = line (first band colour).
+  function fineLineShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.6 : 1;
+    const period = 2.3 * K, w = 0.8 * K;
+    for (let x = 0.4 * K; x < GW + period; x += period) {
+      out.push([0, 0.9, [[x, -2], [x + w, -2], [x + w, 102], [x, 102]]]);
+    }
+    return out;
+  }
+
+  // "sunstone": the Aztec sun stone of the Mexico home shirt in tone-on-tone dark lines. Two units
+  // alternate along the strip: the stone (hatched concentric rings, a ring of blocks and a hub
+  // inside a diamond frame with small rings and rays in the corners) and the lower part of the
+  // shirt (XIX over five circles, an arc of glyph blocks, XXXX arcs, scallops, Greek-key fret
+  // panels and a downward triangle). Kind 0 = dark motif.
+  function sunstoneShapes() {
+    const out = [];
+    const A = 1;
+    const P = (cx, cy, r, a) => [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+    const poly = (pts, al) => out.push([0, al || A, pts]);
+    const bar = (x1, y1, x2, y2, w) => {
+      const dx = x2 - x1, dy = y2 - y1, l = Math.hypot(dx, dy) || 1, nx = -dy / l * w / 2, ny = dx / l * w / 2;
+      poly([[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]);
+    };
+    const slats = (cx, cy, r0, r1, n, fill, lean, skip, a0, a1) => {
+      const start = a0 == null ? 0 : a0, span = a1 == null ? Math.PI * 2 : a1 - a0, step = span / n;
+      for (let i = 0; i < n; i++) {
+        if (skip && skip(i)) continue;
+        const s0 = start + i * step, s1 = s0 + step * fill;
+        poly([P(cx, cy, r0, s0), P(cx, cy, r0, s1), P(cx, cy, r1, s1 + lean), P(cx, cy, r1, s0 + lean)]);
+      }
+    };
+    const edgeRing = (cx, cy, r0, r1, a0, a1) => {
+      const start = a0 == null ? 0 : a0, span = a1 == null ? Math.PI * 2 : a1 - a0;
+      const n = Math.max(6, Math.round(span * 9));
+      for (let i = 0; i < n; i++) {
+        const s0 = start + (i / n) * span, s1 = start + ((i + 1.05) / n) * span;
+        poly([P(cx, cy, r0, s0), P(cx, cy, r0, s1), P(cx, cy, r1, s1), P(cx, cy, r1, s0)]);
+      }
+    };
+    const ringO = (cx, cy, r, w) => edgeRing(cx, cy, r - w, r);
+    // ---------- unit 1: the stone inside its diamond frame
+    const stone = (cx, cy) => {
+      slats(cx, cy, 36, 46, 100, 0.62, 0.16);
+      edgeRing(cx, cy, 45.2, 46.8); edgeRing(cx, cy, 35.2, 36.4);
+      slats(cx, cy, 25.5, 33, 96, 0.62, 0.2, i => i % 8 === 0 || i % 8 === 7);
+      edgeRing(cx, cy, 24.4, 25.6);
+      slats(cx, cy, 14, 21, 70, 0.62, 0.2);
+      edgeRing(cx, cy, 20.4, 22); edgeRing(cx, cy, 13, 14.2);
+      edgeRing(cx, cy, 5.5, 8.5); edgeRing(cx, cy, 0, 3.6);
+      // diamond frame, big enough to hold the rings
+      const R = 84;
+      const tips = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+      tips.forEach((d, i) => {
+        const e = tips[(i + 1) % 4];
+        bar(cx + d[0] * R, cy + d[1] * R, cx + e[0] * R, cy + e[1] * R, 3.4);
+        bar(cx + d[0] * (R - 8), cy + d[1] * (R - 8), cx + e[0] * (R - 8), cy + e[1] * (R - 8), 1.5);
+      });
+      // small rings in the four corners between the stone and the frame
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(d => ringO(cx + d[0] * 38, cy + d[1] * 38, 4.2, 1.7));
+      // rays pointing out of the stone toward the frame tips
+      tips.forEach(d => {
+        const bx = cx + d[0] * 54, by = cy + d[1] * 54;
+        const px = -d[1], py = d[0];
+        poly([[bx + px * 8, by + py * 8], [bx - px * 8, by - py * 8], [cx + d[0] * 72, cy + d[1] * 72]], 0.75);
+      });
+    };
+    // ---------- unit 2: the lower part of the shirt
+    const lower = bx => {
+      const glyphX = (x, y, s, w) => { bar(x - s, y - s, x + s, y + s, w); bar(x - s, y + s, x + s, y - s, w); };
+      glyphX(bx - 13, 11, 4.2, 2.2); bar(bx, 6.8, bx, 15.2, 2.4); glyphX(bx + 13, 11, 4.2, 2.2);
+      for (let j = -2; j <= 2; j++) ringO(bx + j * 9, 26, 4, 1.5);
+      // arc of glyph blocks (the "I B I" band)
+      const cy = -8;
+      slats(bx, cy, 44, 54, 30, 0.55, 0.22, null, 0.18 * Math.PI, 0.82 * Math.PI);
+      edgeRing(bx, cy, 43.2, 44.6, 0.14 * Math.PI, 0.86 * Math.PI);
+      edgeRing(bx, cy, 53.6, 55, 0.14 * Math.PI, 0.86 * Math.PI);
+      for (let i = 0; i < 9; i++) {
+        const a0 = (0.2 + i * 0.07) * Math.PI;
+        const gw = (i % 2 ? 0.045 : 0.055) * Math.PI;
+        poly([P(bx, cy, 56.5, a0), P(bx, cy, 56.5, a0 + gw), P(bx, cy, 63, a0 + gw), P(bx, cy, 63, a0)]);
+      }
+      // XXXX arcs on both sides
+      [-1, 1].forEach(sd => {
+        for (let i = 0; i < 4; i++) {
+          const a = sd < 0 ? (0.86 - i * 0.045) * Math.PI : (0.14 + i * 0.045) * Math.PI;
+          const c = P(bx, cy, 71, a), s = 3.2;
+          bar(c[0] - s, c[1] - s, c[0] + s, c[1] + s, 1.8); bar(c[0] - s, c[1] + s, c[0] + s, c[1] - s, 1.8);
+        }
+      });
+      // scallops (the "UUUU" rows)
+      [-1, 1].forEach(sd => {
+        for (let i = 0; i < 6; i++) {
+          const x = bx + sd * (11 + i * 6.6);
+          const pts = [], inner = [];
+          for (let q = 0; q <= 8; q++) { pts.push(P(x, 76, 3.2, (q / 8) * Math.PI)); inner.push(P(x, 76, 1.5, (q / 8) * Math.PI)); }
+          poly(pts.concat(inner.reverse()));
+        }
+      });
+      // Greek-key fret panels
+      [-1, 1].forEach(sd => {
+        for (let i = 0; i < 3; i++) {
+          const x0 = bx + sd * (11 + i * 15.5);
+          const f = (x, y) => [x0 + sd * x * 1.25, 82 + y * 1.1];
+          const path = [[0, 14], [0, 0], [11, 0], [11, 10], [3, 10], [3, 3.5], [8, 3.5]];
+          for (let q = 0; q < path.length - 1; q++) {
+            const u = f(path[q][0], path[q][1]), v = f(path[q + 1][0], path[q + 1][1]);
+            bar(u[0], u[1], v[0], v[1], 2.1);
+          }
+        }
+      });
+      // downward triangle in the middle
+      poly([[bx - 6, 62], [bx + 6, 62], [bx, 96]]);
+    };
+    const wide = GW > 300;
+    const step = 270;
+    const c0 = wide ? GW * 0.74 : 150;
+    for (let cx = c0; cx > -140; cx -= step) {
+      stone(cx, 50);
+      if (wide) lower(cx - step / 2);
+    }
+    for (let cx = c0 + step; cx < GW + 140; cx += step) {
+      stone(cx, 50);
+      if (wide) lower(cx - step / 2);
+    }
+    if (wide) lower(c0 + step / 2);
+    return out;
+  }
+
+  // "scrolls": a tone-on-tone baroque print: a diamond lattice of dotted lines with a pair of
+  // curling scrolls and small buds in every cell, like the Spain 2026 away shirt. Kind 0.
+  function scrollShapes() {
+    const out = [];
+    const rnd = seeded(33);
+    const K = GW > 300 ? 1.75 : 1.15;
+    const cell = 27 * K;
+    const dot = (x, y, r, al) => {
+      const pts = [];
+      for (let i = 0; i < 5; i++) pts.push([x + Math.cos((i / 5) * Math.PI * 2) * r, y + Math.sin((i / 5) * Math.PI * 2) * r]);
+      out.push([0, al, pts]);
+    };
+    const spiral = (cx, cy, R, dir, a0, w, al) => {
+      const left = [], right = [];
+      const n = 26;
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const a = a0 + dir * t * Math.PI * 3.1;
+        const r = R * (1 - 0.88 * t);
+        const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+        const tx = -Math.sin(a) * dir, ty = Math.cos(a) * dir;
+        const ww = w * (0.45 + 0.55 * Math.min(1, (1 - t) * 2.2));
+        left.push([x + tx * ww / 2, y + ty * ww / 2]);
+        right.push([x - tx * ww / 2, y - ty * ww / 2]);
+      }
+      out.push([0, al, left.concat(right.reverse())]);
+    };
+    const rows = Math.ceil(110 / (cell / 2)) + 2;
+    for (let j = -1; j < rows; j++) {
+      for (let i = -1; i * cell < GW + cell; i++) {
+        const cx = i * cell + (j % 2 ? cell / 2 : 0), cy = j * cell / 2;
+        // dotted diamond lattice edges
+        for (let q = 1; q < 6; q++) {
+          const t = q / 6;
+          dot(cx + (cell / 2) * t, cy + (cell / 2) * (1 - t) * 0 + (cell / 4) * t * 0, 0, 0);
+        }
+        const flip = (i + j) % 2 ? 1 : -1;
+        spiral(cx - cell * 0.17, cy - cell * 0.06, cell * 0.19, flip, rnd() * 0.5 + (flip > 0 ? 0 : Math.PI), cell * 0.09, 0.85);
+        spiral(cx + cell * 0.17, cy + cell * 0.1, cell * 0.17, -flip, rnd() * 0.5 + (flip > 0 ? Math.PI : 0), cell * 0.085, 0.8);
+        // small buds
+        dot(cx, cy + cell * 0.2, cell * 0.045, 0.8);
+        dot(cx - cell * 0.05, cy - cell * 0.22, cell * 0.036, 0.7);
+        dot(cx + cell * 0.22, cy - cell * 0.12, cell * 0.032, 0.7);
+      }
+    }
+    // dotted lattice lines on the diagonals
+    const step = cell * 0.09;
+    for (let o = -200; o < GW + 200; o += cell) {
+      for (let t = -40; t < 140; t += step * 2.4) {
+        dot(o + t * 1.0, t, cell * 0.024, 0.6);
+        dot(o - t * 1.0 + 100, t, cell * 0.024, 0.6);
+      }
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1185,6 +1442,11 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "scrolls") return [b[0] || "#D6C9B0"];
+    if (p.type === "sunstone") return [b[0] || "#0A5547"];
+    if (p.type === "finelines") return [b[0] || "#9BB1DF"];
+    if (p.type === "weft") return [b[0] || "#2285F0", b[1] || "#08122B"];
+    if (p.type === "dashes") return [b[0] || "#2D7CF0"];
     if (p.type === "ripple") return [b[0] || "#7A6B60", b[1] || "#C2B6AB"];
     if (p.type === "herring") return [b[0] || "#2DB8A6", b[1] || "#2A3F94"];
     if (p.type === "flash" || p.type === "baroque") return [b[0] || "#2B2B2B"];

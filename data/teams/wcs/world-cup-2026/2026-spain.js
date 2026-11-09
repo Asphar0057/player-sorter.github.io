@@ -37,13 +37,14 @@ registerTeam({
       onPrimary: "#FFFFFF",
       accent: "#B8913A",
       onAccent: "#2A1218",
-      header: "#EFE6D2",
+      header: "#F1EADA",
       onHeader: "#7A1F2B",
       headerBand: "#B8913A",
       rowTint: "#7A1F2B",
       rowTintStrength: 0.2,
       rowTintFloor: 0.5,
-      pattern: { type: "gradient", base: "#F3EDE0", bands: ["#E2CC97"] }
+      headerStripes: [["#B3202F", 3], ["#D5A532", 1.6]],
+      pattern: { type: "scrolls", base: "#F1EADA", bands: ["#C9BA9E"] }
     }
   },
   players: [
