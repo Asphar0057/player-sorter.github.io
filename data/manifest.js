@@ -57,18 +57,6 @@ window.SQUAD_MANIFEST = {
           teams: ["inter-miami", "orlando-city", "new-england-revolution"]
         },
         {
-          id: "saudi-pro-league",
-          name: "Saudi Pro League",
-          country: "Saudi Arabia",
-          teams: ["al-hilal", "al-nassr"]
-        },
-        {
-          id: "egyptian-premier-league",
-          name: "Egyptian Premier League",
-          country: "Egypt",
-          teams: ["al-ahly"]
-        },
-        {
           id: "liga-profesional",
           name: "Liga Profesional de Futbol (LPF)",
           country: "Argentina",
@@ -116,6 +104,20 @@ window.SQUAD_MANIFEST = {
           country: "Spain",
           teams: ["real-zaragoza"]
         },
+        /*
+        {
+          id: "saudi-pro-league",
+          name: "Saudi Pro League",
+          country: "Saudi Arabia",
+          teams: ["al-hilal", "al-nassr"]
+        },
+        {
+          id: "egyptian-premier-league",
+          name: "Egyptian Premier League",
+          country: "Egypt",
+          teams: ["al-ahly"]
+        },
+        */
       ]
     },
     {

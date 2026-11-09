@@ -22,7 +22,8 @@ registerTeam({
       rowTint: "#14387F",
       rowTintStrength: 0.16,
       rowTintFloor: 0.45,
-      pattern: { type: "tipping", base: "#F7F8FA", bands: ["#DA001A", "#14387F"] }
+      pattern: { type: "tipping", base: "#F7F8FA", bands: ["#DA001A", "#14387F"] },
+      photoBg: "#14387F"
     },
     away: {
       label: "Away",
@@ -54,8 +55,10 @@ registerTeam({
       muted: "#5B6170",
       primary: "#14387F",
       onPrimary: "#FFFFFF",
-      accent: "#FFFFFF",
-      onAccent: "#14387F",
+      accent: "#14387F",
+      onAccent: "#FFFFFF",
+      photoInk: "#FFFFFF",
+      photoBg: "#14387F",
       header: "#DA001A",
       onHeader: "#FFFFFF",
       headerBand: "#14387F",
