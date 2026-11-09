@@ -1437,9 +1437,6 @@
         out.push([2, 1, rect(bx + o * K, -2, 0.8 * K, 104)]);
         out.push([2, 1, rect(bx + W - (o + 0.8) * K, -2, 0.8 * K, 104)]);
       });
-      // thin line inside the thick stripe along both edges
-      out.push([1, 1, rect(sx + 1.3 * K, -2, 0.75 * K, 104)]);
-      out.push([1, 1, rect(sx + R - 2.05 * K, -2, 0.75 * K, 104)]);
       // three thin lines down the middle, starting under a trident
       const cx = sx + R / 2, ly = 27;
       [-2.4, 0, 2.4].forEach(o => out.push([3, 0.95, rect(cx + o * K - 0.35 * K, ly, 0.7 * K, 104 - ly)]));
