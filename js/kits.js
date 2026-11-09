@@ -1238,63 +1238,122 @@
     return out;
   }
 
-  // "sunstone": an Aztec sun stone in tone-on-tone dark lines, like the Mexico home shirt: big
-  // concentric rings made of slanted hatch slats, a ring broken into blocks, a diamond frame and
-  // a hub. Repeated along wide banners. Kind 0 = dark motif.
+  // "sunstone": the Aztec sun stone of the Mexico home shirt in tone-on-tone dark lines. Two units
+  // alternate along the strip: the stone (hatched concentric rings, a ring of blocks and a hub
+  // inside a diamond frame with small rings and rays in the corners) and the lower part of the
+  // shirt (XIX over five circles, an arc of glyph blocks, XXXX arcs, scallops, Greek-key fret
+  // panels and a downward triangle). Kind 0 = dark motif.
   function sunstoneShapes() {
     const out = [];
     const A = 1;
     const P = (cx, cy, r, a) => [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
-    const ring = (cx, cy, r0, r1, n, fill, lean, skip, al) => {
-      const step = (Math.PI * 2) / n;
-      for (let i = 0; i < n; i++) {
-        if (skip && skip(i)) continue;
-        const a0 = i * step, a1 = a0 + step * fill;
-        out.push([0, al || A, [P(cx, cy, r0, a0), P(cx, cy, r0, a1), P(cx, cy, r1, a1 + lean), P(cx, cy, r1, a0 + lean)]]);
-      }
-    };
-    const solidRing = (cx, cy, r0, r1, al) => {
-      const n = 48;
-      for (let i = 0; i < n; i++) {
-        const a0 = (i / n) * Math.PI * 2, a1 = ((i + 1.05) / n) * Math.PI * 2;
-        out.push([0, al, [P(cx, cy, r0, a0), P(cx, cy, r0, a1), P(cx, cy, r1, a1), P(cx, cy, r1, a0)]]);
-      }
-    };
+    const poly = (pts, al) => out.push([0, al || A, pts]);
     const bar = (x1, y1, x2, y2, w) => {
       const dx = x2 - x1, dy = y2 - y1, l = Math.hypot(dx, dy) || 1, nx = -dy / l * w / 2, ny = dx / l * w / 2;
-      out.push([0, A, [[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]]);
+      poly([[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]);
     };
-    const stone = (cx, cy) => {
-      // outer thick hatched ring
-      ring(cx, cy, 36, 46, 100, 0.62, 0.16);
-      solidRing(cx, cy, 45.2, 46.8, A);
-      solidRing(cx, cy, 35.2, 36.4, A);
-      // second ring split into twelve blocks
-      ring(cx, cy, 25.5, 33, 96, 0.62, 0.2, i => i % 8 === 0 || i % 8 === 7);
-      solidRing(cx, cy, 24.4, 25.6, A);
-      // inner hatched ring and hub
-      ring(cx, cy, 14, 21, 70, 0.62, 0.2);
-      solidRing(cx, cy, 20.4, 22, A);
-      solidRing(cx, cy, 13, 14.2, A);
-      solidRing(cx, cy, 5.5, 8.5, 0.5);
-      solidRing(cx, cy, 0, 4, 0.35);
-      // diamond frame with notches
-      const R = 62;
-      [[0, -1], [1, 0], [0, 1], [-1, 0]].forEach((d, i, arr) => {
-        const e = arr[(i + 1) % 4];
-        bar(cx + d[0] * R, cy + d[1] * R, cx + e[0] * R, cy + e[1] * R, 3.2);
-        bar(cx + d[0] * (R - 9), cy + d[1] * (R - 9), cx + e[0] * (R - 9), cy + e[1] * (R - 9), 1.6);
-      });
-      // small ring circles along the bottom of the frame
-      for (let j = -2; j <= 2; j++) {
-        solidRing(cx + j * 9.5, cy + 52, 2.2, 3.6, A);
+    const slats = (cx, cy, r0, r1, n, fill, lean, skip, a0, a1) => {
+      const start = a0 == null ? 0 : a0, span = a1 == null ? Math.PI * 2 : a1 - a0, step = span / n;
+      for (let i = 0; i < n; i++) {
+        if (skip && skip(i)) continue;
+        const s0 = start + i * step, s1 = s0 + step * fill;
+        poly([P(cx, cy, r0, s0), P(cx, cy, r0, s1), P(cx, cy, r1, s1 + lean), P(cx, cy, r1, s0 + lean)]);
       }
     };
+    const edgeRing = (cx, cy, r0, r1, a0, a1) => {
+      const start = a0 == null ? 0 : a0, span = a1 == null ? Math.PI * 2 : a1 - a0;
+      const n = Math.max(6, Math.round(span * 9));
+      for (let i = 0; i < n; i++) {
+        const s0 = start + (i / n) * span, s1 = start + ((i + 1.05) / n) * span;
+        poly([P(cx, cy, r0, s0), P(cx, cy, r0, s1), P(cx, cy, r1, s1), P(cx, cy, r1, s0)]);
+      }
+    };
+    const ringO = (cx, cy, r, w) => edgeRing(cx, cy, r - w, r);
+    // ---------- unit 1: the stone inside its diamond frame
+    const stone = (cx, cy) => {
+      slats(cx, cy, 36, 46, 100, 0.62, 0.16);
+      edgeRing(cx, cy, 45.2, 46.8); edgeRing(cx, cy, 35.2, 36.4);
+      slats(cx, cy, 25.5, 33, 96, 0.62, 0.2, i => i % 8 === 0 || i % 8 === 7);
+      edgeRing(cx, cy, 24.4, 25.6);
+      slats(cx, cy, 14, 21, 70, 0.62, 0.2);
+      edgeRing(cx, cy, 20.4, 22); edgeRing(cx, cy, 13, 14.2);
+      edgeRing(cx, cy, 5.5, 8.5); edgeRing(cx, cy, 0, 3.6);
+      // diamond frame, big enough to hold the rings
+      const R = 84;
+      const tips = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+      tips.forEach((d, i) => {
+        const e = tips[(i + 1) % 4];
+        bar(cx + d[0] * R, cy + d[1] * R, cx + e[0] * R, cy + e[1] * R, 3.4);
+        bar(cx + d[0] * (R - 8), cy + d[1] * (R - 8), cx + e[0] * (R - 8), cy + e[1] * (R - 8), 1.5);
+      });
+      // small rings in the four corners between the stone and the frame
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(d => ringO(cx + d[0] * 38, cy + d[1] * 38, 4.2, 1.7));
+      // rays pointing out of the stone toward the frame tips
+      tips.forEach(d => {
+        const bx = cx + d[0] * 54, by = cy + d[1] * 54;
+        const px = -d[1], py = d[0];
+        poly([[bx + px * 8, by + py * 8], [bx - px * 8, by - py * 8], [cx + d[0] * 72, cy + d[1] * 72]], 0.75);
+      });
+    };
+    // ---------- unit 2: the lower part of the shirt
+    const lower = bx => {
+      const glyphX = (x, y, s, w) => { bar(x - s, y - s, x + s, y + s, w); bar(x - s, y + s, x + s, y - s, w); };
+      glyphX(bx - 13, 11, 4.2, 2.2); bar(bx, 6.8, bx, 15.2, 2.4); glyphX(bx + 13, 11, 4.2, 2.2);
+      for (let j = -2; j <= 2; j++) ringO(bx + j * 9, 26, 4, 1.5);
+      // arc of glyph blocks (the "I B I" band)
+      const cy = -8;
+      slats(bx, cy, 44, 54, 30, 0.55, 0.22, null, 0.18 * Math.PI, 0.82 * Math.PI);
+      edgeRing(bx, cy, 43.2, 44.6, 0.14 * Math.PI, 0.86 * Math.PI);
+      edgeRing(bx, cy, 53.6, 55, 0.14 * Math.PI, 0.86 * Math.PI);
+      for (let i = 0; i < 9; i++) {
+        const a0 = (0.2 + i * 0.07) * Math.PI;
+        const gw = (i % 2 ? 0.045 : 0.055) * Math.PI;
+        poly([P(bx, cy, 56.5, a0), P(bx, cy, 56.5, a0 + gw), P(bx, cy, 63, a0 + gw), P(bx, cy, 63, a0)]);
+      }
+      // XXXX arcs on both sides
+      [-1, 1].forEach(sd => {
+        for (let i = 0; i < 4; i++) {
+          const a = sd < 0 ? (0.86 - i * 0.045) * Math.PI : (0.14 + i * 0.045) * Math.PI;
+          const c = P(bx, cy, 71, a), s = 3.2;
+          bar(c[0] - s, c[1] - s, c[0] + s, c[1] + s, 1.8); bar(c[0] - s, c[1] + s, c[0] + s, c[1] - s, 1.8);
+        }
+      });
+      // scallops (the "UUUU" rows)
+      [-1, 1].forEach(sd => {
+        for (let i = 0; i < 6; i++) {
+          const x = bx + sd * (11 + i * 6.6);
+          const pts = [], inner = [];
+          for (let q = 0; q <= 8; q++) { pts.push(P(x, 76, 3.2, (q / 8) * Math.PI)); inner.push(P(x, 76, 1.5, (q / 8) * Math.PI)); }
+          poly(pts.concat(inner.reverse()));
+        }
+      });
+      // Greek-key fret panels
+      [-1, 1].forEach(sd => {
+        for (let i = 0; i < 3; i++) {
+          const x0 = bx + sd * (11 + i * 15.5);
+          const f = (x, y) => [x0 + sd * x * 1.25, 82 + y * 1.1];
+          const path = [[0, 14], [0, 0], [11, 0], [11, 10], [3, 10], [3, 3.5], [8, 3.5]];
+          for (let q = 0; q < path.length - 1; q++) {
+            const u = f(path[q][0], path[q][1]), v = f(path[q + 1][0], path[q + 1][1]);
+            bar(u[0], u[1], v[0], v[1], 2.1);
+          }
+        }
+      });
+      // downward triangle in the middle
+      poly([[bx - 6, 62], [bx + 6, 62], [bx, 96]]);
+    };
     const wide = GW > 300;
-    const spacing = wide ? 190 : 140;
-    const c0 = wide ? GW * 0.8 : 150;
-    for (let cx = c0; cx > -80; cx -= spacing) stone(cx, 50);
-    for (let cx = c0 + spacing; cx < GW + 80; cx += spacing) stone(cx, 50);
+    const step = 270;
+    const c0 = wide ? GW * 0.74 : 150;
+    for (let cx = c0; cx > -140; cx -= step) {
+      stone(cx, 50);
+      if (wide) lower(cx - step / 2);
+    }
+    for (let cx = c0 + step; cx < GW + 140; cx += step) {
+      stone(cx, 50);
+      if (wide) lower(cx - step / 2);
+    }
+    if (wide) lower(c0 + step / 2);
     return out;
   }
 
