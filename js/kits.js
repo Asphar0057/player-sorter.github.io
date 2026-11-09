@@ -451,7 +451,7 @@
     return '<defs><pattern id="d" width="3.4" height="3.4" patternUnits="userSpaceOnUse"><circle cx="0.85" cy="0.85" r="0.4" fill="' + color + '"/><circle cx="2.55" cy="2.55" r="0.4" fill="' + color + '"/></pattern></defs><rect width="200" height="100" fill="url(#d)"/>';
   }
 
-  // "raglan": a white band with a checkered edge on both sides and thin shoulder stripes
+  // "raglan": a white band with a checkered edge on both sides and a thick maroon band
   // either side, on the base colour (Arsenal home). It is centred in the middle of the grid so
   // it survives the cropping a home-page card applies. Kinds: 0 band, 1 stripe, 2 check squares.
   function raglanShapes() {
@@ -461,7 +461,7 @@
     const quad = (x1, x2, y1, y2) => [shear(x1, y1), shear(x2, y1), shear(x2, y2), shear(x1, y2)];
     const x0 = 92, x1 = 132;
     out.push([0, 1, quad(x0, x1, -10, 110)]);
-    [[x0 - 5.5, x0 - 3.9], [x1 + 3.9, x1 + 5.5], [x0 - 9.5, x0 - 8.5], [x1 + 8.5, x1 + 9.5]].forEach(p => out.push([1, 1, quad(p[0], p[1], -10, 110)]));
+    [[x0 - 12, x0], [x1, x1 + 12]].forEach(p => out.push([1, 1, quad(p[0], p[1], -10, 110)]));
     for (let r = 0; r * sq < 120; r++) {
       const y = -10 + r * sq;
       [x0, x0 + sq, x1 - sq * 2, x1 - sq].forEach((cx, c) => {
