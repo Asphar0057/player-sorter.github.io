@@ -1800,12 +1800,20 @@
     const request = fetch(STATS_URL, { method: "POST", body: JSON.stringify({ type: "short", q: query }) })
       .then(r => r.json())
       .then(reply => {
-        if (!reply || reply.ok !== true || !/^[A-Za-z0-9]{4,12}$/.test(reply.id || "")) throw new Error("short");
+        if (!reply || reply.ok !== true || !/^[A-Za-z0-9]{4,12}$/.test(reply.id || "")) {
+          console.warn("Short link failed:", reply && reply.error ? reply.error : reply);
+          throw new Error("short");
+        }
         storeSet("short:" + query, reply.id);
         return make(reply.id);
       });
-    const timeout = new Promise(resolve => setTimeout(() => resolve(longUrl), 8000));
-    SHORT_LINKS[query] = Promise.race([request, timeout]).catch(() => {
+    const timeout = new Promise(resolve => setTimeout(() => {
+      console.warn("Short link timed out");
+      delete SHORT_LINKS[query];
+      resolve(longUrl);
+    }, 15000));
+    SHORT_LINKS[query] = Promise.race([request, timeout]).catch(error => {
+      console.warn("Short link failed:", error && error.message);
       delete SHORT_LINKS[query];
       return longUrl;
     });
