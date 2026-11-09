@@ -1949,6 +1949,7 @@ html[data-vt="kit-left"]::view-transition-new(root) { animation: kit-slide-left 
 }
 
 .builder-tile {
+  grid-column: 1 / -1;
   position: relative;
   justify-content: space-between;
   background: #A55448;
@@ -1994,9 +1995,6 @@ html[data-vt="kit-left"]::view-transition-new(root) { animation: kit-slide-left 
 
 .builder-tile:hover .builder-fan-plus { transform: scale(1.08) rotate(90deg); }
 
-@media (min-width: 641px) {
-  .builder-tile { grid-column: span 2; }
-}
 
 .byo-badge {
   --byo-bg: var(--club-primary);

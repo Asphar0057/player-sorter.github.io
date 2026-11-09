@@ -1,6 +1,6 @@
 window.SQUAD_MANIFEST = {
   siteUrl: "player-sorter.github.io",
-  requestsUrl: "https://script.google.com/macros/s/AKfycbx9uaPk-nwX99mtOd5T4zHkY2CxEEYfD0Wi3HPSdefRSqeFEOzE4oT-Qv0e5EwbYLlK/exec",
+  requestsUrl: "https://script.google.com/macros/s/AKfycbxBVcQ1q_iNfHeYMxxbqZ-9vrZW3Q1LzSp3_33R1-9TK-F1Bi_x0ExE_cajWECRppD-/exec",
   showFirst: 5,
   sections: [
     {
@@ -193,13 +193,11 @@ window.SQUAD_MANIFEST = {
       name: "Specials",
       tab: "Specials",
       groups: [
-        /*
         {
           id: "build-your-own",
-          name: "Build your own",
+          name: "Custom",
           builder: true
         },
-        */
         {
           id: "ballon-dor",
           name: "Ballon d'Or",
