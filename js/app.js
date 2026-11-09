@@ -122,7 +122,7 @@
           "</button>" +
         "</div>" +
         '<div class="credit-chips" id="creditList" hidden>' + chips + "</div>" +
-        requestStrip() +
+        '<div class="hero-pills">' + requestStrip() + builderPill() + "</div>" +
       "</div>"
     );
   }
@@ -783,6 +783,7 @@
         const paint = () => {
           paintHome(section, groups, token, keepScroll, afterRender, mounted, switching, fromIndex);
           fillCounts();
+          spotlightBuilder();
         };
         if (mounted || !app.firstElementChild) paint();
         else swapScreen(paint);
@@ -1185,6 +1186,15 @@
 
   function importRanking() {
     const params = new URLSearchParams(location.search);
+    if (params.get("s")) {
+      return expandShortLink(params).then(full => {
+        if (full) return importCustom(full);
+        toast("That link couldn't be opened. It may have expired.");
+        try {
+          history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params.toString() : "") + location.hash);
+        } catch (e) {}
+      });
+    }
     if (params.get("l") || params.get("x") || params.get("list") || params.get("custom")) return importCustom(params);
     const club = params.get("club");
     const raw = params.get("r");
@@ -1240,8 +1250,8 @@
                   '<p class="challenge-title"><span class="challenge-icon" aria-hidden="true">' + LINK_ICON + "</span>Challenge your friends</p>" +
                   '<p class="challenge-text">Send them your unique link and they’ll rank the same ' + entries.length + " players.</p>" +
                   '<div class="challenge-field">' +
-                    '<input class="challenge-link" type="text" readonly aria-label="Your challenge link" value="' + esc(customListLink(customConfig())) + '">' +
-                    '<button type="button" class="btn btn-primary challenge-copy">Copy link</button>' +
+                    '<input class="challenge-link" type="text" readonly aria-label="Your challenge link" value="Creating your link…">' +
+                    '<button type="button" class="btn btn-primary challenge-copy" disabled>Copy link</button>' +
                   "</div>" +
                 "</div>"
               : "") +
@@ -1280,12 +1290,26 @@
         wireImages(holder);
         wireShareColours();
         modal.setAttribute("style", themeVars(team));
-        const linkField = modal.querySelector(".challenge-link");
-        if (linkField) linkField.value = customListLink(customConfig());
+        fillChallengeLink();
         if (session && session.team === team && session.state.done) renderResults();
         draw();
       });
     };
+    let linkToken = 0;
+    const fillChallengeLink = () => {
+      const field = modal.querySelector(".challenge-link");
+      const btn = modal.querySelector(".challenge-copy");
+      if (!field) return;
+      const mine = ++linkToken;
+      field.value = "Creating your link…";
+      btn.disabled = true;
+      shortLink(customListLink(customConfig())).then(link => {
+        if (mine !== linkToken) return;
+        field.value = link;
+        btn.disabled = false;
+      });
+    };
+    fillChallengeLink();
     wireShareColours();
     const copyBtn = modal.querySelector(".challenge-copy");
     if (copyBtn) {
@@ -1393,7 +1417,7 @@
       }
 
       if (act.dataset.act === "x") {
-        const postUrl = isCustom(team) ? customListLink(customConfig()) : url;
+        const postUrl = isCustom(team) ? await shortLink(customListLink(customConfig())) : url;
         const text = caption(team, entries) + (postUrl ? "\n\n" + (isCustom(team) ? "Rank my list:" : "Rank yours:") : "");
         if (fileShare) {
           await shareFile(ShareImage.canvasToFile(canvas, fileName(opts.format)), text + (postUrl ? " " + postUrl : ""));
@@ -1430,7 +1454,7 @@
 
   const CUSTOM_ID = "build-your-own";
   const CUSTOM_MIN = 5;
-  const CUSTOM_MAX = 25;
+  const CUSTOM_MAX = 50;
   const CUSTOM_DEFAULT_NAME = "My picks";
   const CHEVRON = '<svg class="colour-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const NEUTRAL_KIT = {
@@ -1560,6 +1584,22 @@
     return picks.concat(own);
   }
 
+  let builderSpotlight = false;
+
+  function spotlightBuilder() {
+    if (!builderSpotlight) return;
+    const tile = app.querySelector(".builder-tile");
+    if (!tile) return;
+    builderSpotlight = false;
+    setTimeout(() => {
+      tile.scrollIntoView({ block: "center", behavior: REDUCE_MOTION ? "auto" : "smooth" });
+      tile.classList.remove("is-spotlight");
+      void tile.offsetWidth;
+      tile.classList.add("is-spotlight");
+      tile.addEventListener("animationend", () => tile.classList.remove("is-spotlight"), { once: true });
+    }, 350);
+  }
+
   function builderTile() {
     const keys = customConfig().keys;
     const n = keys.length;
@@ -1646,6 +1686,40 @@
     }).filter(Boolean).sort((a, b) => a.score - b.score || a.e.order - b.e.order).slice(0, limit).map(r => r.e);
   }
 
+  function searchClubs(query, limit) {
+    const tokens = normText(query).split(" ").filter(Boolean);
+    if (!tokens.length) return [];
+    const seen = new Set();
+    const out = [];
+    playerPool().list.forEach(e => {
+      if (seen.has(e.team.id)) return;
+      seen.add(e.team.id);
+      if (isCustom(e.team) || !tokens.every(t => wordStarts(e.clubText, t))) return;
+      out.push(e.team);
+    });
+    SECTIONS.forEach(section => (section.groups || []).forEach(group => (group.teams || []).forEach(id => {
+      const team = TEAMS[id];
+      if (!team || seen.has(id) || !INDEX[id]) return;
+      seen.add(id);
+      if (tokens.every(t => wordStarts(normText([team.name, team.shortName].join(" ")), t))) out.push(team);
+    })));
+    return out.slice(0, limit);
+  }
+
+  function clubKeys(team) {
+    const pool = playerPool();
+    const seen = new Set();
+    const out = [];
+    team.players.forEach(player => {
+      const key = team.id + ":" + player.id;
+      const ident = pool.identByKey[key] || identOf(key);
+      if (seen.has(ident)) return;
+      seen.add(ident);
+      out.push({ ident, key: pool.best[ident] ? pool.best[ident].key : key });
+    });
+    return out;
+  }
+
   function clubLabel(team) {
     return team.shortName || team.name;
   }
@@ -1700,6 +1774,48 @@
     if (cfg.name.trim()) params.set("n", cfg.name.trim());
     if (colourClub(cfg)) params.set("k", cfg.colours);
     return location.origin + location.pathname + "?" + params.toString().replace(/%3A/gi, ":");
+  }
+
+  const SHORT_LINKS = {};
+
+  function shortLink(longUrl) {
+    const query = longUrl.split("?")[1] || "";
+    if (!STATS_URL || !query) return Promise.resolve(longUrl);
+    const make = id => location.origin + location.pathname + "?s=" + id;
+    const stored = storeGet("short:" + query);
+    if (stored) return Promise.resolve(make(stored));
+    if (SHORT_LINKS[query]) return SHORT_LINKS[query];
+    const request = fetch(STATS_URL, { method: "POST", body: JSON.stringify({ type: "short", q: query }) })
+      .then(r => r.json())
+      .then(reply => {
+        if (!reply || reply.ok !== true || !/^[A-Za-z0-9]{4,12}$/.test(reply.id || "")) throw new Error("short");
+        storeSet("short:" + query, reply.id);
+        return make(reply.id);
+      });
+    const timeout = new Promise(resolve => setTimeout(() => resolve(longUrl), 8000));
+    SHORT_LINKS[query] = Promise.race([request, timeout]).catch(() => {
+      delete SHORT_LINKS[query];
+      return longUrl;
+    });
+    return SHORT_LINKS[query];
+  }
+
+  function expandShortLink(params) {
+    const id = params.get("s");
+    params.delete("s");
+    if (!STATS_URL || !/^[A-Za-z0-9]{4,12}$/.test(id || "")) return Promise.resolve(null);
+    const url = STATS_URL + (STATS_URL.indexOf("?") < 0 ? "?" : "&") + "action=link&id=" + encodeURIComponent(id);
+    return fetch(url)
+      .then(r => r.json())
+      .then(reply => {
+        if (!reply || reply.ok !== true || typeof reply.q !== "string") return null;
+        const full = new URLSearchParams(reply.q);
+        params.forEach((value, key) => {
+          if (!full.has(key)) full.set(key, value);
+        });
+        return full;
+      })
+      .catch(() => null);
   }
 
   function decodeList(codes, extra) {
@@ -1955,11 +2071,27 @@
         search.setAttribute("aria-expanded", "false");
         return;
       }
-      hits = searchPlayers(q, 8);
+      hits = searchClubs(q, 2).map(team => ({ club: team })).concat(searchPlayers(q, 8));
       const have = chosen();
       const full = cfg.keys.length >= CUSTOM_MAX;
       results.innerHTML = hits.length
         ? hits.map((e, i) => {
+            if (e.club) {
+              const missing = clubKeys(e.club).filter(c => !have.has(c.ident)).length;
+              const done = !missing;
+              const blocked = !done && full;
+              const group = INDEX[e.club.id] ? INDEX[e.club.id].group : null;
+              return (
+                '<li role="option" id="byo-hit-' + i + '" class="builder-hit builder-hit-club' + (i === active ? " is-active" : "") + (done ? " is-added" : "") + '" data-i="' + i + '" aria-selected="' + done + '"' + (blocked ? ' aria-disabled="true"' : "") + ">" +
+                  '<span class="builder-hit-crest">' + plainCrest(e.club, "crest-xs") + "</span>" +
+                  '<span class="builder-hit-text">' +
+                    '<span class="builder-hit-name">' + esc(e.club.name) + "</span>" +
+                    '<span class="builder-hit-meta">' + esc([group ? group.name : "", e.club.players.length + " players"].filter(Boolean).join(" · ")) + "</span>" +
+                  "</span>" +
+                  '<span class="builder-add">' + (done ? "All added" : blocked ? "List full" : "+ Add all " + missing) + "</span>" +
+                "</li>"
+              );
+            }
             const added = have.has(e.ident);
             return (
               '<li role="option" id="byo-hit-' + i + '" class="builder-hit' + (i === active ? " is-active" : "") + (added ? " is-added" : "") + '" data-i="' + i + '" aria-selected="' + added + '"' + (!added && full ? ' aria-disabled="true"' : "") + ">" +
@@ -2035,7 +2167,24 @@
       paint();
     };
 
+    const addClub = team => {
+      const have = chosen();
+      const missing = clubKeys(team).filter(c => !have.has(c.ident));
+      const label = clubLabel(team);
+      if (!missing.length) return toast("Everyone from " + label + " is already in your list.");
+      const room = CUSTOM_MAX - cfg.keys.length;
+      if (room <= 0) return toast("Your list is full. Remove someone to add more.");
+      const take = missing.slice(0, room);
+      take.forEach(c => cfg.keys.push(c.key));
+      commit();
+      const left = missing.length - take.length;
+      toast(left
+        ? "Added " + take.length + " from " + label + " · list full, " + left + " left out"
+        : "Added " + take.length + " player" + (take.length === 1 ? "" : "s") + " from " + label);
+    };
+
     const toggleKey = e => {
+      if (e.club) return addClub(e.club);
       const have = cfg.keys.findIndex(k => identOf(k) === e.ident);
       if (have >= 0) cfg.keys.splice(have, 1);
       else if (cfg.keys.length < CUSTOM_MAX) cfg.keys.push(e.key);
@@ -2225,6 +2374,17 @@
       '<p class="missing-line' + (top ? " missing-line-top" : "") + '">Someone missing from this squad? ' +
         '<button type="button" class="link-btn" data-request="player" data-team="' + team.id + '">Let us know</button>' +
       "</p>"
+    );
+  }
+
+  function builderPill() {
+    const section = builderSection();
+    if (!section) return "";
+    return (
+      '<button type="button" class="request-pill builder-pill" data-go="' + section.id + '" data-spotlight="builder">' +
+        '<span class="builder-pill-spark" aria-hidden="true">✦</span>New: Build your own ranking' +
+        '<span class="arrow-circle builder-pill-arrow" aria-hidden="true">' + ARROW + "</span>" +
+      "</button>"
     );
   }
 
@@ -2806,7 +2966,8 @@
         const team = TEAMS[el.dataset.count];
         if (!team) return;
         const n = Number(counts[team.id]) || 0;
-        el.innerHTML = (team.season ? esc(team.season) + " · " : "") + '<strong class="tile-count">' + esc(countLabel(n)) + "</strong>";
+        el.classList.add("has-count");
+        el.innerHTML = (team.season ? '<span class="tile-season">' + esc(team.season) + " · </span>" : "") + '<strong class="tile-count">' + esc(countLabel(n)) + "</strong>";
       });
     }).catch(() => {});
   }
@@ -3262,6 +3423,10 @@
     const target = e.target.closest("[data-go]");
     if (!target) return;
     e.preventDefault();
+    if (target.dataset.spotlight === "builder") {
+      builderSpotlight = true;
+      setTimeout(spotlightBuilder, 700);
+    }
     go(target.dataset.go);
   });
 
