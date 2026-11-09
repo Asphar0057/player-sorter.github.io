@@ -285,12 +285,12 @@
       }
     }
     out.push([1, 1, [[0, 0], [19, 0], [11, 100], [0, 100]]]);
-    out.push([1, 1, [[200, 0], [181, 0], [189, 100], [200, 100]]]);
+    out.push([1, 1, [[201, 0], [136, 0], [144, 100], [201, 100]]]);
     for (let i = 0; i < 70; i++) {
       const left = i % 2 === 0;
       const gx = Math.floor(rnd() * 5);
       const gy = Math.floor(rnd() * 20);
-      const x = left ? 20 - gx * 3.2 - gy * 0.4 : 177 + gx * 3.2 + gy * 0.4;
+      const x = left ? 20 - gx * 3.2 - gy * 0.4 : 132 + gx * 3.2 + gy * 0.4;
       out.push([0, 0.3 + rnd() * 0.3, [[x, gy * 5], [x + 3, gy * 5], [x + 3, gy * 5 + 3], [x, gy * 5 + 3]]]);
     }
     return out;
@@ -386,7 +386,7 @@
   function veeShapes() {
     const out = [];
     const slope = 0.4, thick = 14.8, gap = 4;
-    [-22, -7.6, 6.8].forEach((y0, kind) => {
+    [-14, 0.4, 14.8].forEach((y0, kind) => {
       out.push([kind, 1, [[-1, y0 - 0.5], [100 - gap, y0 + (101 - gap) * slope], [100 - gap, y0 + (101 - gap) * slope + thick], [-1, y0 + thick - 0.5]]]);
       out.push([kind, 1, [[201, y0 - 0.5], [100 + gap, y0 + (101 - gap) * slope], [100 + gap, y0 + (101 - gap) * slope + thick], [201, y0 + thick - 0.5]]]);
     });
@@ -451,34 +451,23 @@
     return '<defs><pattern id="d" width="3.4" height="3.4" patternUnits="userSpaceOnUse"><circle cx="0.85" cy="0.85" r="0.4" fill="' + color + '"/><circle cx="2.55" cy="2.55" r="0.4" fill="' + color + '"/></pattern></defs><rect width="200" height="100" fill="url(#d)"/>';
   }
 
-  // "raglan": white sleeve panels at both ends with three thin shoulder stripes, a checkered
-  // cuff strip at the outer edges and a checkered collar band at the top centre, on the base
-  // colour (Arsenal home). Kinds: 0 sleeve panel, 1 shoulder stripe, 2 check squares.
+  // "raglan": a white band with a checkered edge on both sides and thin shoulder stripes
+  // either side, on the base colour (Arsenal home). It is centred in the middle of the grid so
+  // it survives the cropping a home-page card applies. Kinds: 0 band, 1 stripe, 2 check squares.
   function raglanShapes() {
     const out = [];
-    const rect = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
-    const sq = 2.4;
-    [false, true].forEach(right => {
-      const mx = x => (right ? 200 - x : x);
-      const poly = pts => pts.map(q => [mx(q[0]), q[1]]);
-      out.push([0, 1, poly([[-1, -1], [27, -1], [36, 101], [-1, 101]])]);
-      [0, 1, 2].forEach(i => {
-        const o = 4 + i * 3.4;
-        out.push([1, 1, poly([[27 - o - 1.6, -1], [27 - o, -1], [36 - o + 0.1, 101], [36 - o - 1.5, 101]])]);
+    const lean = 0.09, sq = 2.6;
+    const shear = (x, y) => [x + (y - 50) * lean, y];
+    const quad = (x1, x2, y1, y2) => [shear(x1, y1), shear(x2, y1), shear(x2, y2), shear(x1, y2)];
+    const x0 = 92, x1 = 132;
+    out.push([0, 1, quad(x0, x1, -10, 110)]);
+    [[x0 - 5.5, x0 - 3.9], [x1 + 3.9, x1 + 5.5], [x0 - 9.5, x0 - 8.5], [x1 + 8.5, x1 + 9.5]].forEach(p => out.push([1, 1, quad(p[0], p[1], -10, 110)]));
+    for (let r = 0; r * sq < 120; r++) {
+      const y = -10 + r * sq;
+      [x0, x0 + sq, x1 - sq * 2, x1 - sq].forEach((cx, c) => {
+        if ((r + c) % 2) return;
+        out.push([2, 1, quad(cx, cx + sq, y, y + sq)]);
       });
-      for (let r = 0; r * sq < 101; r++) {
-        for (let c = 0; c < 2; c++) {
-          if ((r + c) % 2) continue;
-          const x0 = c * sq;
-          out.push([2, 1, right ? rect(200 - x0 - sq, r * sq - 1, sq, sq) : rect(x0, r * sq - 1, sq, sq)]);
-        }
-      }
-    });
-    for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 28; c++) {
-        if ((r + c) % 2) continue;
-        out.push([2, 1, rect(70 + c * sq, 13 + r * sq, sq, sq)]);
-      }
     }
     return out;
   }
@@ -565,7 +554,7 @@
   function linesSvg(p) {
     const rects = lineList(p).map(l => '<rect x="0" y="' + (l[1] * 100) + '" width="100" height="' + ((l[2] - l[1]) * 100) + '" fill="' + l[0] + '"/>').join("");
     const fade = p.fade
-      ? '<defs><linearGradient id="f" x1="0" x2="1" y1="0" y2="0"><stop offset="0.25" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>' +
+      ? '<defs><linearGradient id="f" x1="0" x2="1" y1="0" y2="0"><stop offset="0.55" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>' +
         '<mask id="m"><rect width="100" height="100" fill="url(#f)"/></mask></defs><g mask="url(#m)">' + rects + "</g>"
       : rects;
     return "url('data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">' + fade + "</svg>") + "') center / 100% 100% no-repeat, " + p.base;
@@ -977,7 +966,7 @@
       });
       if (p.fade) {
         const g = o.createLinearGradient(0, 0, off.width, 0);
-        g.addColorStop(0.25, "rgba(0,0,0,1)");
+        g.addColorStop(0.55, "rgba(0,0,0,1)");
         g.addColorStop(1, "rgba(0,0,0,0)");
         o.globalCompositeOperation = "destination-in";
         o.fillStyle = g;

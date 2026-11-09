@@ -24,7 +24,7 @@ registerTeam({
       header: "#FAE960",
       onHeader: "#004A5C",
       headerBand: "#0CC1A1",
-      pattern: { type: "lines", base: "#FAE960", bands: ["#0A5C36"], lines: [["#0A5C36", 0.28, 0.32]], fade: true }
+      pattern: { type: "lines", base: "#FAE960", bands: ["#0A5C36"], lines: [["#0A5C36", 0.27, 0.33]], fade: true }
     },
     away: {
       label: "Away",
