@@ -1415,7 +1415,7 @@
 
   // "rulestripes": wide vertical stripes in two colours with fine rules, like the Atletico de
   // Madrid home shirt: the base colour is the thick stripe and the first band colour the wide
-  // band between them. Each band has two thin lines in the base colour along both edges, each
+  // band between them. Each band has one thin line in the base colour along each edge, each
   // thick stripe has a thin line in the band colour just inside both edges, and three thin
   // lines in the second band colour run down its middle from a small trident. Kinds: 0 = band,
   // 1 = thin line in the stripe (band colour), 2 = thin lines in the band (base colour),
@@ -1432,8 +1432,8 @@
       const sx = x0 + i * P;            // start of the thick stripe
       const bx = sx + R;                // start of the band
       out.push([0, 1, rect(bx, -2, W, 104)]);
-      // two thin lines in the band along both edges
-      [1.2, 3.1].forEach(o => {
+      // one thin line in the band along each edge
+      [1.5].forEach(o => {
         out.push([2, 1, rect(bx + o * K, -2, 0.8 * K, 104)]);
         out.push([2, 1, rect(bx + W - (o + 0.8) * K, -2, 0.8 * K, 104)]);
       });
