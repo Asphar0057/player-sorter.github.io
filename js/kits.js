@@ -200,10 +200,10 @@
   // toward the top-right (Orlando City's "digital storm" body pattern).
   const DOTS = (function () {
     const out = [];
-    for (let row = 0, y = 4; y < 100; row++, y = 4 + row * 7) {
-      for (let x = 4 + (row % 2 ? 4 : 0); x < 200; x += 8) {
+    for (let row = 0, y = 1.6; y < 100; row++, y = 1.6 + row * 2.9) {
+      for (let x = 1.6 + (row % 2 ? 1.7 : 0); x < 200; x += 3.4) {
         const t = Math.max(0, Math.min(1, 0.55 * (x / 200) + 0.45 * (1 - y / 100)));
-        out.push([x, y, 0.5 + 3.2 * Math.pow(t, 1.15)]);
+        out.push([x, y, 0.2 + 1.25 * Math.pow(t, 1.0)]);
       }
     }
     return out;

@@ -90,7 +90,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `zigzag`: horizontal zigzag lines across `base`, cycling through the band colours
 - `tipping`: plain `base` with two thin horizontal stripes near the top, like collar tipping (Bayern away)
 - `lightning`: SVG lightning bolt of the band colour at the right edge of `base` (Rayo Vallecano)
-- `dots`: vector halftone dots in the band colour on `base`, small at the bottom-left and large at the top-right (Orlando City home)
+- `dots`: vector halftone dots in the band colour on `base`, a fine halftone grid, small at the bottom-left and larger at the top-right (Orlando City)
 - `triangles`: faint embossed triangle texture in the band colour that fades toward the bottom (Getafe)
 - `cross`: Nordic cross on `base`, the first band colour as the wide cross and the second as the thin inner cross, set left of centre like the flag (Norway)
 - `diamonds`: three coloured diamonds on top of `base` (Germany)
