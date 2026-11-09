@@ -1464,13 +1464,38 @@
     return out;
   }
 
+  // "prism": tilted bands of stacked right triangles in light grey and mid grey on near-black, each
+  // band separated by a black diagonal, with faint vertical ribs, like the Atletico de Madrid
+  // 2022/23 away shirt. Kind 0 = light triangle, 1 = mid triangle, 2 = ribs.
+  function prismShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.6 : 1;
+    const w = 13 * K, h = 11 * K, P = w * 1.0, sh = w * 0.5;
+    const rows = Math.ceil(110 / h) + 3;
+    const span = Math.ceil((GW + rows * sh) / P) + 3;
+    for (let i = -2; i < span; i++) {
+      for (let j = -1; j < rows; j++) {
+        const x0 = i * P - j * sh, y = j * h - 4;
+        const a = i % 2 === 0;
+        // light triangle and mid triangle filling the tile
+        out.push([a ? 0 : 1, 0.95, [[x0, y + h], [x0, y], [x0 + w, y + h]]]);
+        out.push([a ? 1 : 0, 0.9, [[x0 + w, y + h], [x0 + w, y], [x0, y]]]);
+        // black diagonal separator along the band edge
+        out.push([3, 0.9, [[x0 - 1.6 * K, y], [x0 + 1.6 * K, y], [x0 - sh + 1.6 * K, y + h], [x0 - sh - 1.6 * K, y + h]]]);
+        // faint vertical rib
+        out.push([2, 0.45, [[x0 + w * 0.5, y], [x0 + w * 0.5 + 0.3 * K, y], [x0 + w * 0.5 + 0.3 * K, y + h], [x0 + w * 0.5, y + h]]]);
+      }
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes, rulestripes: ruleStripeShapes, multistripes: multiStripeShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes, rulestripes: ruleStripeShapes, multistripes: multiStripeShapes, prism: prismShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1493,6 +1518,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "prism") return [b[0] || "#3A3D43", b[1] || "#26282D", b[2] || "#4A4E55", "#050506"];
     if (p.type === "multistripes") { stripeColors.cur = b.length ? b : ["#FFFFFF"]; return stripeColors.cur; }
     if (p.type === "rulestripes") return [b[0] || "#FFFFFF", b[0] || "#FFFFFF", p.base, b[1] || "#262F61"];
     if (p.type === "scrolls") return [b[0] || "#D6C9B0"];
