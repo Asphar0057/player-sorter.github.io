@@ -1786,6 +1786,8 @@ html[data-vt="kit-left"]::view-transition-new(root) { animation: kit-slide-left 
   .team-tile .crest-md .crest-fallback { font-size: 11px; }
   .team-tile-name { font-size: 15px; line-height: 1.02; }
   .team-tile-meta { display: none; }
+  .team-tile-meta.has-count { display: block; font-size: 11px; margin-top: 2px; }
+  .tile-season { display: none; }
   .see-more-tile .team-tile-meta { display: block; font-size: 11px; margin-top: 2px; }
   .see-more-tile { --tile-radius: 14px; }
   .team-tile-club::after { inset: 0 0 0 62%; opacity: 0.45; }
@@ -1894,6 +1896,22 @@ html[data-vt="kit-left"]::view-transition-new(root) { animation: kit-slide-left 
 .request-pill .arrow-circle { width: 28px; height: 28px; }
 .request-pill .arrow-circle svg { width: 15px; height: 15px; }
 .request-arrow { background: #a55448; color: #fff; }
+.hero-pills { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.builder-pill { background: #a55448; color: #fff; }
+.builder-tile.is-spotlight { animation: builder-spotlight 0.9s ease-in-out 3; }
+@keyframes builder-spotlight {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(165, 84, 72, 0); transform: scale(1); }
+  50% { box-shadow: 0 0 0 4px var(--paper, #f4f1ea), 0 0 0 9px rgba(165, 84, 72, 0.85); transform: scale(1.03); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .builder-tile.is-spotlight { animation: builder-spotlight-still 2.7s step-end 1; }
+  @keyframes builder-spotlight-still {
+    0% { box-shadow: 0 0 0 4px var(--paper, #f4f1ea), 0 0 0 9px rgba(165, 84, 72, 0.85); }
+    100% { box-shadow: none; }
+  }
+}
+.builder-pill-spark { margin-right: -4px; }
+.builder-pill-arrow { background: #fff; color: #a55448; }
 
 .request-modal:not([style]) .seg-pill { background: #a55448; }
 .request-modal:not([style]) .seg-opt input:checked + span { color: #fff; }
@@ -2195,6 +2213,12 @@ html[data-vt="kit-left"]::view-transition-new(root) { animation: kit-slide-left 
 .builder-hit[aria-disabled="true"] { cursor: not-allowed; opacity: 0.55; }
 
 .builder-hit-text { display: grid; flex: 1; min-width: 0; }
+
+.builder-hit-crest { width: 40px; height: 40px; flex: none; display: grid; place-items: center; }
+
+.builder-hit-club { border-bottom: 1px solid color-mix(in srgb, var(--card-ink) 10%, transparent); border-radius: 10px 10px 0 0; }
+
+.builder-hit-club + .builder-hit:not(.builder-hit-club) { margin-top: 4px; }
 
 .builder-hit-name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 

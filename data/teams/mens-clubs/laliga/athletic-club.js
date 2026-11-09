@@ -111,7 +111,7 @@ registerTeam({
     { id: "nico-serrano", name: "Nico Serrano", number: 22, position: "FW", nation: "ESP" },
     { id: "robert-navarro", name: "Robert Navarro", number: 23, position: "FW", nation: "ESP" },
     { id: "alvaro-djalo", name: "Álvaro Djaló", number: 25, position: "FW", nation: "GNB" },
-    { id: "christian-imga", name: "Christian Imga", number: 33, position: "FW" },
+    { id: "christian-imga", name: "Christian Imga", number: 33, position: "FW", nation: "ESP" },
     { id: "jesus-vizcay", name: "Jesús Vizcay", number: 34, position: "FW", nation: "ESP" }
   ]
 });
