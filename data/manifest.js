@@ -176,6 +176,7 @@ window.SQUAD_MANIFEST = {
             "2026-usa"
           ]
         },
+        /*
         {
           id: "world-cup-2022",
           name: "World Cup 2022",
@@ -186,6 +187,7 @@ window.SQUAD_MANIFEST = {
           name: "World Cup 2018",
           teams: ["2018-france"]
         }
+        */
       ]
     },
     {
