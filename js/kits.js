@@ -477,6 +477,29 @@
     return out;
   }
 
+  // "streaks": faint broken horizontal dashes that gather into flowing, contour-like zones on
+  // the base (the tone-on-tone texture on the Villarreal 2026/27 home shirt), plus a dark sleeve
+  // panel at the right end of the card. Kind 0 = dash (first band colour), kind 1 = sleeve panel.
+  function streakShapes() {
+    const out = [];
+    let seed = 5;
+    const rnd = function () {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+    for (let y = 1; y < 100; y += 2.6) {
+      let x = rnd() * 6;
+      while (x < 200) {
+        const len = 2.5 + rnd() * 6;
+        const f = 0.5 + 0.5 * Math.sin(x * 0.055 + Math.sin(y * 0.09) * 2.4) * Math.cos(y * 0.07 + x * 0.012);
+        if (f > 0.42 + rnd() * 0.25) out.push([0, 0.6, [[x, y], [x + len, y], [x + len, y + 0.7], [x, y + 0.7]]]);
+        x += len + 1.2 + rnd() * 3.5;
+      }
+    }
+    out.push([1, 1, [[201, 0], [140, 0], [148, 100], [201, 100]]]);
+    return out;
+  }
+
   // "ornament": delicate tone-on-tone line work (nested diamonds with small knot motifs and
   // dotted lines) in the first band colour, like the Fiorentina 2026/27 home shirt.
   function ornamentShapes() {
@@ -525,7 +548,7 @@
     return out;
   }
 
-  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes(), scatter: scatterShapes(), ornament: ornamentShapes(), raglan: raglanShapes() };
+  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes(), scatter: scatterShapes(), ornament: ornamentShapes(), raglan: raglanShapes(), streaks: streakShapes() };
 
   function stripeColors(p) {
     const b = p.bands || [];
@@ -533,6 +556,7 @@
     if (p.type === "crosses") return [red, b[1] || mix("#000000", red, 0.3)];
     if (p.type === "slashes") return [red, b[1] || red];
     if (p.type === "ornament") return [b[0] || "#000000"];
+    if (p.type === "streaks") return [b[0] || "#FFFFFF", b[1] || "#005187"];
     if (p.type === "raglan") return [b[0] || "#FFFFFF", b[1] || "#7A1426", b[2] || "#8B0F1D"];
     if (p.type === "scatter") return [b[0] || "#FFFFFF", b[1] || "#F7B4BE"];
     if (p.type === "vee") return [b[0] || "#111111", b[1] || "#E31835", b[2] || "#E8A824"];
