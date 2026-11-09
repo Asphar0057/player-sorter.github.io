@@ -1492,9 +1492,9 @@
   // Kind 0 = stripe, kind 1 = thin framing lines.
   function railStripeShapes() {
     const out = [];
-    const period = 25, sh = 9.5, gap = 2.6, th = 1.2;
+    const period = 27, sh = 3.6, gap = 0.9, th = 0.95;
     const rect = (y, h) => [[-2, y], [GW + 2, y], [GW + 2, y + h], [-2, y + h]];
-    for (let y = 3; y < 106; y += period) {
+    for (let y = 6; y < 106; y += period) {
       out.push([0, 1, rect(y, sh)]);
       out.push([1, 1, rect(y - gap - th, th)]);
       out.push([1, 1, rect(y + sh + gap, th)]);

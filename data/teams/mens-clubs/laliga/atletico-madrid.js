@@ -55,13 +55,13 @@ registerTeam({
       onPrimary: "#FFFFFF",
       accent: "#262F61",
       onAccent: "#FFFFFF",
-      header: "#8B8F96",
-      onHeader: "#FFFFFF",
-      headerBand: "#262F61",
+      header: "#BCC4CD",
+      onHeader: "#1B2447",
+      headerBand: "#CC2040",
       rowTint: "#262F61",
       rowTintStrength: 0.24,
       rowTintFloor: 0.5,
-      pattern: { type: "railstripes", base: "#8B8F96", bands: ["#C8302A", "#262F61"] }
+      pattern: { type: "railstripes", base: "#BCC4CD", bands: ["#CC2040", "#323D5B"] }
     }
   },
   players: [
