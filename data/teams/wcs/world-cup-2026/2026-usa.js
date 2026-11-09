@@ -25,7 +25,7 @@ registerTeam({
       onHeader: "#1F2742",
       headerBand: "#1F2742",
       rowTintStrength: 0,
-      pattern: { type: "thick-waves", base: "#FFFFFF", bands: ["#BB2534"] }
+      pattern: { type: "swell", base: "#FFFFFF", bands: ["#BB2534", "#7A1220"] }
     },
     away: {
       label: "Away",
@@ -46,7 +46,7 @@ registerTeam({
       onHeader: "#E3E7EC",
       headerBand: "#3F434F",
       rowTintStrength: 0,
-      pattern: { type: "dots", base: "#20222F", bands: ["#3F434F"] }
+      pattern: { type: "stars", base: "#20222F", bands: ["#4B5169"] }
     }
   },
   players: [

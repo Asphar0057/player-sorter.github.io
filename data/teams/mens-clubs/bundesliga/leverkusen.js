@@ -5,7 +5,7 @@ registerTeam({
   monogram: "B04",
   league: "bundesliga",
   season: "2026/27",
-  tile: { bg: "#141414", fg: "#F4F4F2", muted: "rgba(244,244,242,0.72)", pattern: { type: "stripes", base: "#141414", bands: ["#E31B2B"] } },
+  tile: { bg: "#141414", fg: "#F4F4F2", muted: "rgba(244,244,242,0.72)", pattern: { type: "crosses", base: "#141414", bands: ["#E31B2B", "#9E0F1C"] } },
   kits: {
     home: {
       label: "Home",
@@ -25,7 +25,7 @@ registerTeam({
       rowTint: "#E31B2B",
       rowTintStrength: 0.25,
       rowTintFloor: 0.5,
-      pattern: { type: "stripes", base: "#141414", bands: ["#E31B2B"] }
+      pattern: { type: "crosses", base: "#141414", bands: ["#E31B2B", "#9E0F1C"] }
     },
     away: {
       label: "Away",

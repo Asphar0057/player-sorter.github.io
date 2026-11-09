@@ -5,6 +5,12 @@ registerTeam({
   monogram: "MCI",
   league: "premier-league",
   season: "2026/27",
+  tile: {
+    bg: "linear-gradient(100deg, #6CABDD 0%, #6CABDD 32%, #B9D8F0 62%, #FFFFFF 100%)",
+    fg: "#0B1E3D",
+    muted: "rgba(11,30,61,0.75)",
+    pattern: { type: "solid", base: "transparent", bands: [] }
+  },
   kits: {
     home: {
       label: "Home",

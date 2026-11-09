@@ -5,7 +5,7 @@ registerTeam({
   monogram: "SGE",
   league: "bundesliga",
   season: "2026/27",
-  tile: { bg: "#121318", fg: "#F5F5F2", muted: "rgba(245,245,242,0.72)", pattern: { type: "stripes", base: "#121318", bands: ["#E31B3B", "#C8102E"] } },
+  tile: { bg: "#121318", fg: "#F5F5F2", muted: "rgba(245,245,242,0.72)", pattern: { type: "pinlines", base: "#111111", bands: ["#E1020C"] } },
   kits: {
     home: {
       label: "Home",
@@ -25,7 +25,7 @@ registerTeam({
       rowTint: "#E1020C",
       rowTintStrength: 0.25,
       rowTintFloor: 0.5,
-      pattern: { type: "stripes", base: "#111111", bands: ["#E1020C"] }
+      pattern: { type: "pinlines", base: "#111111", bands: ["#E1020C"] }
     },
     away: {
       label: "Away",

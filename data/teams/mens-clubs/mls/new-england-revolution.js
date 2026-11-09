@@ -24,7 +24,7 @@ registerTeam({
       header: "#0A1B3F",
       onHeader: "#FFFFFF",
       headerBand: "#CE1126",
-      pattern: { type: "chevron", base: "#0A1B3F", bands: ["#CE1126"] }
+      pattern: { type: "burst", base: "#0F2350", bands: ["#C8102E", "#FFFFFF"] }
     },
     away: {
       label: "Away",
