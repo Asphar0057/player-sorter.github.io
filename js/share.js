@@ -535,43 +535,43 @@
   }
 
   // Two thin, sharp-tipped neon curves like a cubic graph, one near each end of the banner (the
-  // flank panels of the Atletico away shirt). Soft glow behind each.
+  // flank panels of the Atletico away shirt). Each curve's lower end bends smoothly into the
+  // bottom line, so curve and line read as one shape. Soft glow behind each.
   function neonCurves(ctx, f, k, t) {
     const h = f.head - 14;
     const color = t.color || k.headerBand || "#D7FF1F";
-    const draw = (cx, dir) => {
-      const amp = h * 0.17, wmax = h * 0.042, n = 60;
-      const L = [], R = [];
+    const amp = h * 0.17, wmax = h * 0.042, n = 80, trim = h * 0.18;
+    const R = h * 0.26, u0 = 1 - R / h;
+    const cxL = trim + wmax / 2 - 0.65 * amp;
+    const half = (u, g) => g * wmax * Math.pow(Math.sin(Math.PI * Math.min(u, 0.999)), 0.75) / 2;
+    const build = (cx, dir, g, fillet) => {
+      const outer = [], inner = [];
       for (let i = 0; i <= n; i++) {
         const u = i / n, v = u * 2 - 1;
         const x = cx + dir * amp * (v * v * v - 0.35 * v);
-        const w = wmax * (u < 0.5 ? Math.pow(Math.sin(Math.PI * u), 0.75) : 1 + 1.9 * Math.pow((u - 0.5) * 2, 6));
-        L.push([x - w / 2, u * h]); R.push([x + w / 2, u * h]);
+        const w = u < 0.5 ? half(u, g) : g * wmax / 2 * (1 - 0.0 * u);
+        let ex = 0;
+        if (fillet && u > u0) { const q = (u - u0) / (1 - u0); ex = R * (1 - Math.sqrt(Math.max(0, 1 - q * q))); }
+        outer.push([x - dir * w, u * h]);
+        inner.push([x + dir * (w + ex), u * h]);
       }
-      const path = pts => { ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); };
-      [[2.8, 0.1], [1.9, 0.16]].forEach(g => {
-        const gl = [], gr = [];
-        for (let i = 0; i <= n; i++) {
-          const u = i / n, v = u * 2 - 1;
-          const x = cx + dir * amp * (v * v * v - 0.35 * v), w = wmax * g[0] * (u < 0.5 ? Math.pow(Math.sin(Math.PI * u), 0.75) : 1 + 1.9 * Math.pow((u - 0.5) * 2, 6));
-          gl.push([x - w / 2, u * h]); gr.push([x + w / 2, u * h]);
-        }
-        ctx.globalAlpha = g[1]; ctx.fillStyle = color;
-        path(gl.concat(gr.reverse())); ctx.closePath(); ctx.fill();
-      });
+      return outer.concat(inner.reverse());
+    };
+    const fill = pts => { ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); ctx.closePath(); ctx.fill(); };
+    const draw = (cx, dir) => {
+      [[2.8, 0.1], [1.9, 0.16]].forEach(g => { ctx.globalAlpha = g[1]; ctx.fillStyle = color; fill(build(cx, dir, g[0], false)); });
       ctx.globalAlpha = 1; ctx.fillStyle = color;
-      path(L.concat(R.reverse())); ctx.closePath(); ctx.fill();
+      fill(build(cx, dir, 1, true));
     };
     ctx.save();
-    ctx.beginPath(); ctx.rect(0, 0, f.w, h); ctx.clip();
-    // soft glow rising off the bottom band so the curves and the band read as one
+    ctx.beginPath(); ctx.rect(0, 0, f.w, h + 1); ctx.clip();
     const gl = ctx.createLinearGradient(0, h, 0, h - h * 0.4);
     gl.addColorStop(0, color); gl.addColorStop(1, "rgba(0,0,0,0)");
     ctx.globalAlpha = 0.15; ctx.fillStyle = gl;
-    ctx.fillRect(h * 0.2, h - h * 0.4, f.w - h * 0.4, h * 0.4);
+    ctx.fillRect(trim, h - h * 0.4, f.w - 2 * trim, h * 0.4);
     ctx.globalAlpha = 1;
-    draw(h * 0.09, 1);
-    draw(f.w - h * 0.09, -1);
+    draw(cxL, 1);
+    draw(f.w - cxL, -1);
     ctx.restore();
   }
 
@@ -737,20 +737,18 @@
         yy += hh;
       });
     } else if (k.headerDecor && k.headerDecor.type === "neon-curves") {
-      // the band runs only between the two curves; each curve grows out of its end, and a thin
-      // triangle fills the corner beyond it
-      const hh = f.head - 14, trim = hh * 0.2;
+      // the band runs only between the two curves, which bend into its ends
+      const hh = f.head - 14, trim = hh * 0.18;
       ctx.fillStyle = k.headerBand;
-      ctx.fillRect(trim, hh, f.w - 2 * trim, 14);
-      [[0, 1], [f.w, -1]].forEach(e => {
-        ctx.beginPath();
-        ctx.moveTo(e[0], f.head);
-        ctx.lineTo(e[0] + e[1] * (trim + 1), f.head);
-        ctx.lineTo(e[0] + e[1] * (trim + 1), hh);
-        ctx.lineTo(e[0], hh * 0.68);
-        ctx.closePath();
-        ctx.fill();
-      });
+      ctx.beginPath();
+      ctx.moveTo(trim, hh);
+      ctx.lineTo(f.w - trim, hh);
+      ctx.lineTo(f.w - trim, f.head - 9);
+      ctx.quadraticCurveTo(f.w - trim, f.head, f.w - trim - 9, f.head);
+      ctx.lineTo(trim + 9, f.head);
+      ctx.quadraticCurveTo(trim, f.head, trim, f.head - 9);
+      ctx.closePath();
+      ctx.fill();
     } else {
       ctx.fillStyle = k.headerBand;
       ctx.fillRect(0, f.head - 14, f.w, 14);
