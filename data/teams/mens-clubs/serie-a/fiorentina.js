@@ -238,33 +238,28 @@ registerTeam({
     },
     "third": {
       "label": "Third",
-      "paper": "#F9F5F1",
-      "onPaper": "#7A2630",
+      "paper": "#2252BD",
+      "onPaper": "#FFFFFF",
       "onPaperMuted": "#7A2630",
       "card": "#FFFFFF",
       "ink": "#202438",
       "muted": "#525B71",
-      "primary": "#B93246",
+      "primary": "#143A8C",
       "onPrimary": "#FFFFFF",
       "paperPrimary": "#7A2630",
       "paperOnPrimary": "#F9F5F1",
-      "accent": "#7A2630",
+      "accent": "#B93246",
       "onAccent": "#FFFFFF",
       "photoBg": "#B93246",
       "labelBg": "#FFFFFF",
-      "header": "#F9F5F1",
-      "onHeader": "#7A2630",
-      "headerBand": "#B93246",
+      "header": "#2252BD",
+      "onHeader": "#FFFFFF",
+      "headerBand": "#FFFFFF",
       "rowTint": "#7A2630",
       "rowTintStrength": 0.12,
-      "pattern": {
-        "type": "split",
-        "base": "#F9F5F1",
-        "bands": [
-          "#B93246"
-        ]
-      },
-      "dark": false
+      "headerStripes": [["#F6F7E4", 3], ["#E0343B", 2]],
+      "pattern": {"type": "golden", "base": "#2252BD", "bands": ["#6F92EA"]},
+      "dark": true
     }
   }
 });

@@ -151,14 +151,92 @@
 
   const BOLT = [[78, 0], [96, 0], [77, 38], [89, 38], [48, 100], [28, 100], [60, 52], [48, 52]];
 
+  // Patterns that build their own artwork for the banner's shape (see Kits.*List in kits.js).
+  const BANNER_ART = ["burst", "shards", "crosses", "pinlines", "slashes", "vee", "scatter", "ornament", "raglan", "streaks", "swell", "stars"];
+
+  function bannerArt(ctx, f, k, p, from, room, h) {
+    if (p.type === "fade") {
+      const r = p.range || [0.4, 0.62];
+      const g = ctx.createLinearGradient(0, 0, f.w, 0);
+      g.addColorStop(r[0], p.base);
+      g.addColorStop(r[1], (p.bands && p.bands[0]) || p.base);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, f.w, h);
+      return;
+    }
+    if (room < 150) return;
+    const s = h / 100;
+    const W = room / s;
+    const off = document.createElement("canvas");
+    off.width = Math.ceil(room);
+    off.height = Math.ceil(h);
+    const o = off.getContext("2d");
+    const poly = pts => {
+      o.beginPath();
+      pts.forEach((q, i) => { if (i === 0) o.moveTo(q[0] * s, q[1] * s); else o.lineTo(q[0] * s, q[1] * s); });
+      o.closePath();
+      o.fill();
+    };
+    if (p.type === "lines") {
+      (p.lines || []).forEach(l => {
+        o.fillStyle = l[0];
+        o.fillRect(0, off.height * l[1], off.width, off.height * (l[2] - l[1]));
+      });
+      if (p.fade) {
+        const g = o.createLinearGradient(0, 0, off.width, 0);
+        g.addColorStop(0, "rgba(0,0,0,0)");
+        g.addColorStop(0.55, "rgba(0,0,0,1)");
+        o.globalCompositeOperation = "destination-in";
+        o.fillStyle = g;
+        o.fillRect(0, 0, off.width, off.height);
+        o.globalCompositeOperation = "source-over";
+      }
+    } else if (p.type === "burst") {
+      const c = Kits.burstColors(p);
+      Kits.burstList(W).forEach(r => {
+        o.globalAlpha = r[0] ? 0.9 : 0.58;
+        o.fillStyle = c[r[0]];
+        poly(r[1]);
+      });
+      o.globalAlpha = 1;
+      const hx = W * 0.74 * s, hy = 34 * s;
+      const g = o.createRadialGradient(hx, hy, 0, hx, hy, 46 * s);
+      g.addColorStop(0, k.header);
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      o.fillStyle = g;
+      o.fillRect(0, 0, off.width, off.height);
+    } else if (p.type === "shards") {
+      Kits.shards(o, 0, 0, s, Kits.shardColors(p), Kits.shardList(W));
+    } else {
+      if (p.type === "scatter") Kits.stripes.dots(o, 0, 0, s, p.dots || "rgba(255,255,255,0.32)", W);
+      Kits.shards(o, 0, 0, s, Kits.stripes.colors(p), Kits.stripes.list(p.type, W));
+    }
+    if (p.type !== "lines" || !p.fade) {
+      // soften the edge nearest the title
+      const g = o.createLinearGradient(0, 0, off.width, 0);
+      g.addColorStop(0, "rgba(0,0,0,0)");
+      g.addColorStop(Math.min(0.3, 220 / off.width), "rgba(0,0,0,1)");
+      g.addColorStop(1, "rgba(0,0,0,1)");
+      o.globalCompositeOperation = "destination-in";
+      o.fillStyle = g;
+      o.fillRect(0, 0, off.width, off.height);
+    }
+    ctx.drawImage(off, from, 0);
+  }
+
   function headerPattern(ctx, f, k, clearX) {
-    const p = k.pattern || {};
+    const p = k.headerPattern || k.pattern || {};
     const band = (p.bands && p.bands[0]) || k.onHeader;
     const h = f.head - 14;
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     ctx.save();
-    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles", "chevron", "sleeves", "centreband", "band", "cross", "dots", "thick-waves", "burst", "shards", "crosses", "pinlines", "slashes", "vee", "scatter", "ornament", "raglan", "streaks", "swell", "stars"].indexOf(p.type) >= 0) {
+    if (BANNER_ART.indexOf(p.type) >= 0 || Kits.stripes.has(p.type) || p.type === "lines" || p.type === "fade") {
+      bannerArt(ctx, f, k, p, from, room, h);
+      ctx.restore();
+      return;
+    }
+    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles", "chevron", "sleeves", "centreband", "band", "cross", "dots", "thick-waves"].indexOf(p.type) >= 0) {
       if (room < 150) {
         ctx.restore();
         return;
@@ -370,28 +448,6 @@
       for (let r = 0; r < 4; r++) {
         for (let q = r % 2; q < cols; q += 2) ctx.fillRect(x0 + q * cell, r * cell, cell, cell);
       }
-    } else if (Kits.stripes.shapes[p.type]) {
-      const s = Math.max(room / 200, h / 100);
-      if (p.type === "scatter") Kits.stripes.dots(ctx, from + (room - 200 * s) / 2, (h - 100 * s) / 2, s, p.dots || "rgba(255,255,255,0.32)");
-      Kits.shards(ctx, from + (room - 200 * s) / 2, (h - 100 * s) / 2, s, Kits.stripes.colors(p), Kits.stripes.shapes[p.type]);
-    } else if (p.type === "shards") {
-      const s = Math.max(room / 200, h / 100);
-      Kits.shards(ctx, from + (room - 200 * s) / 2, (h - 100 * s) / 2, s, [(p.bands && p.bands[1]) || "#000000", (p.bands && p.bands[0]) || band]);
-    } else if (p.type === "burst") {
-      const colors = [(p.bands && p.bands[0]) || band, (p.bands && p.bands[1]) || "#FFFFFF"];
-      const s = Math.max(room / 200, h / 100);
-      const ox = from + (room - 200 * s) / 2;
-      const oy = (h - 100 * s) / 2;
-      Kits.burst.forEach(r => {
-        ctx.globalAlpha = r[0] ? 0.9 : 0.58;
-        ctx.fillStyle = colors[r[0]];
-        ctx.beginPath();
-        r[1].forEach((q, i) => {
-          if (i === 0) ctx.moveTo(ox + q[0] * s, oy + q[1] * s); else ctx.lineTo(ox + q[0] * s, oy + q[1] * s);
-        });
-        ctx.closePath();
-        ctx.fill();
-      });
     } else if (p.type === "dots") {
       const s = Math.max(room / 200, h / 100);
       const ox = from + (room - 200 * s) / 2;
@@ -515,8 +571,19 @@
       ctx.fillRect(0, 0, f.w, f.head);
     headerPattern(ctx, f, k, clearX);
         headerCollar(ctx, f, k, clearX);
-    ctx.fillStyle = k.headerBand;
-    ctx.fillRect(0, f.head - 14, f.w, 14);
+    if (k.headerStripes && k.headerStripes.length) {
+      const total = k.headerStripes.reduce((n, st) => n + st[1], 0);
+      let yy = f.head - 14;
+      k.headerStripes.forEach(st => {
+        const hh = (14 * st[1]) / total;
+        ctx.fillStyle = st[0];
+        ctx.fillRect(0, yy, f.w, Math.ceil(hh));
+        yy += hh;
+      });
+    } else {
+      ctx.fillStyle = k.headerBand;
+      ctx.fillRect(0, f.head - 14, f.w, 14);
+    }
 
     if (crestImg) {
       const inner = k.crestBg ? crestSize * 0.68 : crestSize;

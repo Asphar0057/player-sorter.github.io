@@ -106,6 +106,25 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `streaks`: fine parallel lines in the first band colour sweeping through the card in a big S curve, broken into runs so they stay faint (Villarreal home)
 - `swell`: wide rolling bands in the first band colour with a darker shadow edge (second band colour) under each one, on `base` (USA home)
 - `stars`: upright five-point stars, all the same size, on a regular staggered grid in the first band colour on `base` (USA away)
+- `bruise`: jagged zig-zag strokes and small triangles in the first band colour on `base` (Arsenal away)
+- `pole`: two touching vertical bars (first colour left, second right) that are strong at the top and bottom and fade out in the middle, opening into a V at the top, on `base` (Man City third)
+- `swirls`: flowing watercolour ribbons in up to three band colours on `base` (West Ham third, Leverkusen away)
+- `ticks`: equal-height chevron rows alternating two tones (second band colour on `base`) with small stacks of three diamonds (first band colour) on a staggered grid (Germany away)
+- `gridiron`: diagonal stripes alternating the first two band colours across the end of the card (Cagliari away)
+- `hexes`: a honeycomb of faintly lit hexagons in the first band colour (Man City away)
+- `contours`: fine wavy contour-like lines in the first band colour that drift and break up on `base` (Villarreal, all three kits)
+- `golden`: a proper golden rectangle with nested squares, the circle in the first square and the continuous Fibonacci spiral, centred and filling the banner height, on very large faint geometric tiles (Fiorentina third)
+- `vtex`: rows of downward-pointing dark triangles with thin light rules, tone-on-tone (Arsenal away)
+- `skewchecks`: a skewed, uneven checkerboard in the first band colour (Liverpool third)
+- `bees`: a tone-on-tone grid of worker bees (Man City away)
+- `vbars`: wide soft vertical bars with a thin rule beside each (Dortmund third)
+- `marble`: flowing ink-marbling ribbons in up to three band colours, thickening toward the right on banners (Leverkusen away)
+- `rings`: feathered spray-paint circles plus a solid side panel at the right end (West Ham third)
+A kit can set `headerStripes: [[colour, weight], ...]` to split the bottom band of the share image into several stripes (Arsenal, Liverpool, West Ham).
+- `flash`: many faint lightning strikes, one per vertical layer, side by side across the width (Dortmund away)
+- `baroque`: big solid teardrop scrolls that curl inward, like the Bembel jug print (Frankfurt away)
+- `herring`: fine herringbone chevron lines in the first band colour on `base` (New England Revolution away, Arsenal away)
+- `ripple`: soft concentric rings spreading from a point near the top right, with a very faint diagonal lattice (Cagliari third)
 - `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
 - `burst`: radial rays fanning out from the upper right, wide wedges in the first band colour and thin streaks in the second (New England Revolution home)
 - `thick-waves`: bold wavy stripes in the first band colour across `base` (USA home)
@@ -131,6 +150,18 @@ The results page has a Share button that builds a PNG (story 9:16 or post 4:5; t
 
 - Download image saves the PNG.
 - Instagram story and Post on X open the phone's share sheet with the image attached. On a computer they download the image instead (X also opens a pre-written post).
+
+
+## Checking banners
+
+`tools/banner-preview/banners.html` draws the share-image header ("banner") of every squad in every kit with the same code the site uses, so you can check a new kit without sorting a whole squad. Serve the repo root and open it:
+
+```
+python -m http.server 8000
+# then open http://localhost:8000/tools/banner-preview/banners.html
+```
+
+Pick a section and a banner shape at the top; banners render as you scroll. `?format=post` and `?only=new` preselect options. `_config.yml` keeps `tools/` out of the published site, so this page only exists in the repository.
 
 
 ## Releasing an update

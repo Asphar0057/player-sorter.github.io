@@ -23,7 +23,7 @@ registerTeam({
       onAccent: "#FFFFFF",
       header: "#EF0107",
       onHeader: "#FFFFFF",
-      headerBand: "#9C824A",
+      headerBand: "#7A1426",
       rowTintStrength: 0.15,
       pattern: { type: "raglan", base: "#EF0107", bands: ["#FFFFFF", "#7A1426", "#8B0F1D"] }
     },
@@ -37,12 +37,13 @@ registerTeam({
       line: "rgba(255,255,255,0.12)",
       primary: "#F5C518",
       onPrimary: "#0D1526",
-      accent: "#EF0107",
-      onAccent: "#FFFFFF",
-      header: "#1B2A4A",
+      accent: "#F5C518",
+      onAccent: "#13294B",
+      header: "#1F3274",
       onHeader: "#F5C518",
-      headerBand: "#EF0107",
-      pattern: { type: "zigzag", base: "#1B2A4A", bands: ["#EF0107", "#F5C518"] }
+      headerBand: "#EFBF2B",
+      headerStripes: [["#EFBF2B", 1], ["#C8102E", 1]],
+      pattern: {type: "herring", base: "#1F3274", bands: ["#4A68BC"]}
     },
     third: {
       label: "Third",
@@ -52,15 +53,16 @@ registerTeam({
       muted: "#6A6550",
       primary: "#13294B",
       onPrimary: "#FFFFFF",
-      accent: "#7A1F35",
+      accent: "#13294B",
       onAccent: "#FFFFFF",
-      header: "#F2EA9C",
+      header: "#F1E6A2",
       onHeader: "#13294B",
-      headerBand: "#13294B",
+      headerBand: "#5A241C",
       rowTint: "#13294B",
       rowTintStrength: 0.2,
       rowTintFloor: 0.5,
-      pattern: { type: "bolts", base: "#F2EA9C", bands: ["#D9CC6A"] }
+      headerStripes: [["#C8102E", 1], ["#13294B", 1]],
+      pattern: {type: "pinstripe", base: "#F1E6A2", bands: ["#E9DB8F"]}
     }
   },
   players: [

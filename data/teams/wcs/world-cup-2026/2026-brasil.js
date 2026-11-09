@@ -29,8 +29,8 @@ registerTeam({
     away: {
       label: "Away",
       dark: true,
-      paper: "#0e183b",
-      card: "#0c3285",
+      paper: "#0F2A80",
+      card: "#1B3AA6",
       onPaper: "#FAE960",
       onPaperMuted: "#fae860a1",
       paperPrimary: "#FAE960",
@@ -40,12 +40,12 @@ registerTeam({
       line: "#FAE960",
       primary: "#0e183b",
       onPrimary: "#FAE960",
-      accent: "#FAE960",
-      onAccent: "#0A141F",
-      header: "#111111",
+      accent: "#4FE0C8",
+      onAccent: "#0A1A5C",
+      header: "#1B3AA6",
       onHeader: "#FFFFFF",
-      headerBand: "#FAE960",
-      pattern: { type: "pinstripe", base: "#0A141F", bands: ["#082A72"] }
+      headerBand: "#4FE0C8",
+      pattern: {type: "pinstripe", base: "#1B3AA6", bands: ["#0F2575"]}
     }
   },
   players: [
