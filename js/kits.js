@@ -1357,13 +1357,69 @@
     return out;
   }
 
+  // "scrolls": a tone-on-tone baroque print: a diamond lattice of dotted lines with a pair of
+  // curling scrolls and small buds in every cell, like the Spain 2026 away shirt. Kind 0.
+  function scrollShapes() {
+    const out = [];
+    const rnd = seeded(33);
+    const K = GW > 300 ? 1.75 : 1.15;
+    const cell = 27 * K;
+    const dot = (x, y, r, al) => {
+      const pts = [];
+      for (let i = 0; i < 5; i++) pts.push([x + Math.cos((i / 5) * Math.PI * 2) * r, y + Math.sin((i / 5) * Math.PI * 2) * r]);
+      out.push([0, al, pts]);
+    };
+    const spiral = (cx, cy, R, dir, a0, w, al) => {
+      const left = [], right = [];
+      const n = 26;
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const a = a0 + dir * t * Math.PI * 3.1;
+        const r = R * (1 - 0.88 * t);
+        const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+        const tx = -Math.sin(a) * dir, ty = Math.cos(a) * dir;
+        const ww = w * (0.45 + 0.55 * Math.min(1, (1 - t) * 2.2));
+        left.push([x + tx * ww / 2, y + ty * ww / 2]);
+        right.push([x - tx * ww / 2, y - ty * ww / 2]);
+      }
+      out.push([0, al, left.concat(right.reverse())]);
+    };
+    const rows = Math.ceil(110 / (cell / 2)) + 2;
+    for (let j = -1; j < rows; j++) {
+      for (let i = -1; i * cell < GW + cell; i++) {
+        const cx = i * cell + (j % 2 ? cell / 2 : 0), cy = j * cell / 2;
+        // dotted diamond lattice edges
+        for (let q = 1; q < 6; q++) {
+          const t = q / 6;
+          dot(cx + (cell / 2) * t, cy + (cell / 2) * (1 - t) * 0 + (cell / 4) * t * 0, 0, 0);
+        }
+        const flip = (i + j) % 2 ? 1 : -1;
+        spiral(cx - cell * 0.17, cy - cell * 0.06, cell * 0.19, flip, rnd() * 0.5 + (flip > 0 ? 0 : Math.PI), cell * 0.09, 0.85);
+        spiral(cx + cell * 0.17, cy + cell * 0.1, cell * 0.17, -flip, rnd() * 0.5 + (flip > 0 ? Math.PI : 0), cell * 0.085, 0.8);
+        // small buds
+        dot(cx, cy + cell * 0.2, cell * 0.045, 0.8);
+        dot(cx - cell * 0.05, cy - cell * 0.22, cell * 0.036, 0.7);
+        dot(cx + cell * 0.22, cy - cell * 0.12, cell * 0.032, 0.7);
+      }
+    }
+    // dotted lattice lines on the diagonals
+    const step = cell * 0.09;
+    for (let o = -200; o < GW + 200; o += cell) {
+      for (let t = -40; t < 140; t += step * 2.4) {
+        dot(o + t * 1.0, t, cell * 0.024, 0.6);
+        dot(o - t * 1.0 + 100, t, cell * 0.024, 0.6);
+      }
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1386,6 +1442,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "scrolls") return [b[0] || "#D6C9B0"];
     if (p.type === "sunstone") return [b[0] || "#0A5547"];
     if (p.type === "finelines") return [b[0] || "#9BB1DF"];
     if (p.type === "weft") return [b[0] || "#2285F0", b[1] || "#08122B"];
