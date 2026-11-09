@@ -1156,13 +1156,35 @@
     return out;
   }
 
+  // "dashes": rows of short horizontal dashes that gather into dense, bright zones and thin out
+  // into the base, like the speed-line texture on the France 2018 sleeves. Kind 0.
+  function dashShapes() {
+    const out = [];
+    const rnd = seeded(97), zone = noise2(53);
+    const K = GW > 300 ? 1.5 : 1;
+    const rowGap = 2.1 * K, h = 0.95 * K;
+    for (let row = 0, y = -2; y < 104; row++, y += rowGap) {
+      let x = rnd() * 6 * K - 4;
+      while (x < GW + 6) {
+        const len = (2 + rnd() * 8) * K;
+        const dens = zone(x * 0.02 / K + 2, y * 0.045) * 0.75 + (1 - x / GW) * 0.25;
+        if (rnd() < dens * dens * 1.5) {
+          const xo = (row % 2) * 1.3 * K;
+          out.push([0, 0.55 + 0.45 * dens, [[x + xo, y], [x + xo + len, y], [x + xo + len, y + h], [x + xo, y + h]]]);
+        }
+        x += len + (0.8 + rnd() * 3.2) * K;
+      }
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1185,6 +1207,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "dashes") return [b[0] || "#2D7CF0"];
     if (p.type === "ripple") return [b[0] || "#7A6B60", b[1] || "#C2B6AB"];
     if (p.type === "herring") return [b[0] || "#2DB8A6", b[1] || "#2A3F94"];
     if (p.type === "flash" || p.type === "baroque") return [b[0] || "#2B2B2B"];
