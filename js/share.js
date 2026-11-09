@@ -538,14 +538,14 @@
   // flank panels of the Atletico away shirt). Soft glow behind each.
   function neonCurves(ctx, f, k, t) {
     const h = f.head - 14;
-    const color = t.color || "#D7FF1F";
+    const color = t.color || k.headerBand || "#D7FF1F";
     const draw = (cx, dir) => {
       const amp = h * 0.17, wmax = h * 0.042, n = 60;
       const L = [], R = [];
       for (let i = 0; i <= n; i++) {
         const u = i / n, v = u * 2 - 1;
         const x = cx + dir * amp * (v * v * v - 0.35 * v);
-        const w = wmax * Math.pow(Math.sin(Math.PI * u), 0.75);
+        const w = wmax * (u < 0.5 ? Math.pow(Math.sin(Math.PI * u), 0.75) : 1 + 1.9 * Math.pow((u - 0.5) * 2, 6));
         L.push([x - w / 2, u * h]); R.push([x + w / 2, u * h]);
       }
       const path = pts => { ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); };
@@ -553,7 +553,7 @@
         const gl = [], gr = [];
         for (let i = 0; i <= n; i++) {
           const u = i / n, v = u * 2 - 1;
-          const x = cx + dir * amp * (v * v * v - 0.35 * v), w = wmax * g[0] * Math.pow(Math.sin(Math.PI * u), 0.75);
+          const x = cx + dir * amp * (v * v * v - 0.35 * v), w = wmax * g[0] * (u < 0.5 ? Math.pow(Math.sin(Math.PI * u), 0.75) : 1 + 1.9 * Math.pow((u - 0.5) * 2, 6));
           gl.push([x - w / 2, u * h]); gr.push([x + w / 2, u * h]);
         }
         ctx.globalAlpha = g[1]; ctx.fillStyle = color;
@@ -564,6 +564,12 @@
     };
     ctx.save();
     ctx.beginPath(); ctx.rect(0, 0, f.w, h); ctx.clip();
+    // soft glow rising off the bottom band so the curves and the band read as one
+    const gl = ctx.createLinearGradient(0, h, 0, h - h * 0.4);
+    gl.addColorStop(0, color); gl.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.globalAlpha = 0.15; ctx.fillStyle = gl;
+    ctx.fillRect(0, h - h * 0.4, f.w, h * 0.4);
+    ctx.globalAlpha = 1;
     draw(h * 0.09, 1);
     draw(f.w - h * 0.09, -1);
     ctx.restore();
