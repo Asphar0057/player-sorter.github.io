@@ -24,7 +24,7 @@ window.SQUAD_MANIFEST = {
           id: "bundesliga",
           name: "Bundesliga",
           country: "Germany",
-          teams: ["bayern-munich", "dortmund", "schalke", "stuttgart", "leverkusen", "frankfurt", "leipzig"]
+          teams: ["bayern-munich", "dortmund", "schalke", "stuttgart"]//, "leverkusen", "frankfurt", "leipzig"]
         },
         {
           id: "ligue-1",
@@ -127,7 +127,7 @@ window.SQUAD_MANIFEST = {
         {
           id: "world-cup-2026",
           name: "World Cup 2026",
-          teams: ["2026-spain", "2026-argentina", "2026-france", "2026-england", "2026-uruguay", "2026-norway", "2026-portugal", "2026-germany", "2026-mexico", "2026-brasil", "2026-belgium", "2026-algeria", "2026-egypt"]
+          teams: ["2026-spain", "2026-argentina", "2026-france", "2026-england", "2026-uruguay", "2026-norway", "2026-portugal", "2026-germany", "2026-mexico", "2026-brasil"]//, "2026-belgium", "2026-algeria", "2026-egypt"]
         },
         /*
         {
