@@ -158,7 +158,7 @@
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     ctx.save();
-    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles", "chevron", "sleeves", "centreband", "band", "cross", "dots", "thick-waves", "burst", "shards", "crosses", "pinlines", "slashes", "vee", "scatter", "ornament"].indexOf(p.type) >= 0) {
+    if (["zigzag", "hoops", "split", "sash", "diamonds", "lightning", "checks", "triangles", "chevron", "sleeves", "centreband", "band", "cross", "dots", "thick-waves", "burst", "shards", "crosses", "pinlines", "slashes", "vee", "scatter", "ornament", "raglan"].indexOf(p.type) >= 0) {
       if (room < 150) {
         ctx.restore();
         return;
@@ -371,6 +371,7 @@
       }
     } else if (Kits.stripes.shapes[p.type]) {
       const s = Math.max(room / 200, h / 100);
+      if (p.type === "scatter") Kits.stripes.dots(ctx, from + (room - 200 * s) / 2, (h - 100 * s) / 2, s, p.dots || "rgba(255,255,255,0.32)");
       Kits.shards(ctx, from + (room - 200 * s) / 2, (h - 100 * s) / 2, s, Kits.stripes.colors(p), Kits.stripes.shapes[p.type]);
     } else if (p.type === "shards") {
       const s = Math.max(room / 200, h / 100);

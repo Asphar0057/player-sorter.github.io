@@ -393,28 +393,92 @@
     return out;
   }
 
-  // "scatter": thin white slashes at assorted angles plus small pale triangles scattered over
-  // the base, like the Liverpool 2026/27 home shirt. Kind 0 = slash, kind 1 = triangle.
+  // "scatter": thin white slashes at assorted angles plus small pale triangles scattered over the
+  // base, never touching each other, like the Liverpool 2026/27 home shirt. Kind 0 = slash,
+  // kind 1 = triangle. A grid of tiny dots sits behind them (see dotGrid).
   function scatterShapes() {
     const out = [];
-    let seed = 23;
+    const taken = [];
+    let seed = 41;
     const rnd = function () {
       seed = (seed * 1664525 + 1013904223) % 4294967296;
       return seed / 4294967296;
     };
-    for (let i = 0; i < 54; i++) {
-      const cx = rnd() * 200, cy = -5 + rnd() * 110;
-      const len = 8 + rnd() * 26;
-      const ang = (rnd() < 0.5 ? 1 : -1) * (0.5 + rnd() * 0.95) + (rnd() < 0.15 ? 1.4 : 0);
-      const dx = Math.cos(ang) * len / 2, dy = Math.sin(ang) * len / 2;
-      const nx = -Math.sin(ang) * 0.4, ny = Math.cos(ang) * 0.4;
-      out.push([0, 0.9, [[cx - dx + nx, cy - dy + ny], [cx + dx + nx, cy + dy + ny], [cx + dx - nx, cy + dy - ny], [cx - dx - nx, cy - dy - ny]]]);
+    const clear = function (circles) {
+      return circles.every(c => taken.every(t => Math.hypot(c[0] - t[0], c[1] - t[1]) > c[2] + t[2] + 1.6));
+    };
+    let placed = 0;
+    for (let tries = 0; tries < 900 && placed < 60; tries++) {
+      const isTri = placed % 3 === 2;
+      if (isTri) {
+        const cx = rnd() * 200, cy = -2 + rnd() * 104;
+        const s = 3.2 + rnd() * 3.6;
+        if (!clear([[cx, cy, s * 1.25]])) continue;
+        const flip = rnd() < 0.5 ? -1 : 1;
+        out.push([1, 0.5, [[cx - s * flip, cy + s], [cx + s * flip, cy + s], [cx + (rnd() - 0.5) * s, cy - s]]]);
+        taken.push([cx, cy, s * 1.25]);
+      } else {
+        const cx = rnd() * 200, cy = -2 + rnd() * 104;
+        const len = 8 + rnd() * 22;
+        const ang = (rnd() < 0.5 ? 1 : -1) * (0.5 + rnd() * 0.95);
+        const dx = Math.cos(ang) * len / 2, dy = Math.sin(ang) * len / 2;
+        const circles = [];
+        for (let i = -2; i <= 2; i++) circles.push([cx + dx * i / 2, cy + dy * i / 2, len / 8 + 0.6]);
+        if (!clear(circles)) continue;
+        const nx = -Math.sin(ang) * 0.4, ny = Math.cos(ang) * 0.4;
+        out.push([0, 0.9, [[cx - dx + nx, cy - dy + ny], [cx + dx + nx, cy + dy + ny], [cx + dx - nx, cy + dy - ny], [cx - dx - nx, cy - dy - ny]]]);
+        circles.forEach(c => taken.push(c));
+      }
+      placed++;
     }
-    for (let i = 0; i < 20; i++) {
-      const cx = rnd() * 200, cy = rnd() * 100;
-      const s = 4 + rnd() * 5;
-      const flip = rnd() < 0.5 ? -1 : 1;
-      out.push([1, 0.5, [[cx - s * flip, cy + s], [cx + s * flip, cy + s], [cx + (rnd() - 0.5) * s * 1.2, cy - s]]]);
+    return out;
+  }
+
+  // Tiny vector dots on a staggered grid behind the scatter shapes.
+  function dotGrid(ctx, ox, oy, s, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    for (let row = 0, y = 1.7; y < 100; row++, y = 1.7 + row * 3.4) {
+      for (let x = 1.7 + (row % 2 ? 1.7 : 0); x < 200; x += 3.4) {
+        ctx.moveTo(ox + (x + 0.4) * s, oy + y * s);
+        ctx.arc(ox + x * s, oy + y * s, 0.4 * s, 0, Math.PI * 2);
+      }
+    }
+    ctx.fill();
+  }
+
+  function dotGridSvg(color) {
+    return '<defs><pattern id="d" width="3.4" height="3.4" patternUnits="userSpaceOnUse"><circle cx="0.85" cy="0.85" r="0.4" fill="' + color + '"/><circle cx="2.55" cy="2.55" r="0.4" fill="' + color + '"/></pattern></defs><rect width="200" height="100" fill="url(#d)"/>';
+  }
+
+  // "raglan": white sleeve panels at both ends with three thin shoulder stripes, a checkered
+  // cuff strip at the outer edges and a checkered collar band at the top centre, on the base
+  // colour (Arsenal home). Kinds: 0 sleeve panel, 1 shoulder stripe, 2 check squares.
+  function raglanShapes() {
+    const out = [];
+    const rect = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+    const sq = 2.4;
+    [false, true].forEach(right => {
+      const mx = x => (right ? 200 - x : x);
+      const poly = pts => pts.map(q => [mx(q[0]), q[1]]);
+      out.push([0, 1, poly([[-1, -1], [27, -1], [36, 101], [-1, 101]])]);
+      [0, 1, 2].forEach(i => {
+        const o = 4 + i * 3.4;
+        out.push([1, 1, poly([[27 - o - 1.6, -1], [27 - o, -1], [36 - o + 0.1, 101], [36 - o - 1.5, 101]])]);
+      });
+      for (let r = 0; r * sq < 101; r++) {
+        for (let c = 0; c < 2; c++) {
+          if ((r + c) % 2) continue;
+          const x0 = c * sq;
+          out.push([2, 1, right ? rect(200 - x0 - sq, r * sq - 1, sq, sq) : rect(x0, r * sq - 1, sq, sq)]);
+        }
+      }
+    });
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 28; c++) {
+        if ((r + c) % 2) continue;
+        out.push([2, 1, rect(70 + c * sq, 13 + r * sq, sq, sq)]);
+      }
     }
     return out;
   }
@@ -467,7 +531,7 @@
     return out;
   }
 
-  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes(), scatter: scatterShapes(), ornament: ornamentShapes() };
+  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes(), scatter: scatterShapes(), ornament: ornamentShapes(), raglan: raglanShapes() };
 
   function stripeColors(p) {
     const b = p.bands || [];
@@ -475,6 +539,7 @@
     if (p.type === "crosses") return [red, b[1] || mix("#000000", red, 0.3)];
     if (p.type === "slashes") return [red, b[1] || red];
     if (p.type === "ornament") return [b[0] || "#000000"];
+    if (p.type === "raglan") return [b[0] || "#FFFFFF", b[1] || "#7A1426", b[2] || "#8B0F1D"];
     if (p.type === "scatter") return [b[0] || "#FFFFFF", b[1] || "#F7B4BE"];
     if (p.type === "vee") return [b[0] || "#111111", b[1] || "#E31835", b[2] || "#E8A824"];
     return [red, p.base, b[1] || red];
@@ -489,6 +554,7 @@
       d[r[0]] += "M" + r[2].map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join("L") + "Z";
     });
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice">' +
+      (p.type === "scatter" ? dotGridSvg(p.dots || "rgba(255,255,255,0.32)") : "") +
       c.map((col, i) => d[i] ? '<path fill="' + col + '" opacity="' + al[i] + '" d="' + d[i] + '"/>' : "").join("") + "</svg>";
   }
 
@@ -782,6 +848,7 @@
       ctx.beginPath();
       ctx.rect(x, y, w, h);
       ctx.clip();
+      if (p.type === "scatter") dotGrid(ctx, x + (w - 200 * s) / 2, y + (h - 100 * s) / 2, s, p.dots || "rgba(255,255,255,0.32)");
       paintShards(ctx, x + (w - 200 * s) / 2, y + (h - 100 * s) / 2, s, stripeColors(p), STRIPE_SHAPES[p.type]);
       ctx.restore();
     } else if (p.type === "shards") {
@@ -989,5 +1056,5 @@
     return !!c && (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255 > 0.85;
   }
 
-  window.Kits = { ids, get, css, draw, mix, isLight, dots: DOTS, burst: BURST, shards: paintShards, stripes: { colors: stripeColors, shapes: STRIPE_SHAPES } };
+  window.Kits = { ids, get, css, draw, mix, isLight, dots: DOTS, burst: BURST, shards: paintShards, stripes: { colors: stripeColors, shapes: STRIPE_SHAPES, dots: dotGrid } };
 })();
