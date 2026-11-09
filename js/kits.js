@@ -477,9 +477,9 @@
     return out;
   }
 
-  // "streaks": faint broken horizontal dashes that gather into flowing, contour-like zones on
-  // the base (the tone-on-tone texture on the Villarreal 2026/27 home shirt), plus a dark sleeve
-  // panel at the right end of the card. Kind 0 = dash (first band colour), kind 1 = sleeve panel.
+  // "streaks": fine parallel lines that sweep through the card in a big "S" curve, broken into
+  // runs so the texture stays faint and tone-on-tone (the Villarreal 2026/27 home shirt print).
+  // Kind 0 = line (first band colour).
   function streakShapes() {
     const out = [];
     let seed = 5;
@@ -487,16 +487,30 @@
       seed = (seed * 1664525 + 1013904223) % 4294967296;
       return seed / 4294967296;
     };
-    for (let y = 1; y < 100; y += 2.6) {
-      let x = rnd() * 6;
-      while (x < 200) {
-        const len = 2.5 + rnd() * 6;
-        const f = 0.5 + 0.5 * Math.sin(x * 0.055 + Math.sin(y * 0.09) * 2.4) * Math.cos(y * 0.07 + x * 0.012);
-        if (f > 0.42 + rnd() * 0.25) out.push([0, 0.6, [[x, y], [x + len, y], [x + len, y + 0.7], [x, y + 0.7]]]);
-        x += len + 1.2 + rnd() * 3.5;
+    const gap = 4.2, w = 1.05, step = 4;
+    const curve = (xr, y) => xr + 16 * Math.sin((y / 100) * Math.PI * 2 + xr * 0.012) + 5 * Math.sin(y * 0.13 + xr * 0.02);
+    for (let xr = -20; xr < 220; xr += gap) {
+      let run = null;
+      const flush = () => {
+        if (run && run.length > 2) {
+          const left = run.map(q => [q[0] - w / 2, q[1]]);
+          const right = run.map(q => [q[0] + w / 2, q[1]]).reverse();
+          out.push([0, 0.6, left.concat(right)]);
+        }
+        run = null;
+      };
+      for (let y = -4; y <= 104; y += step) {
+        const x = curve(xr, y);
+        const f = 0.5 + 0.5 * Math.sin(y * 0.05 + xr * 0.045) * Math.cos(xr * 0.03 - y * 0.02);
+        if (f > 0.34 + rnd() * 0.12) {
+          if (!run) run = [];
+          run.push([x, y]);
+        } else {
+          flush();
+        }
       }
+      flush();
     }
-    out.push([1, 1, [[201, 0], [140, 0], [148, 100], [201, 100]]]);
     return out;
   }
 
