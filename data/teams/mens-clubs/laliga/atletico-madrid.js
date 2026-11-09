@@ -43,7 +43,7 @@ registerTeam({
       header: "#0B0B0C",
       onHeader: "#D7FF1F",
       headerBand: "#D7FF1F",
-      pattern: { type: "prism", base: "#0B0C0E", bands: ["#3A3D43", "#6A6E77"] }
+      pattern: { type: "prism", base: "#0B0C0E", bands: ["#3A3D43", "#6A6E77", "#D7FF1F"] }
     },
     third: {
       label: "Third",

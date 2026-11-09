@@ -1484,6 +1484,23 @@
         out.push([1, 0.04 + 0.5 * lit, [[x0 + w * 0.06, y + h * 0.9], [x0 + w * 0.06, y + h * 0.25], [x0 + w * 0.68, y + h * 0.9]]]);
       }
     }
+    // neon lightning flash down the right side (the shirt's flank panel): a tapering stepped bolt
+    // with a soft glow around it. Kind 2 = neon (third band colour).
+    const bolt = (cx, sc, al) => {
+      const line = [[0, -4], [-5, 24], [3, 28], [-4, 58], [2, 62], [-5, 104]];
+      const w0 = 9 * sc * K, w1 = 2.2 * sc * K;
+      const L = [], R = [];
+      line.forEach((q, i) => {
+        const t = i / (line.length - 1), w = w0 + (w1 - w0) * t;
+        L.push([cx + q[0] * K * sc - w / 2, q[1]]); R.push([cx + q[0] * K * sc + w / 2, q[1]]);
+      });
+      out.push([2, al, L.concat(R.reverse())]);
+    };
+    if (GW > 0) {
+      const cx = GW - 16 * K;
+      bolt(cx, 1.7, 0.1); bolt(cx, 1.35, 0.14); bolt(cx, 1.0, 1);
+      bolt(cx - 26 * K, 0.5, 0.55);
+    }
     return out;
   }
 
@@ -1590,7 +1607,7 @@
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
     if (p.type === "twotone") return [b[0] || "#97D7CF", b[1] || "#C4EEE8", b[2] || "#6FC4BA"];
     if (p.type === "railstripes") return [b[0] || "#C8302A", b[1] || "#262F61", b[2] || "#8E99A8"];
-    if (p.type === "prism") return [b[0] || "#3A3D43", b[1] || b[0] || "#4A4E55"];
+    if (p.type === "prism") return [b[0] || "#3A3D43", b[1] || b[0] || "#4A4E55", b[2] || "#D7FF1F"];
     if (p.type === "multistripes") { stripeColors.cur = b.length ? b : ["#FFFFFF"]; return stripeColors.cur; }
     if (p.type === "rulestripes") return [b[0] || "#FFFFFF", b[0] || "#FFFFFF", p.base, b[1] || "#262F61"];
     if (p.type === "scrolls") return [b[0] || "#D6C9B0"];

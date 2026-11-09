@@ -132,7 +132,7 @@ A kit can set `headerStripes: [[colour, weight], ...]` to split the bottom band 
 - `scrolls`: a tone-on-tone baroque print of curling scroll pairs and small buds on a dotted diamond lattice (Spain away)
 - `rulestripes`: wide stripes with fine rules like the Atletico de Madrid home shirt: one thin line of the stripe colour along each edge of each band and three thin dark lines down the middle of each stripe starting at a trident (Atletico home)
 - `multistripes`: equal-width vertical stripes cycling through every band colour in order (Barcelona home card)
-- `prism`: tilted bands of stacked dark grey right triangles (a sawtooth mountain range) on near-black with black stripes between the bands (Atletico away)
+- `prism`: tilted bands of stacked dark grey right triangles (a sawtooth mountain range) on near-black with black stripes between the bands, lit softly from the right, plus a neon lightning flash down the right side in the third colour (Atletico away)
 - `railstripes`: horizontal stripes in the first band colour, each framed by a thin line of the second colour above and below with a small gap, over big faint lightning-bolt shapes made only of grain, in the third colour (Atletico third)
 - `twotone`: the base colour on the left and a lighter colour on the right joined by a sawtooth edge, with tone-on-tone jagged Z ribbons in lighter and darker shades (Barcelona third; `full: true` spans the whole banner)
 - `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
