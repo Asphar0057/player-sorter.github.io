@@ -1178,13 +1178,41 @@
     return out;
   }
 
+  // "weft": a solid bright band down the right edge with rows of fine dotted lines reaching out
+  // of it into the base, in many different lengths and thinning out with distance, never in
+  // patches (the France 2018 sleeve knit). Kind 0 = band and lines.
+  function weftShapes() {
+    const out = [];
+    const rnd = seeded(71), drift = noise2(29), reach = noise2(43);
+    const K = GW > 300 ? 1.6 : 1;
+    const band = 11 * K, rowGap = 1.7 * K, th = 1.0 * K, slope = 0.1;
+    const maxL = Math.min(GW - band - 4, 150 * K);
+    out.push([0, 1, [[GW + 2, -2], [GW - band, -2], [GW - band + 1.5 * K, 102], [GW + 2, 102]]]);
+    for (let y = -4; y < 106; y += rowGap) {
+      // neighbouring rows share a reach so the lines read as flowing groups, plus per-row jitter
+      const g = reach(y * 0.11, 3.7);
+      const L = Math.pow(0.05 + 0.95 * (0.55 * g + 0.45 * rnd()), 2.1) * maxL;
+      const x1 = GW - band + 1.5 * K, x0 = x1 - Math.max(4 * K, L);
+      const wob = (drift(y * 0.2, 9) - 0.5) * 2 * K;
+      const dash = (1.5 + rnd() * 1.1) * K, gap = 0.55 * K;
+      for (let x = x1; x > x0; x -= dash + gap) {
+        const xa = Math.max(x0, x - dash);
+        const ya = y + (x1 - x) * slope * 0.0 + wob, yb = ya;
+        // the lines fade slightly as they move away from the band
+        const t = (x1 - x) / Math.max(1, x1 - x0);
+        out.push([0, 1 - 0.3 * t, [[xa, ya], [x, ya], [x, yb + th], [xa, yb + th]]]);
+      }
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1207,6 +1235,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "weft") return [b[0] || "#2285F0"];
     if (p.type === "dashes") return [b[0] || "#2D7CF0"];
     if (p.type === "ripple") return [b[0] || "#7A6B60", b[1] || "#C2B6AB"];
     if (p.type === "herring") return [b[0] || "#2DB8A6", b[1] || "#2A3F94"];

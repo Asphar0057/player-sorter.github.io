@@ -520,12 +520,12 @@
 
   function headerCollar(ctx, f, k, clearX) {
     const t = k.headerDecor;
-    if (!t || t.type !== "collar") return;
+    if (!t || (t.type !== "collar" && t.type !== "panel-collar")) return;
     const h = f.head - 14;
     const from = Math.max(clearX || 0, 0);
     const room = f.w - from;
     if (room < 150) return;
-    // one big collar fan stretched across the whole room to the right of the title
+    if (t.type === "panel-collar") return panelCollar(ctx, k, t, from, room, h);
     const sy = h / 66;
     const sx = (room - 16) / 156;
     const rad = Math.PI / 180;
@@ -550,6 +550,82 @@
       ctx.closePath();
       ctx.fill();
     }
+    ctx.restore();
+  }
+
+  // Glossy panel collar spread across the banner, like the Uruguay 2026 away shirt: two arcs of
+  // trapezoid panels around the neck and a row of long blocks hanging below them, each panel
+  // brightest in the middle with a peach glow, divided by thin peach rib lines.
+  function panelCollar(ctx, k, t, from, room, h) {
+    const blue = t.color || "#3B63FF";
+    const deep = t.deep || "#12207F";
+    const glow = t.glow || "#F2A98B";
+    const rad = Math.PI / 180;
+    const cx = from + room / 2, cy = -0.42 * h;
+    const rx = room * 0.4, ry = h * 1.0;
+    const P = (kk, a) => [cx + rx * kk * Math.cos(a * rad), cy + ry * kk * Math.sin(a * rad)];
+    const rings = [
+      { k0: 0.40, k1: 0.66, n: 13, a0: 26, a1: 154, gap: 0.3, glow: 0.3 },
+      { k0: 0.72, k1: 1.0, n: 11, a0: 20, a1: 160, gap: 0.3, glow: 0.28 },
+      { k0: 1.06, k1: 1.7, n: 6, a0: 32, a1: 148, gap: 0.45, glow: 0.2 }
+    ];
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(from, 0, room, h);
+    ctx.clip();
+    rings.forEach((rg, ri) => {
+      const step = (rg.a1 - rg.a0) / rg.n;
+      for (let i = 0; i < rg.n; i++) {
+        const w = step * (1 - rg.gap);
+        const a = rg.a0 + i * step + (step - w) / 2;
+        const p0 = P(rg.k0, a), p1 = P(rg.k0, a + w), p2 = P(rg.k1, a + w), p3 = P(rg.k1, a);
+        const mx = (p0[0] + p1[0] + p2[0] + p3[0]) / 4, my = (p0[1] + p1[1] + p2[1] + p3[1]) / 4;
+        const edge = Math.min(1, Math.max(0, (mx - from) / (room * 0.16)));
+        const centre = 1 - Math.min(1, Math.abs(a - 90) / 90) * 0.35;
+        ctx.globalAlpha = edge * (0.75 + 0.25 * centre);
+        const g = ctx.createLinearGradient((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2, (p2[0] + p3[0]) / 2, (p2[1] + p3[1]) / 2);
+        if (ri === 2) {
+          g.addColorStop(0, blue);
+          g.addColorStop(0.55, deep);
+          g.addColorStop(1, "rgba(27,47,168,0)");
+        } else {
+          g.addColorStop(0, deep);
+          g.addColorStop(0.5, blue);
+          g.addColorStop(1, deep);
+        }
+        ctx.save();
+        ctx.shadowColor = blue;
+        ctx.shadowBlur = h * 0.03;
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p3[0], p3[1]);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+        // peach glow in the middle of the panel
+        const r = Math.hypot(p1[0] - p0[0], p3[1] - p0[1]) * 0.55 + h * 0.05;
+        const gx = ri === 2 ? (p0[0] + p1[0]) / 2 : mx, gy = ri === 2 ? (p0[1] + p1[1]) / 2 + (p3[1] - p0[1]) * 0.18 : my;
+        const rgd = ctx.createRadialGradient(gx, gy, 0, gx, gy, r);
+        rgd.addColorStop(0, glow);
+        rgd.addColorStop(1, "rgba(242,169,139,0)");
+        ctx.globalAlpha *= rg.glow;
+        ctx.fillStyle = rgd;
+        ctx.beginPath();
+        ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p3[0], p3[1]);
+        ctx.closePath();
+        ctx.fill();
+        // thin peach rib lines in the gap beside the panel
+        if (i % 2 === 0) {
+          const q0 = P(rg.k0 + (rg.k1 - rg.k0) * 0.08, a - step * 0.12), q1 = P(rg.k1 - (rg.k1 - rg.k0) * 0.1, a - step * 0.12);
+          ctx.globalAlpha = edge * 0.7;
+          ctx.strokeStyle = glow;
+          ctx.lineWidth = Math.max(1, h * 0.011);
+          ctx.beginPath();
+          ctx.moveTo(q0[0], q0[1]); ctx.lineTo(q1[0], q1[1]);
+          ctx.stroke();
+        }
+      }
+    });
     ctx.restore();
   }
 

@@ -42,11 +42,11 @@ registerTeam({
       accent: "#2F7BFF",
       onAccent: "#FFFFFF",
       labelBg: "#1B2750",
-      headerDecor: { type: "collar", color: "#2F7BFF", opacity: 0.7 },
-      header: "#0F1B3D",
+      headerDecor: { type: "panel-collar", color: "#3B63FF", deep: "#12207F", glow: "#F2A98B" },
+      header: "#080D26",
       onHeader: "#FFFFFF",
       headerBand: "#2F7BFF",
-      pattern: { type: "gradient", base: "#0F1B3D", bands: ["#1F4FBF"] }
+      pattern: { type: "gradient", base: "#080D26", bands: ["#0E1A4A"] }
     }
   },
   players: [
