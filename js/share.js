@@ -564,8 +564,8 @@
     };
     ctx.save();
     ctx.beginPath(); ctx.rect(0, 0, f.w, h); ctx.clip();
-    draw(f.w * 0.022 + h * 0.1, 1);
-    draw(f.w - f.w * 0.022 - h * 0.1, -1);
+    draw(h * 0.2, 1);
+    draw(f.w - h * 0.2, -1);
     ctx.restore();
   }
 
