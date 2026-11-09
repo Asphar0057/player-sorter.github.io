@@ -490,7 +490,7 @@
       '<button type="button" class="team-tile team-tile-club' + light + '" data-go="' + team.id + '" style="' + tileVars + '">' +
         crestMarkup(team, "crest-md", home) +
         '<span class="team-tile-text">' +
-          '<span class="team-tile-name">' + esc(team.name) + "</span>" +
+          '<span class="team-tile-name">' + esc(tile.name || team.name).replace(/\n/g, "<br>") + "</span>" +
           '<span class="team-tile-meta">' + esc(meta || team.players.length + " " + memberWord(team) + " · " + team.season) + "</span>" +
         "</span>" +
       "</button>"
