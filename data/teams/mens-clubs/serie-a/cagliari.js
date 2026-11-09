@@ -7,10 +7,10 @@ registerTeam({
   season: "2026/27",
   aliases: ["Casteddu", "Rossoblu", "Isolani"],
   tile: {
-    bg: "#0B1F4B",
+    bg: "#B01E2E",
     fg: "#FFFFFF",
     muted: "rgba(255,255,255,0.82)",
-    pattern: { type: "solid", base: "#0B1F4B", bands: [] }
+    pattern: { type: "fade", base: "#B01E2E", bands: ["#0F2A6B"], range: [0.46, 0.58] }
   },
   kits: {
     home: {

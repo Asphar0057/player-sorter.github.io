@@ -68,7 +68,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `hoops`: horizontal bands (can alternate several colours)
 - `bolts`: plain `base` with two thin lightning-bolt stripes near the edges
 - `gradient`: `base` fading top to bottom into the band colour
-- `fade`: `base` on the left half, softly blending into the band colour on the right (Cagliari's home-page card)
+- `fade`: `base` on the left half, softly blending into the band colour on the right (Cagliari's home-page card); set `range: [from, to]` (fractions of the width) to control where the blend happens
 - `split`: `base` on the left, band colour on the right, divided by a vertical zigzag
 - `sleeves`: `base` body with band-coloured shoulders and sleeves (Arsenal home)
 - `zigzag`: horizontal zigzag lines across `base`, cycling through the band colours
@@ -85,6 +85,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `vee`: three chevron bands (first, second and third band colour from the top) pointing down with a white gap at the centre (Germany home)
 - `lines`: any number of horizontal lines set with `lines: [[colour, from, to], ...]` (fractions of the height) on `base`; add `fade: true` to fade them out toward the right (Brazil home, Dortmund home)
 - `scatter`: thin slashes at assorted angles (first band colour) and soft translucent triangles (second band colour) scattered over `base` (Liverpool home)
+- `ornament`: delicate tone-on-tone line work (nested diamonds, small knot motifs, dotted lines) in the first band colour on `base` (Fiorentina home)
 - `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
 - `burst`: radial rays fanning out from the upper right, wide wedges in the first band colour and thin streaks in the second (New England Revolution home)
 - `thick-waves`: bold wavy stripes in the first band colour across `base` (USA home)

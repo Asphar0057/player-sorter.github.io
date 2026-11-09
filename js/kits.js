@@ -419,13 +419,62 @@
     return out;
   }
 
-  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes(), scatter: scatterShapes() };
+  // "ornament": delicate tone-on-tone line work (nested diamonds with small knot motifs and
+  // dotted lines) in the first band colour, like the Fiorentina 2026/27 home shirt.
+  function ornamentShapes() {
+    const out = [];
+    const A = 0.8;
+    const seg = (x1, y1, x2, y2, w) => {
+      const dx = x2 - x1, dy = y2 - y1, l = Math.hypot(dx, dy) || 1;
+      const nx = -dy / l * w / 2, ny = dx / l * w / 2;
+      out.push([0, A, [[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]]);
+    };
+    const diamond = (cx, cy, rx, ry, w) => {
+      seg(cx, cy - ry, cx + rx, cy, w); seg(cx + rx, cy, cx, cy + ry, w);
+      seg(cx, cy + ry, cx - rx, cy, w); seg(cx - rx, cy, cx, cy - ry, w);
+    };
+    const dots = (x1, y1, x2, y2, n, s) => {
+      for (let i = 0; i <= n; i++) {
+        const x = x1 + (x2 - x1) * i / n, y = y1 + (y2 - y1) * i / n;
+        out.push([0, A, [[x - s, y], [x, y - s], [x + s, y], [x, y + s]]]);
+      }
+    };
+    const knot = (cx, cy, r) => {
+      diamond(cx, cy, r, r, 0.45);
+      diamond(cx, cy, r * 0.55, r * 0.55, 0.4);
+      seg(cx - r * 1.5, cy, cx + r * 1.5, cy, 0.4);
+      seg(cx, cy - r * 1.5, cx, cy + r * 1.5, 0.4);
+      [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(q => {
+        out.push([0, A, [[cx + q[0] * r * 0.5 - 0.7, cy + q[1] * r * 0.5 - 0.7], [cx + q[0] * r * 0.5 + 0.7, cy + q[1] * r * 0.5 - 0.7], [cx + q[0] * r * 0.5 + 0.7, cy + q[1] * r * 0.5 + 0.7], [cx + q[0] * r * 0.5 - 0.7, cy + q[1] * r * 0.5 + 0.7]]]);
+      });
+    };
+    [[100, 50], [-10, 50], [210, 50]].forEach((c, n) => {
+      const cx = c[0], cy = c[1];
+      [[10, 0.5], [15, 0.4], [34, 0.5], [38, 0.4], [60, 0.5], [64, 0.4], [86, 0.5]].forEach(d => diamond(cx, cy, d[0] * 1.9 / 1.9 * 1.4, d[0] * 0.95, d[1]));
+      knot(cx, cy, 4.2);
+      [24, 49, 75].forEach(r => {
+        const rx = r * 1.4, ry = r * 0.95;
+        dots(cx, cy - ry, cx + rx, cy, 7 + Math.round(r / 12), 0.55);
+        dots(cx + rx, cy, cx, cy + ry, 7 + Math.round(r / 12), 0.55);
+        dots(cx, cy + ry, cx - rx, cy, 7 + Math.round(r / 12), 0.55);
+        dots(cx - rx, cy, cx, cy - ry, 7 + Math.round(r / 12), 0.55);
+      });
+      [[0, -1], [1, 0], [0, 1], [-1, 0]].forEach(q => {
+        knot(cx + q[0] * 49 * 1.4 * 0.5 + (q[0] ? 0 : 0), cy + q[1] * 49 * 0.95 * 0.5, 3.4);
+        knot(cx + q[0] * 75 * 1.4 * 0.5, cy + q[1] * 75 * 0.95 * 0.5, 3.4);
+      });
+    });
+    return out;
+  }
+
+  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes(), scatter: scatterShapes(), ornament: ornamentShapes() };
 
   function stripeColors(p) {
     const b = p.bands || [];
     const red = b[0] || "#E31B2B";
     if (p.type === "crosses") return [red, b[1] || mix("#000000", red, 0.3)];
     if (p.type === "slashes") return [red, b[1] || red];
+    if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "scatter") return [b[0] || "#FFFFFF", b[1] || "#F7B4BE"];
     if (p.type === "vee") return [b[0] || "#111111", b[1] || "#E31835", b[2] || "#E8A824"];
     return [red, p.base, b[1] || red];
@@ -488,7 +537,8 @@
     }
     if (p.type === "fade") {
       // left half base colour, softly blending into the band colour on the right (Cagliari)
-      return "linear-gradient(90deg, " + p.base + " 0 " + pct(FADE[0]) + ", " + (b[0] || p.base) + " " + pct(FADE[1]) + " 100%)";
+      const fr = p.range || FADE;
+      return "linear-gradient(90deg, " + p.base + " 0 " + pct(fr[0]) + ", " + (b[0] || p.base) + " " + pct(fr[1]) + " 100%)";
     }
     if (p.type === "sleeves") {
       const c = b[0] || "#FFFFFF";
@@ -875,8 +925,8 @@
       });
     } else if (p.type === "fade") {
       const g = ctx.createLinearGradient(x, y, x + w, y);
-      g.addColorStop(FADE[0], p.base);
-      g.addColorStop(FADE[1], b[0] || p.base);
+      g.addColorStop((p.range || FADE)[0], p.base);
+      g.addColorStop((p.range || FADE)[1], b[0] || p.base);
       ctx.fillStyle = g;
       ctx.fillRect(x, y, w, h);
     } else if (p.type === "gradient") {
