@@ -393,13 +393,40 @@
     return out;
   }
 
-  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes() };
+  // "scatter": thin white slashes at assorted angles plus small pale triangles scattered over
+  // the base, like the Liverpool 2026/27 home shirt. Kind 0 = slash, kind 1 = triangle.
+  function scatterShapes() {
+    const out = [];
+    let seed = 23;
+    const rnd = function () {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+    for (let i = 0; i < 54; i++) {
+      const cx = rnd() * 200, cy = -5 + rnd() * 110;
+      const len = 8 + rnd() * 26;
+      const ang = (rnd() < 0.5 ? 1 : -1) * (0.5 + rnd() * 0.95) + (rnd() < 0.15 ? 1.4 : 0);
+      const dx = Math.cos(ang) * len / 2, dy = Math.sin(ang) * len / 2;
+      const nx = -Math.sin(ang) * 0.4, ny = Math.cos(ang) * 0.4;
+      out.push([0, 0.9, [[cx - dx + nx, cy - dy + ny], [cx + dx + nx, cy + dy + ny], [cx + dx - nx, cy + dy - ny], [cx - dx - nx, cy - dy - ny]]]);
+    }
+    for (let i = 0; i < 20; i++) {
+      const cx = rnd() * 200, cy = rnd() * 100;
+      const s = 4 + rnd() * 5;
+      const flip = rnd() < 0.5 ? -1 : 1;
+      out.push([1, 0.5, [[cx - s * flip, cy + s], [cx + s * flip, cy + s], [cx + (rnd() - 0.5) * s * 1.2, cy - s]]]);
+    }
+    return out;
+  }
+
+  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes(), scatter: scatterShapes() };
 
   function stripeColors(p) {
     const b = p.bands || [];
     const red = b[0] || "#E31B2B";
     if (p.type === "crosses") return [red, b[1] || mix("#000000", red, 0.3)];
     if (p.type === "slashes") return [red, b[1] || red];
+    if (p.type === "scatter") return [b[0] || "#FFFFFF", b[1] || "#F7B4BE"];
     if (p.type === "vee") return [b[0] || "#111111", b[1] || "#E31835", b[2] || "#E8A824"];
     return [red, p.base, b[1] || red];
   }
@@ -407,11 +434,13 @@
   function stripeSvg(p) {
     const c = stripeColors(p);
     const d = c.map(() => "");
+    const al = c.map(() => 1);
     STRIPE_SHAPES[p.type].forEach(r => {
+      al[r[0]] = r[1];
       d[r[0]] += "M" + r[2].map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join("L") + "Z";
     });
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice">' +
-      c.map((col, i) => d[i] ? '<path fill="' + col + '" d="' + d[i] + '"/>' : "").join("") + "</svg>";
+      c.map((col, i) => d[i] ? '<path fill="' + col + '" opacity="' + al[i] + '" d="' + d[i] + '"/>' : "").join("") + "</svg>";
   }
 
   function lineList(p) {
