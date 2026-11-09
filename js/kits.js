@@ -214,12 +214,47 @@
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice"><g fill="' + c + '">' + circles + "</g></svg>";
   }
 
+  // Radial ray burst on a 200x100 grid, centred near the top-right like the crest on the
+  // New England Revolution home shirt. Wide wedges use the first band colour, thin streaks
+  // the second (or white). Each entry is [kind, points] where kind 0 = wedge, 1 = streak.
+  const BURST = (function () {
+    const out = [];
+    const cx = 148, cy = 34, far = 320, n = 26;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + 0.11;
+      const wide = (i % 3 !== 1);
+      const half = wide ? 0.052 + 0.05 * ((i * 7) % 5) / 4 : 0.012;
+      const pts = [[cx, cy]];
+      pts.push([cx + Math.cos(a - half) * far, cy + Math.sin(a - half) * far]);
+      pts.push([cx + Math.cos(a + half) * far, cy + Math.sin(a + half) * far]);
+      out.push([wide ? 0 : 1, pts]);
+    }
+    return out;
+  })();
+
+  function burstColors(p) {
+    const b = p.bands || [];
+    return [b[0] || "#CE1126", b[1] || "#FFFFFF"];
+  }
+
+  function burstSvg(p) {
+    const c = burstColors(p);
+    const polys = BURST.map(r => '<polygon fill="' + c[r[0]] + '" opacity="' + (r[0] ? 0.9 : 0.58) + '" points="' +
+      r[1].map(q => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" ") + '"/>').join("");
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice">' +
+      '<defs><radialGradient id="h" cx="148" cy="34" r="46" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="' + p.base + '" stop-opacity="1"/><stop offset="1" stop-color="' + p.base + '" stop-opacity="0"/></radialGradient></defs>' +
+      polys + '<circle cx="148" cy="34" r="46" fill="url(#h)"/></svg>';
+  }
+
   function pct(n) {
     return (n * 100).toFixed(2) + "%";
   }
 
   function css(p) {
     const b = p.bands || [];
+    if (p.type === "burst") {
+      return "url('data:image/svg+xml," + encodeURIComponent(burstSvg(p)) + "') center / cover no-repeat, " + p.base;
+    }
     if (p.type === "dots") {
       return "url('data:image/svg+xml," + encodeURIComponent(dotsSvg(b[0] || "#FFFFFF")) + "') center / cover no-repeat, " + p.base;
     }
@@ -472,6 +507,33 @@
       });
       ctx.closePath();
       ctx.fill();
+    } else if (p.type === "burst") {
+      const c = burstColors(p);
+      const s = Math.max(w / 200, h / 100);
+      const ox = x + (w - 200 * s) / 2;
+      const oy = y + (h - 100 * s) / 2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+      ctx.clip();
+      BURST.forEach(r => {
+        ctx.globalAlpha = r[0] ? 0.9 : 0.58;
+        ctx.fillStyle = c[r[0]];
+        ctx.beginPath();
+        r[1].forEach((q, i) => {
+          if (i === 0) ctx.moveTo(ox + q[0] * s, oy + q[1] * s); else ctx.lineTo(ox + q[0] * s, oy + q[1] * s);
+        });
+        ctx.closePath();
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      const hx = ox + 148 * s, hy = oy + 34 * s;
+      const g = ctx.createRadialGradient(hx, hy, 0, hx, hy, 46 * s);
+      g.addColorStop(0, p.base);
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(x, y, w, h);
+      ctx.restore();
     } else if (p.type === "dots") {
       const s = Math.max(w / 200, h / 100);
       const ox = x + (w - 200 * s) / 2;
@@ -624,5 +686,5 @@
     return !!c && (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255 > 0.85;
   }
 
-  window.Kits = { ids, get, css, draw, mix, isLight, dots: DOTS };
+  window.Kits = { ids, get, css, draw, mix, isLight, dots: DOTS, burst: BURST };
 })();

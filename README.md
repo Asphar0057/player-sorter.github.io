@@ -79,6 +79,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `cross`: Nordic cross on `base`, the first band colour as the wide cross and the second as the thin inner cross, set left of centre like the flag (Norway)
 - `diamonds`: three coloured diamonds on top of `base` (Germany)
 - `waves`: wavy lines in the band colour across `base` (Portugal home)
+- `burst`: radial rays fanning out from the upper right, wide wedges in the first band colour and thin streaks in the second (New England Revolution home)
 - `thick-waves`: bold wavy stripes in the first band colour across `base` (USA home)
 - `chevron`: a chevron in the band colour across `base` (Portugal away)
 - `checks`: checkerboard of `base` and the band colour (Fulham away)
