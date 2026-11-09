@@ -30,7 +30,7 @@ registerTeam({
     away: {
       label: "Away",
       dark: true,
-      paper: "#F4F4F2",
+      paper: "#E6E9F1",
       card: "#FFFFFF",
       photoBg: "#E8E8E5",
       labelBg: "#C5C9CA",
@@ -43,15 +43,15 @@ registerTeam({
       line: "rgba(0,0,0,0.12)",
       primary: "#E1020C",
       onPrimary: "#FFFFFF",
-      accent: "#111111",
+      accent: "#5E7DAE",
       onAccent: "#121318",
-      header: "#FFFFFF",
+      header: "#D3D9E6",
       onHeader: "#111111",
-      headerBand: "#111111",
+      headerBand: "#5E7DAE",
       rowTint: "#C5C9CA",
       rowTintStrength: 0.2,
       rowTintFloor: 0.5,
-      pattern: {type: "pinstripe", base: "#F7F7F5", bands: ["#DEDEDA"]}
+      pattern: {type: "baroque", base: "#D3D9E6", bands: ["#5E7DAE"]}
     },
     third: {
       label: "Third",

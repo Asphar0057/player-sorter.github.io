@@ -109,7 +109,7 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `bruise`: jagged zig-zag strokes and small triangles in the first band colour on `base` (Arsenal away)
 - `pole`: one vertical stripe in the first band colour that fades into the second down its length, on `base` (Man City third)
 - `swirls`: flowing watercolour ribbons in up to three band colours on `base` (West Ham third, Leverkusen away)
-- `ticks`: a faint zig-zag texture (second band colour) with small stacks of three diamonds (first band colour) spread on a staggered grid (Germany away)
+- `ticks`: equal-height chevron rows alternating two tones (second band colour on `base`) with small stacks of three diamonds (first band colour) on a staggered grid (Germany away)
 - `gridiron`: diagonal stripes alternating the first two band colours across the end of the card (Cagliari away)
 - `hexes`: a honeycomb of faintly lit hexagons in the first band colour (Man City away)
 - `contours`: fine wavy contour-like lines in the first band colour that drift and break up on `base` (Villarreal, all three kits)
@@ -121,7 +121,8 @@ Each club file has a `kits` block with `home`, `away` and `third`. Each kit sets
 - `marble`: flowing ink-marbling ribbons in up to three band colours, thickening toward the right on banners (Leverkusen away)
 - `rings`: feathered spray-paint circles plus a solid side panel at the right end (West Ham third)
 A kit can set `headerStripes: [[colour, weight], ...]` to split the bottom band of the share image into several stripes (Arsenal, Liverpool, West Ham).
-- `flash`: broad diagonal lightning slabs with jagged edges, tone-on-tone (Dortmund away)
+- `flash`: rows of large lightning bolts, tone-on-tone (Dortmund away)
+- `baroque`: big solid teardrop scrolls that curl inward, like the Bembel jug print (Frankfurt away)
 - `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
 - `burst`: radial rays fanning out from the upper right, wide wedges in the first band colour and thin streaks in the second (New England Revolution home)
 - `thick-waves`: bold wavy stripes in the first band colour across `base` (USA home)

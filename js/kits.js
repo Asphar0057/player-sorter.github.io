@@ -703,21 +703,21 @@
   function tickShapes() {
     const out = [];
     const K = GW > 300 ? 1.7 : 1;
-    // zig-zag texture: rows of chevron lines
-    const rowH = 7 * K, zw = 9 * K, zh = 3.4 * K;
-    for (let y = 2; y < 106; y += rowH) {
-      let up = true;
-      const pts = [];
-      for (let x = -zw; x < GW + zw; x += zw) {
-        pts.push([x, y + (up ? 0 : zh)]);
-        up = !up;
+    // chevron rows of equal height, every other one in the lighter tone
+    const rh = 8.6 * K, zw = 38 * K, amp = 7.5 * K;
+    for (let r = 0, y0 = -14 * K; y0 < 112; r++, y0 += rh) {
+      if (r % 2) continue;
+      const top = [], bot = [];
+      for (let x = -zw; x <= GW + zw; x += zw / 4) {
+        const ph = ((x % zw) + zw) % zw / zw;
+        const yy = y0 + amp * Math.abs(ph * 2 - 1);
+        top.push([x, yy]);
+        bot.push([x, yy + rh]);
       }
-      const left = pts.map(q => [q[0], q[1] - 0.45 * K]);
-      const right = pts.map(q => [q[0], q[1] + 0.45 * K]).reverse();
-      out.push([1, 0.3, left.concat(right)]);
+      out.push([1, 1, top.concat(bot.reverse())]);
     }
     // stacked diamonds
-    const dx = 38 * K, dy = 46 * K, w = 1.9 * K, h = 2.7 * K, step = 3.9 * K;
+    const dx = 40 * K, dy = 46 * K, w = 1.9 * K, h = 2.7 * K, step = 3.9 * K;
     for (let row = 0, y = 10; y < 108; row++, y += dy) {
       for (let x = (row % 2 ? dx / 2 : 0) + 9; x < GW + dx; x += dx) {
         for (let i = 0; i < 3; i++) {
@@ -1048,25 +1048,57 @@
     return out;
   }
 
-  // "flash": broad diagonal lightning slabs with stepped, jagged edges, tone-on-tone (Dortmund
-  // away). Kind 0.
+  // "flash": rows of large lightning bolts (a long diagonal with two Z-shaped steps), tone-on-tone
+  // (Dortmund away). Kind 0.
   function flashShapes() {
     const out = [];
     const rnd = seeded(61);
-    const K = GW > 300 ? 1.5 : 1;
-    const lean = 0.7, gap = 26 * K;
-    for (let i = -3; i * gap < GW + 120; i++) {
-      const x0 = i * gap + rnd() * 6;
-      const wd = (12 + rnd() * 14) * K;
-      const left = [], right = [];
-      let off = 0;
-      for (let y = -6; y <= 106; y += 13 * K) {
-        off = (rnd() - 0.5) * 9 * K;
-        const bx = x0 - (y - 50) * lean;
-        left.push([bx + off, y]);
-        right.push([bx + wd + off * 0.6 + (rnd() - 0.5) * 6 * K, y + 5 * K]);
+    const K = GW > 300 ? 1.45 : 1;
+    const H = 66 * K, Wb = 30 * K;
+    const bolt = (x, y, s) => [[0.55, 0], [0.95, 0], [0.64, 0.4], [1.04, 0.4], [0.08, 1], [0.38, 0.56], [-0.04, 0.56]]
+      .map(q => [x + q[0] * Wb * s, y + q[1] * H * s]);
+    for (let row = 0, y = -20 * K; y < 110; row++, y += H * 0.78) {
+      for (let x = (row % 2 ? 17 * K : -4 * K); x < GW + 30; x += 34 * K) {
+        const s = 0.9 + rnd() * 0.25;
+        out.push([0, 0.55 + rnd() * 0.4, bolt(x + (rnd() - 0.5) * 6 * K, y + (rnd() - 0.5) * 6 * K, s)]);
       }
-      out.push([0, 0.35 + rnd() * 0.5, left.concat(right.reverse())]);
+    }
+    return out;
+  }
+
+  // "baroque": big teardrop scrolls that curl inward, like the Bembel jug pattern (Frankfurt away).
+  // Kind 0 = scroll (first band colour).
+  function baroqueShapes() {
+    const out = [];
+    const rnd = seeded(83);
+    const K = GW > 300 ? 1.5 : 1;
+    const scroll = (cx, cy, r, dir, rot) => {
+      const left = [], right = [];
+      const n = 30;
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const ang = rot + dir * t * Math.PI * 2.25;
+        const rad = r * (1 - 0.72 * t);
+        const px = cx + Math.cos(ang) * rad, py = cy + Math.sin(ang) * rad * 0.95;
+        const tx = -Math.sin(ang) * dir, ty = Math.cos(ang) * dir;
+        const w = r * 0.95 * Math.pow(1 - t, 0.45) * (0.45 + 0.55 * Math.min(1, (1 - t) * 3)) + 0.4;
+        left.push([px + tx * w, py + ty * w]);
+        right.push([px - tx * w, py - ty * w]);
+      }
+      out.push([0, 0.95, left.concat(right.reverse())]);
+    };
+    const drop = (x, y, r) => {
+      const pts = [];
+      for (let i = 0; i < 14; i++) pts.push([x + Math.cos((i / 14) * Math.PI * 2) * r, y + Math.sin((i / 14) * Math.PI * 2) * r * 1.15]);
+      out.push([0, 0.95, pts]);
+    };
+    for (let col = 0, x = 6 * K; x < GW + 20 * K; col++, x += 30 * K) {
+      for (let row = 0; row < 3; row++) {
+        if (rnd() < 0.18) continue;
+        const r = (10 + rnd() * 7) * K;
+        scroll(x + (rnd() - 0.5) * 8 * K, 16 + row * 34 + (rnd() - 0.5) * 8, r, rnd() < 0.5 ? 1 : -1, rnd() * Math.PI * 2);
+        if (rnd() < 0.7) drop(x + (rnd() - 0.5) * 24 * K, 8 + row * 34 + rnd() * 26, (1.6 + rnd() * 1.6) * K);
+      }
     }
     return out;
   }
@@ -1077,7 +1109,7 @@
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1100,7 +1132,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
-    if (p.type === "flash") return [b[0] || "#2B2B2B"];
+    if (p.type === "flash" || p.type === "baroque") return [b[0] || "#2B2B2B"];
     if (p.type === "bruise" || p.type === "hexes") return [b[0] || "#FFFFFF"];
     if (p.type === "pole") return [b[0] || "#1C2C5B", b[1] || "#6CABDD"];
     if (p.type === "contours" || p.type === "golden" || p.type === "skewchecks" || p.type === "vbars") return [b[0] || "#FFFFFF"];
