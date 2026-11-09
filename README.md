@@ -136,6 +136,7 @@ A kit can set `headerStripes: [[colour, weight], ...]` to split the bottom band 
 - `railstripes`: horizontal stripes in the first band colour, each framed by a thin line of the second colour above and below with a small gap, over big faint lightning-bolt shapes made only of grain, in the third colour (Atletico third)
 - `twotone`: the base colour on the left and a lighter colour on the right joined by a sawtooth edge, with tone-on-tone jagged Z ribbons in lighter and darker shades (Barcelona third; `full: true` spans the whole banner)
 - `neon-curves` (a `headerDecor` type): two thin sharp-tipped S-curves like a cubic graph, one near each end of the banner, with a soft glow (Atletico away)
+- `ribfade`: a vertical fade from the base colour (top) into the first band colour (bottom) with fine vertical ribs and a dotted knit texture over the upper part (Barcelona away; `full: true` spans the whole banner)
 - `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
 - `burst`: radial rays fanning out from the upper right, wide wedges in the first band colour and thin streaks in the second (New England Revolution home)
 - `thick-waves`: bold wavy stripes in the first band colour across `base` (USA home)

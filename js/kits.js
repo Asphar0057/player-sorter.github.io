@@ -1559,13 +1559,36 @@
     return out;
   }
 
+  // "ribfade": a vertical fade from the base colour (top) into the first band colour (bottom) with
+  // fine vertical ribs and a dotted knit texture over the upper part, like the Barcelona away
+  // shirt. Kinds: 0 = ribs, 1 = fade slices, 2 = knit dots. Use `full: true` on banners.
+  function ribFadeShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.6 : 1;
+    const N = 36;
+    for (let i = 0; i < N; i++) {
+      const t = (i + 0.5) / N;
+      out.push([1, Math.pow(t, 1.5) * 0.95, [[-2, (i * 100) / N], [GW + 2, (i * 100) / N], [GW + 2, ((i + 1) * 100) / N + 0.4], [-2, ((i + 1) * 100) / N + 0.4]]]);
+    }
+    const step = 2.3 * K, w = 0.5 * K;
+    for (let x = 0.5 * K; x < GW; x += step) out.push([0, 0.26, [[x, -2], [x + w, -2], [x + w, 102], [x, 102]]]);
+    const ds = 1.7 * K;
+    for (let row = 0, y = 2; y < 55; row++, y += ds) {
+      for (let x = (row % 2 ? ds / 2 : 0); x < GW; x += ds) {
+        const r = 0.34 * K;
+        out.push([2, 0.3 * (1 - y / 60), [[x, y - r], [x + r, y], [x, y + r], [x - r, y]]]);
+      }
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes, rulestripes: ruleStripeShapes, multistripes: multiStripeShapes, prism: prismShapes, railstripes: railStripeShapes, twotone: twoToneShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes, rulestripes: ruleStripeShapes, multistripes: multiStripeShapes, prism: prismShapes, railstripes: railStripeShapes, twotone: twoToneShapes, ribfade: ribFadeShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1588,6 +1611,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "ribfade") return [b[1] || "#9A97A6", b[0] || "#6A45B8", b[2] || "#7C788A"];
     if (p.type === "twotone") return [b[0] || "#97D7CF", b[1] || "#C4EEE8", b[2] || "#6FC4BA"];
     if (p.type === "railstripes") return [b[0] || "#C8302A", b[1] || "#262F61", b[2] || "#8E99A8"];
     if (p.type === "prism") return [b[0] || "#3A3D43", b[1] || b[0] || "#4A4E55"];

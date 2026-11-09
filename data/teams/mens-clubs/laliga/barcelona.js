@@ -41,10 +41,10 @@ registerTeam({
       onPrimary: "#110D16",
       accent: "#7B4BB8",
       onAccent: "#FFFFFF",
-      header: "#4B2A7B",
+      header: "#0B0A0E",
       onHeader: "#D4AF37",
       headerBand: "#D4AF37",
-      pattern: { type: "gradient", base: "#4B2A7B", bands: ["#0E0B12"] }
+      pattern: { type: "ribfade", full: true, base: "#0B0A0E", bands: ["#6A45B8", "#9A97A6", "#7C788A"] }
     },
     third: {
       label: "Third",
