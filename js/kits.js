@@ -1494,6 +1494,36 @@
     const out = [];
     const period = 27, sh = 3.6, gap = 0.9, th = 0.95;
     const rect = (y, h) => [[-2, y], [GW + 2, y], [GW + 2, y + h], [-2, y + h]];
+    // mild grainy lightning cracks under the stripes: jagged vertical cracks drawn as dots that
+    // are dense on the crack and scatter away from it
+    const rnd = seeded(57);
+    const K = GW > 300 ? 1.6 : 1;
+    const cracks = Math.max(3, Math.round(GW / (34 * K)));
+    const dot = (x, y, r, al) => {
+      const pts = [];
+      for (let i = 0; i < 4; i++) pts.push([x + Math.cos((i / 4) * Math.PI * 2 + 0.78) * r, y + Math.sin((i / 4) * Math.PI * 2 + 0.78) * r]);
+      out.push([2, al, pts]);
+    };
+    for (let c = 0; c < cracks; c++) {
+      let x = (c + 0.3 + rnd() * 0.5) * (GW / cracks);
+      const pts = [[x, -6]];
+      for (let y = 4; y < 112; y += 10 + rnd() * 14) {
+        x += (rnd() < 0.5 ? -1 : 1) * (5 + rnd() * 11) * K;
+        pts.push([x, y]);
+      }
+      for (let i = 0; i + 1 < pts.length; i++) {
+        const [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+        const len = Math.hypot(x2 - x1, y2 - y1), n = Math.round(len * 1.6);
+        for (let s = 0; s < n; s++) {
+          const t = s / n, px = x1 + (x2 - x1) * t, py = y1 + (y2 - y1) * t;
+          dot(px + (rnd() - 0.5) * 0.9 * K, py + (rnd() - 0.5) * 0.9, 0.4 * K, 0.85);
+          for (let q = 0; q < 3; q++) {
+            const d = Math.pow(rnd(), 1.5) * 8 * K, side = rnd() < 0.5 ? -1 : 1;
+            dot(px + side * d, py + (rnd() - 0.5) * 3, (0.2 + rnd() * 0.18) * K, 0.7 * (1 - d / (8.5 * K)));
+          }
+        }
+      }
+    }
     for (let y = 6; y < 106; y += period) {
       out.push([0, 1, rect(y, sh)]);
       out.push([1, 1, rect(y - gap - th, th)]);
@@ -1531,7 +1561,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
-    if (p.type === "railstripes") return [b[0] || "#C8302A", b[1] || "#262F61"];
+    if (p.type === "railstripes") return [b[0] || "#C8302A", b[1] || "#262F61", b[2] || "#8E99A8"];
     if (p.type === "prism") return [b[0] || "#3A3D43", b[1] || b[0] || "#4A4E55"];
     if (p.type === "multistripes") { stripeColors.cur = b.length ? b : ["#FFFFFF"]; return stripeColors.cur; }
     if (p.type === "rulestripes") return [b[0] || "#FFFFFF", b[0] || "#FFFFFF", p.base, b[1] || "#262F61"];
