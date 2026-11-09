@@ -1413,13 +1413,54 @@
     return out;
   }
 
+  // "rulestripes": wide vertical stripes in two colours with fine rules, like the Atletico de
+  // Madrid home shirt: the base colour is the thick stripe and the first band colour the wide
+  // band between them. Each band has two thin lines in the base colour along both edges, each
+  // thick stripe has a thin line in the band colour just inside both edges, and three thin
+  // lines in the second band colour run down its middle from a small trident. Kinds: 0 = band,
+  // 1 = thin line in the stripe (band colour), 2 = thin lines in the band (base colour),
+  // 3 = centre lines and trident (second band colour).
+  function ruleStripeShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.7 : 1.45;
+    const R = 15 * K, W = 18 * K, P = R + W;
+    const rect = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+    // on a card only the right part of the grid shows; keep its left part plain so a long name
+    // stays readable, and line a stripe up with the right-hand edge
+    const x0 = GW > 300 ? 6 * K : 78;
+    for (let i = GW > 300 ? -1 : 0; x0 + i * P < GW + P; i++) {
+      const sx = x0 + i * P;            // start of the thick stripe
+      const bx = sx + R;                // start of the band
+      out.push([0, 1, rect(bx, -2, W, 104)]);
+      // two thin lines in the band along both edges
+      [1.2, 3.1].forEach(o => {
+        out.push([2, 1, rect(bx + o * K, -2, 0.8 * K, 104)]);
+        out.push([2, 1, rect(bx + W - (o + 0.8) * K, -2, 0.8 * K, 104)]);
+      });
+      // thin line inside the thick stripe along both edges
+      out.push([1, 1, rect(sx + 1.3 * K, -2, 0.75 * K, 104)]);
+      out.push([1, 1, rect(sx + R - 2.05 * K, -2, 0.75 * K, 104)]);
+      // three thin lines down the middle, starting under a trident
+      const cx = sx + R / 2, ly = 27;
+      [-2.4, 0, 2.4].forEach(o => out.push([3, 0.95, rect(cx + o * K - 0.35 * K, ly, 0.7 * K, 104 - ly)]));
+      const w = 0.8 * K, pr = 2.4 * K;
+      out.push([3, 1, rect(cx - w / 2, 14, w, ly - 14)]);                          // shaft
+      out.push([3, 1, rect(cx - pr - w / 2, 6, w, 11)]);                            // left prong
+      out.push([3, 1, rect(cx + pr - w / 2, 6, w, 11)]);                            // right prong
+      out.push([3, 1, rect(cx - w / 2, 2, w, 13)]);                                  // middle prong
+      out.push([3, 1, rect(cx - pr - w / 2, 15.6, 2 * pr + w, w)]);                // crossbar
+      [-1, 0, 1].forEach(d => out.push([3, 1, [[cx + d * pr - w * 1.1, 6.5], [cx + d * pr + w * 1.1, 6.5], [cx + d * pr, 2.6]]]));
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes, rulestripes: ruleStripeShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1442,6 +1483,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "rulestripes") return [b[0] || "#FFFFFF", b[0] || "#FFFFFF", p.base, b[1] || "#262F61"];
     if (p.type === "scrolls") return [b[0] || "#D6C9B0"];
     if (p.type === "sunstone") return [b[0] || "#0A5547"];
     if (p.type === "finelines") return [b[0] || "#9BB1DF"];

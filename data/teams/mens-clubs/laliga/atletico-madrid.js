@@ -5,6 +5,7 @@ registerTeam({
   monogram: "ATM",
   league: "laliga",
   season: "2026/27",
+  tile: { bg: "#CE3524", fg: "#FFFFFF", muted: "rgba(255,255,255,0.8)", patternOpacity: 1, pattern: { type: "rulestripes", base: "#CE3524", bands: ["#FFFFFF", "#262F61"] } },
   kits: {
     home: {
       label: "Home",
@@ -25,7 +26,7 @@ registerTeam({
       onHeader: "#FFFFFF",
       headerBand: "#262F61",
       rowTintStrength: 0.15,
-      pattern: { type: "stripes", base: "#CE3524", bands: ["#FFFFFF"] }
+      pattern: { type: "rulestripes", base: "#CE3524", bands: ["#FFFFFF", "#262F61"] }
     },
     away: {
       label: "Away",

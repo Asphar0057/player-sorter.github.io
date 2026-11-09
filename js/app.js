@@ -483,7 +483,8 @@
       "--tile-bg:" + tile.bg,
       "--tile-fg:" + tile.fg,
       "--tile-muted:" + tile.muted,
-      "--tile-pattern:" + Kits.css(tile.pattern)
+      "--tile-pattern:" + Kits.css(tile.pattern),
+      "--tile-pattern-opacity:" + (tile.patternOpacity != null ? tile.patternOpacity : 0.55)
     ].join(";");
     const light = Kits.isLight(tile.bg) ? " is-light" : "";
     return (
