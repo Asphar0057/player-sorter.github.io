@@ -1494,34 +1494,33 @@
     const out = [];
     const period = 27, sh = 3.6, gap = 0.9, th = 0.95;
     const rect = (y, h) => [[-2, y], [GW + 2, y], [GW + 2, y + h], [-2, y + h]];
-    // mild grainy lightning cracks under the stripes: jagged vertical cracks drawn as dots that
-    // are dense on the crack and scatter away from it
+    // big faint lightning shapes under the stripes, made only of grain: tiny dots packed inside each
+    // bolt silhouette and scattering softly past its edge
     const rnd = seeded(57);
     const K = GW > 300 ? 1.6 : 1;
-    const cracks = Math.max(3, Math.round(GW / (34 * K)));
     const dot = (x, y, r, al) => {
       const pts = [];
       for (let i = 0; i < 4; i++) pts.push([x + Math.cos((i / 4) * Math.PI * 2 + 0.78) * r, y + Math.sin((i / 4) * Math.PI * 2 + 0.78) * r]);
       out.push([2, al, pts]);
     };
-    for (let c = 0; c < cracks; c++) {
-      let x = (c + 0.3 + rnd() * 0.5) * (GW / cracks);
-      const pts = [[x, -6]];
-      for (let y = 4; y < 112; y += 10 + rnd() * 14) {
-        x += (rnd() < 0.5 ? -1 : 1) * (5 + rnd() * 11) * K;
-        pts.push([x, y]);
+    const tpl = [[0.5, -0.06], [0.98, -0.06], [0.68, 0.42], [1.04, 0.42], [0.04, 1.06], [0.36, 0.56], [-0.05, 0.56]];
+    const inside = (poly, x, y) => {
+      let c = false;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        if (((poly[i][1] > y) !== (poly[j][1] > y)) && x < ((poly[j][0] - poly[i][0]) * (y - poly[i][1])) / (poly[j][1] - poly[i][1]) + poly[i][0]) c = !c;
       }
-      for (let i = 0; i + 1 < pts.length; i++) {
-        const [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
-        const len = Math.hypot(x2 - x1, y2 - y1), n = Math.round(len * 1.6);
-        for (let s = 0; s < n; s++) {
-          const t = s / n, px = x1 + (x2 - x1) * t, py = y1 + (y2 - y1) * t;
-          dot(px + (rnd() - 0.5) * 0.9 * K, py + (rnd() - 0.5) * 0.9, 0.4 * K, 0.85);
-          for (let q = 0; q < 3; q++) {
-            const d = Math.pow(rnd(), 1.5) * 8 * K, side = rnd() < 0.5 ? -1 : 1;
-            dot(px + side * d, py + (rnd() - 0.5) * 3, (0.2 + rnd() * 0.18) * K, 0.7 * (1 - d / (8.5 * K)));
-          }
-        }
+      return c;
+    };
+    const Wb = 46 * K, step = 58 * K;
+    for (let x0 = -10 * K, n = 0; x0 < GW + Wb; x0 += step * (0.85 + rnd() * 0.3), n++) {
+      const flip = n % 2 ? -1 : 1, sc = 0.9 + rnd() * 0.25;
+      const poly = tpl.map(q => [x0 + (flip > 0 ? q[0] : 1 - q[0]) * Wb * sc, q[1] * 100]);
+      const minX = Math.min(...poly.map(q => q[0])) - 6 * K, maxX = Math.max(...poly.map(q => q[0])) + 6 * K;
+      const tries = Math.round((maxX - minX) * 100 * 0.55);
+      for (let t = 0; t < tries; t++) {
+        const x = minX + rnd() * (maxX - minX), y = rnd() * 112 - 6;
+        if (inside(poly, x, y)) dot(x, y, (0.18 + rnd() * 0.18) * K, 0.32 + rnd() * 0.3);
+        else if (rnd() < 0.04) dot(x, y, (0.14 + rnd() * 0.12) * K, 0.18);
       }
     }
     for (let y = 6; y < 106; y += period) {
