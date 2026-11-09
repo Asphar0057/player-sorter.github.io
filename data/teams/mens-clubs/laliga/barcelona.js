@@ -5,7 +5,7 @@ registerTeam({
   monogram: "FCB",
   league: "laliga",
   season: "2026/27",
-  tile: { bg: "linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 38%, rgba(0,0,0,0.30) 100%), linear-gradient(90deg, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.12) 45%, rgba(255,255,255,0.06) 100%), repeating-linear-gradient(90deg, #0A3470 0%, #1E62C4 3.4%, #0F4A9E 6.2%, #0A3470 9%, #6A0A27 9%, #A8174A 12.4%, #C2285E 13.6%, #8A1238 16%, #6A0A27 18%)", fg: "#FFFFFF", muted: "rgba(255,255,255,0.85)", pattern: { type: "solid", base: "transparent", bands: [] } },
+  tile: { bg: "#003C7D", fg: "#FFFFFF", muted: "rgba(255,255,255,0.85)", patternOpacity: 1, pattern: { type: "multistripes", base: "#003C7D", bands: ["#0051BB", "#AE0136", "#820330", "#5C0A2C", "#11296F", "#2A3FA0"] } },
   kits: {
     home: {
       label: "Home",

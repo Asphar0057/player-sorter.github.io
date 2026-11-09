@@ -1451,13 +1451,26 @@
     return out;
   }
 
+  // "multistripes": equal-width vertical stripes cycling through every band colour in order, so a
+  // kit with many shades (the Barcelona home shirt) shows them all. Kind i = band colour i.
+  function multiStripeShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.5 : 1;
+    const w = 11 * K;
+    const n = (stripeColors.cur || []).length || 6;
+    for (let i = 0, x = 0; x < GW + w; i++, x += w) {
+      out.push([i % n, 1, [[x, -2], [x + w + 0.3, -2], [x + w + 0.3, 102], [x, 102]]]);
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes, rulestripes: ruleStripeShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes, rulestripes: ruleStripeShapes, multistripes: multiStripeShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1480,6 +1493,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "multistripes") { stripeColors.cur = b.length ? b : ["#FFFFFF"]; return stripeColors.cur; }
     if (p.type === "rulestripes") return [b[0] || "#FFFFFF", b[0] || "#FFFFFF", p.base, b[1] || "#262F61"];
     if (p.type === "scrolls") return [b[0] || "#D6C9B0"];
     if (p.type === "sunstone") return [b[0] || "#0A5547"];
