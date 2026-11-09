@@ -557,6 +557,26 @@
   // trapezoid panels around the neck and a row of long blocks hanging below them, each panel
   // brightest in the middle with a peach glow, divided by thin peach rib lines.
   function panelCollar(ctx, k, t, from, room, h) {
+    const off = document.createElement("canvas");
+    off.width = Math.ceil(room);
+    off.height = Math.ceil(h);
+    const o = off.getContext("2d");
+    panelCollarArt(o, k, t, 0, room, h);
+    // fade the whole collar out toward the title, smoothly over the left half
+    const g = o.createLinearGradient(0, 0, room, 0);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(0.12, "rgba(0,0,0,0.12)");
+    g.addColorStop(0.3, "rgba(0,0,0,0.5)");
+    g.addColorStop(0.5, "rgba(0,0,0,0.85)");
+    g.addColorStop(0.65, "rgba(0,0,0,1)");
+    g.addColorStop(1, "rgba(0,0,0,1)");
+    o.globalCompositeOperation = "destination-in";
+    o.fillStyle = g;
+    o.fillRect(0, 0, off.width, off.height);
+    ctx.drawImage(off, from, 0);
+  }
+
+  function panelCollarArt(ctx, k, t, from, room, h) {
     const blue = t.color || "#3B63FF";
     const deep = t.deep || "#12207F";
     const glow = t.glow || "#F2A98B";
@@ -580,7 +600,7 @@
         const a = rg.a0 + i * step + (step - w) / 2;
         const p0 = P(rg.k0, a), p1 = P(rg.k0, a + w), p2 = P(rg.k1, a + w), p3 = P(rg.k1, a);
         const mx = (p0[0] + p1[0] + p2[0] + p3[0]) / 4, my = (p0[1] + p1[1] + p2[1] + p3[1]) / 4;
-        const edge = Math.min(1, Math.max(0, (mx - from) / (room * 0.16)));
+        const edge = 1;
         const centre = 1 - Math.min(1, Math.abs(a - 90) / 90) * 0.35;
         ctx.globalAlpha = edge * (0.75 + 0.25 * centre);
         const g = ctx.createLinearGradient((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2, (p2[0] + p3[0]) / 2, (p2[1] + p3[1]) / 2);
