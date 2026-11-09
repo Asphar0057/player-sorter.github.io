@@ -1132,13 +1132,44 @@
     return out;
   }
 
+  // "ripple": soft concentric rings spreading from a point near the top right, with a very faint
+  // diagonal lattice across them (Cagliari third). Kind 0 = dark rings, kind 1 = light rings.
+  function rippleShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.5 : 1;
+    const cx = GW * (GW > 300 ? 0.74 : 0.6), cy = 18;
+    const ring = (r, w, kind, al) => {
+      const n = 64, o = [], i = [];
+      for (let j = 0; j < n; j++) {
+        const a = (j / n) * Math.PI * 2;
+        o.push([cx + Math.cos(a) * (r + w / 2) * 1.25, cy + Math.sin(a) * (r + w / 2)]);
+        i.push([cx + Math.cos(a) * (r - w / 2) * 1.25, cy + Math.sin(a) * (r - w / 2)]);
+      }
+      for (let j = 0; j < n; j++) {
+        const j2 = (j + 1) % n;
+        out.push([kind, al, [o[j], o[j2], i[j2], i[j]]]);
+      }
+    };
+    for (let r = 6 * K, idx = 0; r < 150 * K; r += 6.2 * K, idx++) {
+      ring(r, 2.6 * K, 0, 0.5 - Math.min(0.28, r / (400 * K)));
+      ring(r + 3.1 * K, 1.6 * K, 1, 0.28);
+    }
+    // faint diagonal lattice
+    const g = 8 * K;
+    for (let x = -100; x < GW + 100; x += g) {
+      out.push([0, 0.12, [[x, -2], [x + 0.5 * K, -2], [x + 0.5 * K + 70, 102], [x + 70, 102]]]);
+      out.push([0, 0.12, [[x, -2], [x + 0.5 * K, -2], [x + 0.5 * K - 70, 102], [x - 70, 102]]]);
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1161,6 +1192,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "ripple") return [b[0] || "#7A6B60", b[1] || "#C2B6AB"];
     if (p.type === "herring") return [b[0] || "#2DB8A6", b[1] || "#2A3F94"];
     if (p.type === "flash" || p.type === "baroque") return [b[0] || "#2B2B2B"];
     if (p.type === "bruise" || p.type === "hexes") return [b[0] || "#FFFFFF"];

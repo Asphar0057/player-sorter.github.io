@@ -57,7 +57,7 @@ registerTeam({
     },
     third: {
       label: "Third",
-      paper: "#B5A79A",
+      paper: "#B2A397",
       card: "#F6F0E1",
       ink: "#14110C",
       muted: "#6B6250",
@@ -67,13 +67,13 @@ registerTeam({
       onAccent: "#F6F0E1",
       photoBg: "#14110C",
       photoInk: "#DCCFB0",
-      header: "#B5A79A",
+      header: "#97877E",
       onHeader: "#14110C",
       headerBand: "#14110C",
       rowTint: "#14110C",
       rowTintStrength: 0.14,
       rowTintFloor: 0.45,
-      pattern: {type: "sleeves", base: "#B5A79A", bands: ["#14110C"]}
+      pattern: {type: "ripple", base: "#97877E", bands: ["#7C6C61", "#C2B6AB"]}
     }
   },
   players: [
