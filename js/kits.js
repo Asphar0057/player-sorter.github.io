@@ -814,19 +814,20 @@
     return out;
   }
 
-  // "golden": the golden-ratio construction (golden rectangle, squares, circle and spiral arcs)
-  // centred in the middle, with lattice tiles, fleurons and quatrefoil circles around it
-  // (Fiorentina third).
+  // "golden": the single golden-ratio figure from the Fiorentina centenary shirt (a near-square
+  // frame split at the golden section, a big circle through it and one small spiral at the upper
+  // left), alone in the middle on a background of very large, faint geometric tiles (Fiorentina
+  // third).
   function goldenShapes() {
     const out = [];
-    const A = 0.75, lw = GW > 300 ? 1.2 : 0.95;
+    const A = 0.78, lw = GW > 300 ? 1.2 : 0.95;
     const seg = (x1, y1, x2, y2, w, al) => {
       const dx = x2 - x1, dy = y2 - y1, l = Math.hypot(dx, dy) || 1;
       const nx = -dy / l * w / 2, ny = dx / l * w / 2;
       out.push([0, al || A, [[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]]);
     };
     const arc = (cx, cy, r, a0, a1, w, al) => {
-      const n = 16;
+      const n = 40;
       let px = cx + Math.cos(a0) * r, py = cy + Math.sin(a0) * r;
       for (let i = 1; i <= n; i++) {
         const a = a0 + ((a1 - a0) * i) / n, x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
@@ -835,72 +836,48 @@
       }
     };
     const diamond = (x, y, rx, ry, al) => out.push([0, al, [[x, y - ry], [x + rx, y], [x, y + ry], [x - rx, y]]]);
-    const fleuron = (x, y, r) => {
-      diamond(x, y, r * 0.5, r * 1.6, 0.6);
-      diamond(x, y, r * 1.6, r * 0.5, 0.6);
-      diamond(x + r * 2.4, y, r * 0.5, r * 0.5, 0.6);
-      diamond(x - r * 2.4, y, r * 0.5, r * 0.5, 0.6);
-    };
-    const lattice = (x, y, n, cell, al) => {
-      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) diamond(x + i * cell, y + j * cell, cell * 0.42, cell * 0.42, al);
-    };
-    const quatrefoil = (x, y, r) => {
-      [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(d => arc(x + d[0] * r * 0.6, y + d[1] * r * 0.6, r * 0.62, 0, Math.PI * 2, 0.7, 0.45));
-    };
-    const phi = 1.6180339887;
-    const H = GW > 300 ? 72 : 62;
-    const W = H * phi;
     const cx = GW / 2, cy = 50;
-    let x0 = cx - W / 2, y0 = cy - H / 2, w = W, h = H;
-    seg(x0, y0, x0 + w, y0, lw); seg(x0 + w, y0, x0 + w, y0 + h, lw); seg(x0 + w, y0 + h, x0, y0 + h, lw); seg(x0, y0 + h, x0, y0, lw);
-    // circle in the first (left) square
-    arc(x0 + H / 2, cy, H / 2, 0, Math.PI * 2, lw * 0.9);
-    let side = 0;
-    for (let i = 0; i < 8; i++) {
-      const s = Math.min(w, h);
-      if (side === 0) {
-        arc(x0 + s, y0 + s, s, Math.PI, Math.PI * 1.5, lw * 1.2);
-        seg(x0 + s, y0, x0 + s, y0 + h, lw * 0.8);
-        x0 += s; w -= s;
-      } else if (side === 1) {
-        arc(x0 + s, y0 + s, s, -Math.PI / 2, 0, lw * 1.2);
-        seg(x0, y0 + s, x0 + w, y0 + s, lw * 0.8);
-        y0 += s; h -= s;
-      } else if (side === 2) {
-        arc(x0 + w - s, y0 + h - s, s, 0, Math.PI / 2, lw * 1.2);
-        seg(x0 + w - s, y0, x0 + w - s, y0 + h, lw * 0.8);
-        w -= s;
-      } else {
-        arc(x0 + s, y0 + h - s, s, Math.PI / 2, Math.PI, lw * 1.2);
-        seg(x0, y0 + h - s, x0 + w, y0 + h - s, lw * 0.8);
-        h -= s;
-      }
-      side = (side + 1) % 4;
-      if (Math.min(w, h) < 2) break;
+    const H = GW > 300 ? 66 : 58, Wd = H * 0.93;
+    const x0 = cx - Wd / 2, y0 = cy - H / 2 + 3;
+    // frame
+    seg(x0, y0, x0 + Wd, y0, lw); seg(x0 + Wd, y0, x0 + Wd, y0 + H, lw); seg(x0 + Wd, y0 + H, x0, y0 + H, lw); seg(x0, y0 + H, x0, y0, lw);
+    // golden-section splits
+    const gx = x0 + Wd * 0.618, gy = y0 + H * 0.382;
+    seg(gx, y0, gx, y0 + H, lw * 0.8);
+    seg(x0, gy, gx, gy, lw * 0.8);
+    // big circle through the frame
+    arc(cx, y0 + H * 0.48, H * 0.56, 0, Math.PI * 2, lw * 0.9);
+    // small spiral at the upper left
+    let sx = x0 + Wd * 0.26, sy = y0 + H * 0.19, r = H * 0.16;
+    for (let i = 0; i < 4; i++) {
+      const a0 = Math.PI + i * (Math.PI / 2);
+      arc(sx, sy, r, a0, a0 + Math.PI / 2, lw * 0.9);
+      if (i === 0) { sx += r * 0.35; sy += r * 0.35; }
+      r *= 0.62;
     }
-    // large tone-on-tone geometric tiles spread over the whole background like a texture
-    const gx = GW > 300 ? 70 : 54, gy = 50;
-    const figHalf = W / 2 + 5;
+    // very large faint tiles spread over the whole background
+    const gxs = GW > 300 ? 118 : 92, gys = 78;
+    const figHalf = Wd / 2 + H * 0.12;
     let n = 0;
     for (let row = -1; row < 3; row++) {
-      for (let x = -gx / 2 + (row % 2 ? gx / 2 : 0); x < GW + gx; x += gx) {
-        const y = 12 + row * gy;
+      for (let x = -gxs / 3 + (row % 2 ? gxs / 2 : 0); x < GW + gxs; x += gxs) {
+        const y = 6 + row * gys;
         n++;
-        if (Math.abs(x - cx) < figHalf && y > 4 && y < 96) continue;
+        if (Math.abs(x - cx) < figHalf + 22 && y > -10 && y < 110) continue;
         const kind = n % 4;
         if (kind === 0) {
-          const c = 9;
-          for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) diamond(x - 18 + i * c, y - 18 + j * c, c * 0.46, c * 0.46, 0.3);
+          const c = 15;
+          for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) diamond(x - 22 + i * c, y - 22 + j * c, c * 0.46, c * 0.46, 0.14);
         } else if (kind === 1) {
-          [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(d => arc(x + d[0] * 9, y + d[1] * 9, 10, 0, Math.PI * 2, 1.1, 0.34));
-          arc(x, y, 19, 0, Math.PI * 2, 0.9, 0.3);
+          [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(d => arc(x + d[0] * 16, y + d[1] * 16, 17, 0, Math.PI * 2, 1.8, 0.16));
+          arc(x, y, 33, 0, Math.PI * 2, 1.4, 0.14);
         } else if (kind === 2) {
-          diamond(x, y, 6, 19, 0.36); diamond(x, y, 19, 6, 0.36);
-          diamond(x + 26, y, 5, 5, 0.36); diamond(x - 26, y, 5, 5, 0.36);
-          diamond(x, y + 25, 5, 5, 0.36); diamond(x, y - 25, 5, 5, 0.36);
+          diamond(x, y, 10, 32, 0.17); diamond(x, y, 32, 10, 0.17);
+          diamond(x + 42, y, 8, 8, 0.17); diamond(x - 42, y, 8, 8, 0.17);
+          diamond(x, y + 40, 8, 8, 0.17); diamond(x, y - 40, 8, 8, 0.17);
         } else {
-          for (let r = 1; r <= 3; r++) diamond(x, y, 8 * r, 8 * r, 0.14 + 0.05 * r);
-          arc(x, y, 6, 0, Math.PI * 2, 1.3, 0.4);
+          for (let q = 1; q <= 4; q++) diamond(x, y, 11 * q, 11 * q, 0.05 + 0.025 * q);
+          arc(x, y, 10, 0, Math.PI * 2, 2, 0.2);
         }
       }
     }
