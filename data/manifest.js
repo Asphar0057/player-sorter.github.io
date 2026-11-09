@@ -12,13 +12,13 @@ window.SQUAD_MANIFEST = {
           id: "laliga",
           name: "LaLiga",
           country: "Spain",
-          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna", "real-sociedad", "athletic-club", "sevilla", "valencia", "malaga", "espanyol"]
+          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna", "real-sociedad", "athletic-club", "sevilla", "valencia", "malaga", "espanyol", "celta"]
         },
         {
           id: "premier-league",
           name: "Premier League",
           country: "England",
-          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton"]
+          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton", "bournemouth", "brighton"]
         },
         {
           id: "bundesliga",
@@ -30,13 +30,13 @@ window.SQUAD_MANIFEST = {
           id: "ligue-1",
           name: "Ligue 1",
           country: "France",
-          teams: ["psg", "monaco", "paris-fc"]
+          teams: ["psg", "monaco", "paris-fc", "marseille", "lyon"]
         },
         {
           id: "serie-a",
           name: "Serie A",
           country: "Italy",
-          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como", "fiorentina", "atalanta"]//, "napoli"]
+          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como", "fiorentina", "atalanta", "lazio"]//, "napoli"]
         },
         {
           id: "eredivisie",
@@ -55,6 +55,18 @@ window.SQUAD_MANIFEST = {
           name: "Major League Soccer",
           country: "United States",
           teams: ["inter-miami", "orlando-city", "new-england-revolution"]
+        },
+        {
+          id: "saudi-pro-league",
+          name: "Saudi Pro League",
+          country: "Saudi Arabia",
+          teams: ["al-hilal", "al-nassr"]
+        },
+        {
+          id: "egyptian-premier-league",
+          name: "Egyptian Premier League",
+          country: "Egypt",
+          teams: ["al-ahly"]
         },
         {
           id: "liga-profesional",
@@ -162,7 +174,6 @@ window.SQUAD_MANIFEST = {
             "2026-usa"
           ]
         },
-        /*
         {
           id: "world-cup-2022",
           name: "World Cup 2022",
@@ -173,7 +184,6 @@ window.SQUAD_MANIFEST = {
           name: "World Cup 2018",
           teams: ["2018-france"]
         }
-          */
       ]
     },
     {

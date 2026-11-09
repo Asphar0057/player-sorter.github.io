@@ -16,7 +16,8 @@ SOURCE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
 PHOTO_MAX = 512
 WORK_MAX = 640
 QUALITY = 85
-ALWAYS_SKIP = ("2026-spain",)
+# Dark studio portraits. u2net treats the navy backdrop as part of the kit.
+SKIP_FOLDERS = {"schalke", "2026-spain"}
 
 
 def has_background(img, only_jpg, path):
@@ -116,7 +117,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="list the photos that would change, change nothing")
     parser.add_argument("--no-backup", action="store_true", help="do not copy originals to bg-backup/")
     parser.add_argument("--model", default="u2net_human_seg", help="rembg model (default: u2net_human_seg)")
-    parser.add_argument("--skip", action="append", default=[], metavar="NAME", help="also skip any folder with this name (repeatable); folders in ALWAYS_SKIP are always skipped")
+    parser.add_argument("--skip", action="append", default=[], metavar="NAME", help="also skip any folder with this name, e.g. --skip wcs (repeatable). schalke and 2026-spain are always skipped")
     args = parser.parse_args()
 
     root = Path(args.root)
@@ -126,7 +127,7 @@ def main():
     if not args.dry_run:
         finish_leftovers(root)
 
-    skip = {name.lower() for name in list(ALWAYS_SKIP) + args.skip}
+    skip = SKIP_FOLDERS | {name.lower() for name in args.skip}
     todo = []
     skipped = 0
     for path in sorted(root.rglob("*")):
