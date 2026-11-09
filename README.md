@@ -127,6 +127,7 @@ A kit can set `headerStripes: [[colour, weight], ...]` to split the bottom band 
 - `ripple`: soft concentric rings spreading from a point near the top right, with a very faint diagonal lattice (Cagliari third)
 - `weft`: a narrow bright seam down the right edge, then a halftone knit of bright rows with tiny dark dots punched through them, the dots growing and the rows thinning with distance into thin dotted lines of many lengths (France 2018 home; the second band colour is the dot colour, normally the base)
 - `panel-collar` (a `headerDecor` type, not a pattern): glossy panels in arcs around the neck with peach glow and rib lines, spread across the banner (Uruguay away)
+- `finelines`: very fine, slightly darker vertical lines across the whole base (Uruguay home)
 - `shards`: blocky "bento" shards (mixed-size dark blocks, some cut diagonally) across `base`, with sleeve panels in the first band colour at both ends and the second band colour for the shards (West Ham home)
 - `burst`: radial rays fanning out from the upper right, wide wedges in the first band colour and thin streaks in the second (New England Revolution home)
 - `thick-waves`: bold wavy stripes in the first band colour across `base` (USA home)

@@ -1227,13 +1227,25 @@
     return out;
   }
 
+  // "finelines": very fine, slightly darker vertical lines across the whole base, like the
+  // woven pinstripes on the Uruguay 2026 home shirt. Kind 0 = line (first band colour).
+  function fineLineShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.6 : 1;
+    const period = 2.3 * K, w = 0.8 * K;
+    for (let x = 0.4 * K; x < GW + period; x += period) {
+      out.push([0, 0.9, [[x, -2], [x + w, -2], [x + w, 102], [x, 102]]]);
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1256,6 +1268,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "finelines") return [b[0] || "#9BB1DF"];
     if (p.type === "weft") return [b[0] || "#2285F0", b[1] || "#08122B"];
     if (p.type === "dashes") return [b[0] || "#2D7CF0"];
     if (p.type === "ripple") return [b[0] || "#7A6B60", b[1] || "#C2B6AB"];
