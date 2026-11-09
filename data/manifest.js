@@ -12,13 +12,13 @@ window.SQUAD_MANIFEST = {
           id: "laliga",
           name: "LaLiga",
           country: "Spain",
-          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna", "real-sociedad", "athletic-club", "sevilla"]
+          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna", "real-sociedad", "athletic-club", "sevilla", "valencia", "malaga", "espanyol", "celta"]
         },
         {
           id: "premier-league",
           name: "Premier League",
           country: "England",
-          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton"]
+          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton", "bournemouth", "brighton"]
         },
         {
           id: "bundesliga",
@@ -30,13 +30,13 @@ window.SQUAD_MANIFEST = {
           id: "ligue-1",
           name: "Ligue 1",
           country: "France",
-          teams: ["psg", "monaco"]
+          teams: ["psg", "monaco", "paris-fc", "marseille", "lyon"]
         },
         {
           id: "serie-a",
           name: "Serie A",
           country: "Italy",
-          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como", "fiorentina", "atalanta"]//, "napoli"]
+          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como", "fiorentina", "atalanta", "lazio"]//, "napoli"]
         },
         {
           id: "eredivisie",
@@ -75,6 +75,18 @@ window.SQUAD_MANIFEST = {
           teams: ["club-america"]
         },
         {
+          id: "super-lig",
+          name: "Süper Lig",
+          country: "Türkiye",
+          teams: ["fenerbahce", "galatasaray", "besiktas"]
+        },
+        {
+          id: "greek-super-league",
+          name: "Greek Super League",
+          country: "Greece",
+          teams: ["olympiacos"]
+        },
+        {
           id: "championship",
           name: "Championship",
           country: "England",
@@ -84,8 +96,28 @@ window.SQUAD_MANIFEST = {
           id: "laliga-hypermotion",
           name: "LALIGA HYPERMOTION",
           country: "Spain",
-          teams: ["leganes"]
+          teams: ["leganes", "real-oviedo", "real-valladolid", "granada"]
         },
+        {
+          id: "primera-federacion",
+          name: "Primera Federación",
+          country: "Spain",
+          teams: ["real-zaragoza"]
+        },
+        /*
+        {
+          id: "saudi-pro-league",
+          name: "Saudi Pro League",
+          country: "Saudi Arabia",
+          teams: ["al-hilal", "al-nassr"]
+        },
+        {
+          id: "egyptian-premier-league",
+          name: "Egyptian Premier League",
+          country: "Egypt",
+          teams: ["al-ahly"]
+        },
+        */
       ]
     },
     {
@@ -155,7 +187,7 @@ window.SQUAD_MANIFEST = {
           name: "World Cup 2018",
           teams: ["2018-france"]
         }
-          */
+        */
       ]
     },
     {
