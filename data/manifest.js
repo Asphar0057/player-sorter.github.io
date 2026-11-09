@@ -195,7 +195,7 @@ window.SQUAD_MANIFEST = {
       groups: [
         {
           id: "build-your-own",
-          name: "Build your own",
+          name: "Custom",
           builder: true
         },
         {
