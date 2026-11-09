@@ -284,14 +284,19 @@
         out.push([0, a, pts]);
       }
     }
-    out.push([1, 1, [[0, 0], [19, 0], [11, 100], [0, 100]]]);
-    out.push([1, 1, [[201, 0], [136, 0], [144, 100], [201, 100]]]);
-    for (let i = 0; i < 70; i++) {
-      const left = i % 2 === 0;
-      const gx = Math.floor(rnd() * 5);
-      const gy = Math.floor(rnd() * 20);
-      const x = left ? 20 - gx * 3.2 - gy * 0.4 : 132 + gx * 3.2 + gy * 0.4;
-      out.push([0, 0.3 + rnd() * 0.3, [[x, gy * 5], [x + 3, gy * 5], [x + 3, gy * 5 + 3], [x, gy * 5 + 3]]]);
+    // Sleeve panels (no shapes on them) with a checkered strip along their inner edge.
+    const sq = 2.6;
+    out.push([1, 1, [[-1, 0], [19, 0], [11, 100], [-1, 100]]]);
+    out.push([1, 1, [[201, 0], [130, 0], [138, 100], [201, 100]]]);
+    for (let r = 0; r * sq < 100; r++) {
+      const y = r * sq;
+      [0, 1].forEach(c => {
+        if ((r + c) % 2) return;
+        const lx = 19 - (y + sq / 2) * 0.08 - (c + 1) * sq;
+        const rx = 130 + (y + sq / 2) * 0.08 + c * sq;
+        out.push([0, 0.85, [[lx, y], [lx + sq, y], [lx + sq, y + sq], [lx, y + sq]]]);
+        out.push([0, 0.85, [[rx, y], [rx + sq, y], [rx + sq, y + sq], [rx, y + sq]]]);
+      });
     }
     return out;
   })();
@@ -459,7 +464,7 @@
     const lean = 0.09, sq = 2.6;
     const shear = (x, y) => [x + (y - 50) * lean, y];
     const quad = (x1, x2, y1, y2) => [shear(x1, y1), shear(x2, y1), shear(x2, y2), shear(x1, y2)];
-    const x0 = 92, x1 = 132;
+    const x0 = 138, x1 = 178;
     out.push([0, 1, quad(x0, x1, -10, 110)]);
     [[x0 - 12, x0], [x1, x1 + 12]].forEach(p => out.push([1, 1, quad(p[0], p[1], -10, 110)]));
     for (let r = 0; r * sq < 120; r++) {
