@@ -95,9 +95,13 @@
 
   const SASH = [[0, 6], [0, 34], [100, 96], [100, 68]];
 
+  function sashPoints(p) {
+    return p.reverse ? SASH.map(([x, y]) => [100 - x, y]) : SASH;
+  }
+
   function sashSvg(p) {
     const color = (p.bands && p.bands[0]) || "#FFFFFF";
-    const pts = SASH.map(pt => pt.join(",")).join(" ");
+    const pts = sashPoints(p).map(pt => pt.join(",")).join(" ");
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="' + pts + '" fill="' + color + '"/></svg>';
     return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
   }
@@ -1888,7 +1892,7 @@
     } else if (p.type === "sash") {
       ctx.fillStyle = b[0] || "#FFFFFF";
       ctx.beginPath();
-      SASH.forEach(([px, py], j) => {
+      sashPoints(p).forEach(([px, py], j) => {
         const X = x + (px / 100) * w;
         const Y = y + (py / 100) * h;
         if (j) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);

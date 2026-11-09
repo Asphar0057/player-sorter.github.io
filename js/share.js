@@ -341,12 +341,14 @@
       const bw = Math.min(120, room * 0.38);
       const x0 = Math.max(from + 20, f.w - bw - h * 0.9);
       const x1 = x0 + h * 0.7;
+      const top = p.reverse ? x1 : x0;
+      const bottom = p.reverse ? x0 : x1;
       ctx.fillStyle = band;
       ctx.beginPath();
-      ctx.moveTo(x0, 0);
-      ctx.lineTo(x0 + bw, 0);
-      ctx.lineTo(x1 + bw, h);
-      ctx.lineTo(x1, h);
+      ctx.moveTo(top, 0);
+      ctx.lineTo(top + bw, 0);
+      ctx.lineTo(bottom + bw, h);
+      ctx.lineTo(bottom, h);
       ctx.closePath();
       ctx.fill();
     } else if (p.type === "lightning") {
