@@ -46,7 +46,7 @@ registerTeam({
       onHeader: "#E3E7EC",
       headerBand: "#3F434F",
       rowTintStrength: 0,
-      pattern: { type: "dots", base: "#20222F", bands: ["#3F434F"] }
+      pattern: { type: "stars", base: "#20222F", bands: ["#4B5169"] }
     }
   },
   players: [

@@ -533,6 +533,31 @@
     return out;
   }
 
+  // "stars": scattered five-point stars of varying size and tilt in the first band colour on the
+  // base, like the USA 2026 away shirt. Kind 0 = star.
+  function starShapes() {
+    const out = [];
+    let seed = 9;
+    const rnd = function () {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+    for (let row = 0, y = -2; y < 112; row++, y += 19) {
+      for (let x = (row % 2 ? 13 : 1); x < 212; x += 25) {
+        const cx = x + (rnd() - 0.5) * 8, cy = y + (rnd() - 0.5) * 6;
+        const r = 6.5 + rnd() * 4.5, rot = (rnd() - 0.5) * 0.6 - Math.PI / 2;
+        const pts = [];
+        for (let i = 0; i < 10; i++) {
+          const rr = i % 2 ? r * 0.4 : r;
+          const a = rot + (i * Math.PI) / 5;
+          pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]);
+        }
+        out.push([0, 0.9, pts]);
+      }
+    }
+    return out;
+  }
+
   // "ornament": delicate tone-on-tone line work (nested diamonds with small knot motifs and
   // dotted lines) in the first band colour, like the Fiorentina 2026/27 home shirt.
   function ornamentShapes() {
@@ -581,7 +606,7 @@
     return out;
   }
 
-  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes(), scatter: scatterShapes(), ornament: ornamentShapes(), raglan: raglanShapes(), streaks: streakShapes(), swell: swellShapes() };
+  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes(), vee: veeShapes(), scatter: scatterShapes(), ornament: ornamentShapes(), raglan: raglanShapes(), streaks: streakShapes(), swell: swellShapes(), stars: starShapes() };
 
   function stripeColors(p) {
     const b = p.bands || [];
@@ -589,6 +614,7 @@
     if (p.type === "crosses") return [red, b[1] || mix("#000000", red, 0.3)];
     if (p.type === "slashes") return [red, b[1] || red];
     if (p.type === "ornament") return [b[0] || "#000000"];
+    if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "swell") return [b[0] || "#BB2534", b[1] || "#7A1220"];
     if (p.type === "streaks") return [b[0] || "#FFFFFF", b[1] || "#005187"];
     if (p.type === "raglan") return [b[0] || "#FFFFFF", b[1] || "#7A1426", b[2] || "#8B0F1D"];
