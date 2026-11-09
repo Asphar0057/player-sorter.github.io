@@ -659,17 +659,19 @@
     const out = [];
     const K = GW > 300 ? 2.2 : 1;
     const cx = GW > 300 ? GW * 0.7 : GW / 2;
-    const bar = 2.6 * K, mid = 7.5 * K;
-    const N = 34;
+    const bw = 6.5 * K, far = 14 * K;
+    const N = 36;
     for (let i = 0; i < N; i++) {
       const y0 = -4 + (i * 108) / N, y1 = -4 + ((i + 1) * 108) / N + 0.3;
-      const ym = (y0 + y1) / 2;
-      const t = Math.min(1, Math.abs(ym - 48) / 50);
-      const a = 0.12 + 0.88 * Math.pow(t, 1.1);
-      const sq = (x0, x1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
-      out.push([1, a * 0.9, sq(cx - mid, cx + mid)]);
-      out.push([0, a, sq(cx - mid - bar, cx - mid)]);
-      out.push([0, a, sq(cx + mid, cx + mid + bar)]);
+      const t0 = Math.min(1, Math.max(0, (y0 + 4) / 46)), t1 = Math.min(1, Math.max(0, (y1 + 4) / 46));
+      const lo = bw / 2 + 1.2 * K;
+      const c0 = lo + (far - lo) * (1 - t0), c1 = lo + (far - lo) * (1 - t1);
+      const g = (y0 + 4) / 108;
+      [-1, 1].forEach(s => {
+        const quad = [[cx + s * (c0 - bw / 2), y0], [cx + s * (c0 + bw / 2), y0], [cx + s * (c1 + bw / 2), y1], [cx + s * (c1 - bw / 2), y1]];
+        out.push([0, 0.95 * (1 - 0.9 * g), quad]);
+        out.push([1, 0.2 + 0.75 * g, quad]);
+      });
     }
     return out;
   }
@@ -1048,22 +1050,11 @@
     return out;
   }
 
-  // "flash": rows of large lightning bolts (a long diagonal with two Z-shaped steps), tone-on-tone
+  // "flash": a single large lightning bolt stretched across the whole width, tone-on-tone
   // (Dortmund away). Kind 0.
   function flashShapes() {
-    const out = [];
-    const rnd = seeded(61);
-    const K = GW > 300 ? 1.45 : 1;
-    const H = 66 * K, Wb = 30 * K;
-    const bolt = (x, y, s) => [[0.55, 0], [0.95, 0], [0.64, 0.4], [1.04, 0.4], [0.08, 1], [0.38, 0.56], [-0.04, 0.56]]
-      .map(q => [x + q[0] * Wb * s, y + q[1] * H * s]);
-    for (let row = 0, y = -20 * K; y < 110; row++, y += H * 0.78) {
-      for (let x = (row % 2 ? 17 * K : -4 * K); x < GW + 30; x += 34 * K) {
-        const s = 0.9 + rnd() * 0.25;
-        out.push([0, 0.55 + rnd() * 0.4, bolt(x + (rnd() - 0.5) * 6 * K, y + (rnd() - 0.5) * 6 * K, s)]);
-      }
-    }
-    return out;
+    const pts = [[0.5, -0.06], [0.98, -0.06], [0.7, 0.42], [1.04, 0.42], [0.06, 1.06], [0.36, 0.56], [-0.04, 0.56]];
+    return [[0, 0.4, pts.map(q => [q[0] * GW, q[1] * 100])]];
   }
 
   // "baroque": big teardrop scrolls that curl inward, like the Bembel jug pattern (Frankfurt away).
@@ -1104,8 +1095,7 @@
   }
 
   // "herring": fine herringbone chevron lines in the first band colour that pile into large
-  // upward-pointing arrows, plus a solid panel in the second colour at the right end like the
-  // raglan sleeve (New England Revolution away). Kind 0 = lines, kind 1 = panel.
+  // upward-pointing arrows, (New England Revolution away, Arsenal away). Kind 0.
   function herringShapes() {
     const out = [];
     const K = GW > 300 ? 1.5 : 1;
@@ -1120,7 +1110,6 @@
       }
       out.push([0, 0.95, top.concat(bot.reverse())]);
     }
-    out.push([1, 1, [[GW + 1, -1], [GW - 30 * K, -1], [GW - 22 * K, 101], [GW + 1, 101]]]);
     return out;
   }
 

@@ -42,7 +42,7 @@ registerTeam({
       rowTint: "#0A1B3F",
       rowTintStrength: 0.14,
       rowTintFloor: 0.45,
-      pattern: { type: "herring", base: "#FFFFFF", bands: ["#2DB8A6", "#2A3F94"] }
+      pattern: { type: "herring", base: "#FFFFFF", bands: ["#2DB8A6"] }
     }
   },
   players: [

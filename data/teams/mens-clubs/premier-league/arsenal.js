@@ -43,7 +43,7 @@ registerTeam({
       onHeader: "#F5C518",
       headerBand: "#EFBF2B",
       headerStripes: [["#EFBF2B", 1], ["#C8102E", 1]],
-      pattern: {type: "vtex", base: "#1F3274", bands: ["#0E1642", "#3E5CB0"]}
+      pattern: {type: "herring", base: "#1F3274", bands: ["#4A68BC"]}
     },
     third: {
       label: "Third",
