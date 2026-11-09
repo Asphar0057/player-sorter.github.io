@@ -1478,10 +1478,10 @@
         // one dark grey triangle per step; the near-black base shows between the bands
         // brightness drifts smoothly across the strip (a soft light from the top right)
         const cx = x0 + w * 0.35, cy = y + h * 0.65;
-        const lit = Math.max(0, Math.min(1, 0.45 + 0.4 * (cx / Math.max(GW, 1)) + 0.25 * (1 - cy / 100)));
-        out.push([0, 0.55 + 0.45 * lit, [[x0, y + h], [x0, y], [x0 + w, y + h]]]);
+        const lit = Math.max(0, Math.min(1, Math.pow(0.1 + 0.95 * (cx / Math.max(GW, 1)) + 0.45 * (1 - cy / 100) - 0.35, 1.25)));
+        out.push([0, 0.3 + 0.7 * lit, [[x0, y + h], [x0, y], [x0 + w, y + h]]]);
         // a slim soft highlight along the slope of each peak
-        out.push([1, 0.1 + 0.3 * lit, [[x0 + w * 0.06, y + h * 0.9], [x0 + w * 0.06, y + h * 0.25], [x0 + w * 0.68, y + h * 0.9]]]);
+        out.push([1, 0.04 + 0.5 * lit, [[x0 + w * 0.06, y + h * 0.9], [x0 + w * 0.06, y + h * 0.25], [x0 + w * 0.68, y + h * 0.9]]]);
       }
     }
     return out;
