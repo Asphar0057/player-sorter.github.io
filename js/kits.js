@@ -533,26 +533,20 @@
     return out;
   }
 
-  // "stars": scattered five-point stars of varying size and tilt in the first band colour on the
-  // base, like the USA 2026 away shirt. Kind 0 = star.
+  // "stars": upright five-point stars, all the same size, on a regular staggered grid in the
+  // first band colour on the base, like the USA 2026 away shirt. Kind 0 = star.
   function starShapes() {
     const out = [];
-    let seed = 9;
-    const rnd = function () {
-      seed = (seed * 1664525 + 1013904223) % 4294967296;
-      return seed / 4294967296;
-    };
-    for (let row = 0, y = -2; y < 112; row++, y += 12) {
-      for (let x = (row % 2 ? 8 : 1); x < 212; x += 15.5) {
-        const cx = x + (rnd() - 0.5) * 5, cy = y + (rnd() - 0.5) * 4;
-        const r = 3.6 + rnd() * 2.8, rot = (rnd() - 0.5) * 0.6 - Math.PI / 2;
+    const r = 5.2, dx = 23, dy = 17;
+    for (let row = 0, y = 4; y < 112; row++, y += dy) {
+      for (let x = (row % 2 ? dx / 2 : 0) + 4; x < 214; x += dx) {
         const pts = [];
         for (let i = 0; i < 10; i++) {
           const rr = i % 2 ? r * 0.4 : r;
-          const a = rot + (i * Math.PI) / 5;
-          pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]);
+          const a = -Math.PI / 2 + (i * Math.PI) / 5;
+          pts.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]);
         }
-        out.push([0, 0.9, pts]);
+        out.push([0, 0.85, pts]);
       }
     }
     return out;
