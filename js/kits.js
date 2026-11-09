@@ -1179,8 +1179,9 @@
   }
 
   // "weft": a solid bright band down the right edge, with rows of fine dotted lines of many
-  // lengths reaching out of it into the base and a grain of tiny dots between them, thinning
-  // out with distance and never in patches (the France 2018 sleeve knit). Kind 0 = all of it.
+  // lengths reaching out of it into the base. Dark dots sit in the gaps between the rows so each
+  // light line stands out, and the dark weave fades in toward the band. A light grain adds
+  // texture. Kind 0 = light, kind 1 = dark (France 2018 sleeve knit).
   function weftShapes() {
     const out = [];
     const rnd = seeded(71), drift = noise2(29), reach = noise2(43);
@@ -1189,34 +1190,41 @@
     const band = Math.max(11 * K, GW * 0.12);
     const edge = GW - band;
     const maxL = (GW - band) * (wide ? 0.95 : 0.92);
-    const rowGap = 1.9 * K, d = 0.95 * K, step = 2.15 * K;
-    const dot = (x, y, r, al) => {
+    const rowGap = 2.6 * K, d = 1.3 * K, step = 2.1 * K;
+    const dot = (kind, x, y, r, al) => {
       const pts = [];
       const n = wide ? 6 : 4;
       for (let i = 0; i < n; i++) {
         const a = (i / n) * Math.PI * 2 + (n === 4 ? Math.PI / 4 : 0);
         pts.push([x + Math.cos(a) * r, y + Math.sin(a) * r]);
       }
-      out.push([0, al, pts]);
+      out.push([kind, al, pts]);
     };
-    out.push([0, 1, [[GW + 2, -2], [edge, -2], [edge + 2 * K, 102], [GW + 2, 102]]]);
-    // dotted lines out of the band
-    for (let y = -2; y < 104; y += rowGap) {
-      const g = reach(y * 0.1, 3.7);
-      const L = Math.pow(0.12 + 0.88 * (0.6 * g + 0.4 * rnd()), 1.45) * maxL;
-      const x1 = edge + 1.5 * K;
-      const wob = (drift(y * 0.2, 9) - 0.5) * 1.2 * K;
-      for (let x = x1; x > x1 - L; x -= step) {
-        const t = (x1 - x) / maxL;
-        dot(x, y + wob, d * 0.5 * (1 + 1.1 * Math.pow(1 - t, 2.2)), 1 - 0.35 * t);
+    // dark weave first, so the light lines sit on top of it
+    for (let y = -2 + rowGap / 2; y < 104; y += rowGap) {
+      for (let x = edge; x > edge - maxL; x -= step * 0.9) {
+        const t = (edge - x) / maxL;
+        const fade = Math.pow(1 - t, 0.9);
+        if (rnd() < fade * 0.95 + 0.03) dot(1, x, y, d * 0.62, 0.2 + 0.75 * fade);
       }
     }
-    // grain: scattered tiny dots, denser close to the band
-    const n = Math.round((wide ? 4800 : 2300) * (GW / (wide ? 600 : 200)));
+    out.push([0, 1, [[GW + 2, -2], [edge, -2], [edge + 2 * K, 102], [GW + 2, 102]]]);
+    // distinct dotted light lines out of the band
+    for (let y = -2; y < 104; y += rowGap) {
+      const g = reach(y * 0.1, 3.7);
+      const L = Math.pow(0.2 + 0.8 * (0.6 * g + 0.4 * rnd()), 1.0) * maxL;
+      const x1 = edge + 1.5 * K;
+      const wob = (drift(y * 0.2, 9) - 0.5) * 1.0 * K;
+      for (let x = x1; x > x1 - L; x -= step) {
+        const t = (x1 - x) / maxL;
+        dot(0, x, y + wob, d * 0.55 * (1 + 0.8 * Math.pow(1 - t, 1.6)), 1 - 0.25 * t);
+      }
+    }
+    // a light grain, kept sparse so the lines read
+    const n = Math.round((wide ? 1500 : 650) * (GW / (wide ? 600 : 200)));
     for (let i = 0; i < n; i++) {
-      const t = Math.pow(rnd(), 1.45);
-      const x = edge - t * maxL, y = rnd() * 100;
-      dot(x, y, (0.3 + rnd() * 0.45) * K * (1 + 0.9 * (1 - t)), 0.85 * (1 - t) + 0.1);
+      const t = Math.pow(rnd(), 1.5);
+      dot(0, edge - t * maxL, rnd() * 100, (0.25 + rnd() * 0.3) * K, 0.5 * (1 - t));
     }
     return out;
   }
@@ -1250,7 +1258,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
-    if (p.type === "weft") return [b[0] || "#2285F0"];
+    if (p.type === "weft") return [b[0] || "#2285F0", b[1] || "#08122B"];
     if (p.type === "dashes") return [b[0] || "#2D7CF0"];
     if (p.type === "ripple") return [b[0] || "#7A6B60", b[1] || "#C2B6AB"];
     if (p.type === "herring") return [b[0] || "#2DB8A6", b[1] || "#2A3F94"];
