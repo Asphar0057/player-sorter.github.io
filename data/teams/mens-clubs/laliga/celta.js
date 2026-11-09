@@ -18,9 +18,9 @@ registerTeam({
       ink: "#12324A",
       muted: "#4A6678",
       primary: "#C8102E",
+      accent: "#C8102E",
+      onAccent: "#FFFFFF",
       onPrimary: "#FFFFFF",
-      accent: "#F4EFE4",
-      onAccent: "#12324A",
       header: "#7EC8E3",
       onHeader: "#12324A",
       headerBand: "#C8102E",
@@ -44,7 +44,8 @@ registerTeam({
       rowTint: "#12324A",
       rowTintStrength: 0.16,
       rowTintFloor: 0.5,
-      pattern: { type: "solid", base: "#F4F1EA" }
+      pattern: { type: "solid", base: "#F4F1EA" },
+      photoBg: "#243656"
     },
     third: {
       label: "Third",
