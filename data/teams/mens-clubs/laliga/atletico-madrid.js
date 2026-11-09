@@ -61,7 +61,7 @@ registerTeam({
       rowTint: "#262F61",
       rowTintStrength: 0.24,
       rowTintFloor: 0.5,
-      pattern: { type: "hoops", base: "#8B8F96", bands: ["#C8302A", "#262F61"] }
+      pattern: { type: "railstripes", base: "#8B8F96", bands: ["#C8302A", "#262F61"] }
     }
   },
   players: [

@@ -1487,13 +1487,28 @@
     return out;
   }
 
+  // "railstripes": horizontal stripes in the first band colour, each framed by a thin line of the
+  // second colour above and below with a small gap of base colour between (Atletico third).
+  // Kind 0 = stripe, kind 1 = thin framing lines.
+  function railStripeShapes() {
+    const out = [];
+    const period = 25, sh = 9.5, gap = 2.6, th = 1.2;
+    const rect = (y, h) => [[-2, y], [GW + 2, y], [GW + 2, y + h], [-2, y + h]];
+    for (let y = 3; y < 106; y += period) {
+      out.push([0, 1, rect(y, sh)]);
+      out.push([1, 1, rect(y - gap - th, th)]);
+      out.push([1, 1, rect(y + sh + gap, th)]);
+    }
+    return out;
+  }
+
   const STRIPE_GEN = {
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
     vee: veeShapes, scatter: scatterShapes, ornament: ornamentShapes, raglan: raglanShapes,
     streaks: streakShapes, swell: swellShapes, stars: starShapes,
     bruise: bruiseShapes, pole: poleShapes, swirls: swirlShapes, ticks: tickShapes, gridiron: gridironShapes, hexes: hexShapes,
     contours: contourShapes, golden: goldenShapes, vtex: vtexShapes, skewchecks: skewcheckShapes, bees: beeShapes,
-    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes, rulestripes: ruleStripeShapes, multistripes: multiStripeShapes, prism: prismShapes
+    vbars: vbarShapes, marble: marbleShapes, rings: ringShapes, flash: flashShapes, baroque: baroqueShapes, herring: herringShapes, ripple: rippleShapes, dashes: dashShapes, weft: weftShapes, finelines: fineLineShapes, sunstone: sunstoneShapes, scrolls: scrollShapes, rulestripes: ruleStripeShapes, multistripes: multiStripeShapes, prism: prismShapes, railstripes: railStripeShapes
   };
   const STRIPE_CACHE = {};
 
@@ -1516,6 +1531,7 @@
     if (p.type === "ornament") return [b[0] || "#000000"];
     if (p.type === "stars") return [b[0] || "#FFFFFF"];
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
+    if (p.type === "railstripes") return [b[0] || "#C8302A", b[1] || "#262F61"];
     if (p.type === "prism") return [b[0] || "#3A3D43", b[1] || b[0] || "#4A4E55"];
     if (p.type === "multistripes") { stripeColors.cur = b.length ? b : ["#FFFFFF"]; return stripeColors.cur; }
     if (p.type === "rulestripes") return [b[0] || "#FFFFFF", b[0] || "#FFFFFF", p.base, b[1] || "#262F61"];
