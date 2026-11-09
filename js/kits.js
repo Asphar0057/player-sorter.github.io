@@ -356,12 +356,38 @@
     return out;
   }
 
-  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines") };
+  // "slashes": dense steep diagonal lines that switch between thick (kind 0) and thin (kind 1)
+  // in horizontal zones whose edges step across the card (France 2026 home).
+  function slashShapes() {
+    const out = [];
+    const lean = 0.55, gap = 4.2, zone = 21;
+    for (let i = -16; i < 60; i++) {
+      const xr = i * gap;
+      const xAt = y => xr + (y - 50) * lean;
+      let ya = -10, kind = -1;
+      const bandOf = y => Math.floor((y + xr * 0.34 + 60) / zone);
+      const wide = y => (bandOf(y) % 2 + 2) % 2 === 0;
+      const flush = (yb) => {
+        if (kind < 0) return;
+        const w = kind === 0 ? 2.5 : 1.0;
+        out.push([kind, 1, [[xAt(ya) - w / 2, ya], [xAt(ya) + w / 2, ya], [xAt(yb) + w / 2, yb], [xAt(yb) - w / 2, yb]]]);
+      };
+      for (let y = -10; y <= 110; y += 1) {
+        const kk = wide(y + 0.5) ? 0 : 1;
+        if (kk !== kind) { flush(y); ya = y; kind = kk; }
+      }
+      flush(110);
+    }
+    return out;
+  }
+
+  const STRIPE_SHAPES = { crosses: stripeShapes("crosses"), pinlines: stripeShapes("pinlines"), slashes: slashShapes() };
 
   function stripeColors(p) {
     const b = p.bands || [];
     const red = b[0] || "#E31B2B";
     if (p.type === "crosses") return [red, b[1] || mix("#000000", red, 0.3)];
+    if (p.type === "slashes") return [red, b[1] || red];
     return [red, p.base, b[1] || red];
   }
 
@@ -381,7 +407,7 @@
 
   function css(p) {
     const b = p.bands || [];
-    if (p.type === "crosses" || p.type === "pinlines") {
+    if (STRIPE_SHAPES[p.type]) {
       return "url('data:image/svg+xml," + encodeURIComponent(stripeSvg(p)) + "') center / cover no-repeat, " + p.base;
     }
     if (p.type === "shards") {
@@ -642,7 +668,7 @@
       });
       ctx.closePath();
       ctx.fill();
-    } else if (p.type === "crosses" || p.type === "pinlines") {
+    } else if (STRIPE_SHAPES[p.type]) {
       const s = Math.max(w / 200, h / 100);
       ctx.save();
       ctx.beginPath();
