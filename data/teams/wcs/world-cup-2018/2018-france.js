@@ -25,7 +25,7 @@ registerTeam({
       onHeader: "#FFFFFF",
       headerBand: "#2877ed",
       rowTintStrength: 0.15,
-      pattern: { type: "weft", base: "#15233F", bands: ["#2A8CFA"] }
+      pattern: { type: "weft", base: "#15233F", bands: ["#2A8CFA", "#15233F"] }
     },
     away: {
       label: "Away",

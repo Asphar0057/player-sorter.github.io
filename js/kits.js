@@ -1178,33 +1178,52 @@
     return out;
   }
 
-  // "weft": a solid bright band down the right edge with thin, separate rows of short dashes
-  // reaching out of it into the base in many different lengths, thinning out with distance
-  // (France 2018 sleeve knit). No grain, so the rows stay distinct. Kind 0.
+  // "weft": a narrow bright seam down the right edge, then a halftone knit: thick bright rows
+  // with tiny dark dots punched through them, the dots growing and the rows thinning with
+  // distance until only thin dotted lines are left, in many different lengths. No flat block
+  // (France 2018 sleeve). Kind 0 = bright rows and seam, kind 1 = dark dots (the base colour).
   function weftShapes() {
     const out = [];
-    const rnd = seeded(71), drift = noise2(29), reach = noise2(43);
+    const rnd = seeded(71), reach = noise2(43), jit = noise2(17);
     const wide = GW > 300;
     const K = wide ? 1.5 : 1;
-    const band = Math.max(11 * K, GW * 0.1);
-    const edge = GW - band;
-    const maxL = (GW - band) * 0.96;
-    const rowGap = 2.7 * K, th = 0.75 * K;
-    out.push([0, 1, [[GW + 2, -2], [edge, -2], [edge + 1.5 * K, 102], [GW + 2, 102]]]);
+    const seam = Math.max(3.2 * K, GW * 0.03);
+    const edge = GW - seam;
+    const maxL = (GW - seam) * 0.97;
+    const rowGap = 1.9 * K, step = 2.0 * K;
+    const q = a => Math.round(a * 10) / 10;
+    out.push([0, 1, [[GW + 2, -2], [edge, -2], [edge + 0.8 * K, 102], [GW + 2, 102]]]);
+    const rows = [];
     for (let y = -1; y < 104; y += rowGap) {
       const g = reach(y * 0.12, 3.7);
-      const L = (0.18 + 0.82 * Math.pow(0.6 * g + 0.4 * rnd(), 1.1)) * maxL;
-      const wob = (drift(y * 0.2, 9) - 0.5) * 0.8 * K;
-      const x1 = edge + 1.5 * K;
-      for (let x = x1; x > x1 - L;) {
-        const t = (x1 - x) / maxL;
-        const len = (1.6 + rnd() * 3.2) * K * (1 + 0.6 * (1 - t));
-        const gap = (0.5 + rnd() * 1.1) * K * (1 + 1.6 * t);
-        const xa = Math.max(x - len, x1 - L);
-        out.push([0, 1 - 0.5 * t, [[xa, y + wob], [x, y + wob], [x, y + wob + th], [xa, y + wob + th]]]);
-        x -= len + gap;
-      }
+      const L = (0.22 + 0.78 * Math.pow(0.6 * g + 0.4 * rnd(), 0.9)) * maxL;
+      rows.push([y, L]);
     }
+    // bright rows: thick at the seam, thin far away
+    rows.forEach(r => {
+      const y = r[0], L = r[1], x1 = edge + 0.8 * K;
+      const top = [], bot = [];
+      for (let x = x1; x > x1 - L; x -= 6 * K) {
+        const t = (x1 - x) / maxL;
+        const th = rowGap * (0.9 - 0.68 * Math.pow(t, 0.5));
+        top.push([x, y - th / 2 + rowGap / 2]);
+        bot.push([x, y + th / 2 + rowGap / 2]);
+      }
+      const x2 = x1 - L, tt = L / maxL, th2 = rowGap * (0.9 - 0.68 * Math.pow(tt, 0.5));
+      top.push([x2, y - th2 / 2 + rowGap / 2]); bot.push([x2, y + th2 / 2 + rowGap / 2]);
+      out.push([0, q(1 - 0.45 * Math.pow(tt, 1.3)), top.concat(bot.reverse())]);
+    });
+    // dark dots punched through the rows, bigger the farther from the seam
+    rows.forEach(r => {
+      const y = r[0], L = r[1], x1 = edge + 0.8 * K;
+      for (let x = x1 - step * 0.5; x > x1 - L; x -= step) {
+        const t = (x1 - x) / maxL;
+        const sz = rowGap * (0.14 + 0.55 * Math.pow(t, 0.6)) * (0.85 + 0.3 * jit(x * 0.3, y * 0.4));
+        if (rnd() < 0.08) continue;
+        const cx = x, cy = y + rowGap / 2;
+        out.push([1, 1, [[cx - sz / 2, cy - sz / 2], [cx + sz / 2, cy - sz / 2], [cx + sz / 2, cy + sz / 2], [cx - sz / 2, cy + sz / 2]]]);
+      }
+    });
     return out;
   }
 
