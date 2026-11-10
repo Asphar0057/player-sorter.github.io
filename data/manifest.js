@@ -18,7 +18,7 @@ window.SQUAD_MANIFEST = {
           id: "premier-league",
           name: "Premier League",
           country: "England",
-          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton", "bournemouth", "brighton"]
+          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton", "bournemouth", "brighton", "sunderland"]
         },
         {
           id: "bundesliga",
@@ -90,7 +90,7 @@ window.SQUAD_MANIFEST = {
           id: "championship",
           name: "Championship",
           country: "England",
-          teams: ["west-ham-united", "wolves"]//, "sheffield-united"]
+          teams: ["west-ham-united", "wolves", "southampton", "swansea"]//, "sheffield-united"]
         },
         {
           id: "laliga-hypermotion",

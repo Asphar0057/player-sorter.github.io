@@ -1713,7 +1713,144 @@
     }
     return out;
   }
+  // "flatstripes": equal-width vertical stripes in the first band colour over the base colour, kept to
+  // the right part of a card (Southampton, Sunderland and Swansea kits). Kind 0 = stripe.
+  function flatStripeShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.6 : 1;
+    const P = 26 * K, bw = 13 * K;
+    const x0 = GW > 300 ? 0 : 82;
+    for (let x = x0 - (GW > 300 ? P : 0); x < GW + P; x += P) out.push([0, 1, [[x, -2], [x + bw, -2], [x + bw, 102], [x, 102]]]);
+    return out;
+  }
+
+  // "liquid": marbled liquid swirls, many overlapping wavy ribbons of varying thickness in three
+  // colours over the base colour, like the Southampton 2026/27 away shirt. Kinds 0, 1, 2 = the
+  // three band colours.
+  function liquidShapes() {
+    const out = [];
+    const rnd = seeded(41);
+    const K = GW > 300 ? 1.5 : 1;
+    const x0 = GW > 300 ? -4 : 70;
+    const fadeL = x => (GW > 300 ? 1 : Math.max(0.1, Math.min(1, (x - 70) / 40)));
+    for (let r = 0; r < 42; r++) {
+      const y0 = -12 + r * 3.1 + rnd() * 3;
+      const f1 = 0.028 + rnd() * 0.02, f2 = 0.07 + rnd() * 0.05, p1 = rnd() * 6.3, p2 = rnd() * 6.3, p3 = rnd() * 6.3;
+      const a1 = (8 + rnd() * 9) * K, a2 = (3 + rnd() * 5) * K, w0 = (2.5 + rnd() * 4) * K;
+      const top = [], bot = [];
+      for (let x = x0; x <= GW + 6; x += 3 * K) {
+        const y = y0 + a1 * Math.sin(f1 * x / K + p1) + a2 * Math.sin(f2 * x / K + p2 + y0 * 0.05);
+        const w = w0 * (0.35 + 0.9 * Math.pow(Math.sin(0.05 * x / K + p3), 2));
+        top.push([x, y - w]); bot.push([x, y + w]);
+      }
+      out.push([r % 3, 0.9 * fadeL(GW * 0.5 + (x0 - GW * 0.5)), top.concat(bot.reverse())]);
+    }
+    return out;
+  }
+  // "redpurple": wide red stripes alternating with purple-blue stripes, each purple stripe lit lighter
+  // in the middle and edged with a thin white pinstripe, like the Swansea 2026/27 away shirt. The
+  // base colour is the red. Kinds: 0 = purple, 1 = white pinstripe, 2 = lighter violet centre.
+  function redPurpleShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.6 : 1;
+    const rw = 12 * K, pw = 12 * K, hl = 2.4 * K, P = rw + pw + 2 * hl;
+    const x0 = GW > 300 ? 0 : 82;
+    const rect = (x, w) => [[x, -2], [x + w, -2], [x + w, 102], [x, 102]];
+    for (let x = x0 - (GW > 300 ? P : 0); x < GW + P; x += P) {
+      const px = x + rw + hl;
+      out.push([1, 0.95, rect(x + rw, hl)]);
+      out.push([0, 1, rect(px, pw)]);
+      out.push([2, 0.22, rect(px + pw * 0.25, pw * 0.5)]);
+      out.push([1, 0.95, rect(px + pw, hl)]);
+    }
+    return out;
+  }
+
+  // "diamondfade": a vertical fade from the black base into pink, with a tone-on-tone lattice of
+  // inscribed diamonds (a diamond inside a diamond) embossed over the pink, like the Sunderland
+  // 2026/27 away shirt. Kinds: 0 = pink fade, 1 = light lattice lines, 2 = shaded lattice lines.
+  function diamondFadeShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.25 : 1;
+    const N = 30;
+    for (let i = 0; i < N; i++) {
+      const y0 = i * 1.4 + 36;
+      out.push([0, 0.1, [[-2, y0], [GW + 2, y0], [GW + 2, 102], [-2, 102]]]);
+    }
+    const s = 17 * K, hd = s / 2, lw = 0.8 * K;
+    const ramp = y => Math.max(0, Math.min(1, (y - 52) / 24));
+    const seg = (kind, al, x1, y1, x2, y2) => {
+      const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1, nx = -dy / len * lw / 2, ny = dx / len * lw / 2;
+      out.push([kind, al, [[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]]);
+    };
+    const diamond = (cx, cy, h, al) => {
+      const pts = [[cx, cy - h], [cx + h, cy], [cx, cy + h], [cx - h, cy]];
+      for (let i = 0; i < 4; i++) {
+        const a = pts[i], b = pts[(i + 1) % 4];
+        seg(1, 0.7 * al, a[0], a[1], b[0], b[1]);
+        seg(2, 0.5 * al, a[0] + 0.5 * K, a[1] + 0.5 * K, b[0] + 0.5 * K, b[1] + 0.5 * K);
+      }
+    };
+    for (let j = -1; j * hd < 112; j++) {
+      for (let i = -1; i * s < GW + s; i++) {
+        const cx = i * s + (j % 2 ? hd : 0), cy = j * hd;
+        const al = ramp(cy);
+        if (al < 0.05) continue;
+        diamond(cx, cy, hd, al);
+        diamond(cx, cy, hd * 0.62, al);
+        diamond(cx, cy, hd * 0.26, al);
+      }
+    }
+    return out;
+  }
+  // "glassmotif": a tone-on-tone all-over print of stained-glass ribbing on royal blue, in offset
+  // rows: pairs of overlapping oval rings around a small diamond, then rows of paired capsule ribs,
+  // like the Sunderland 2026/27 third shirt. Kinds: 0 = lighter blue, 1 = darker blue, 2 = copper.
+  function glassMotifShapes() {
+    const out = [];
+    const K = GW > 300 ? 1.9 : 1.3;
+    const cw = 30 * K, rh = 15 * K;
+    const lw = 1.3 * K;
+    const seg = (kind, al, x1, y1, x2, y2) => {
+      const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1, nx = -dy / len * lw / 2, ny = dx / len * lw / 2;
+      out.push([kind, al, [[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]]);
+    };
+    const ring = (kind, al, cx, cy, rx, ry) => {
+      const n = 22;
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2, b = ((i + 1) / n) * Math.PI * 2;
+        seg(kind, al, cx + Math.cos(a) * rx, cy + Math.sin(a) * ry, cx + Math.cos(b) * rx, cy + Math.sin(b) * ry);
+      }
+    };
+    const diamond = (kind, al, cx, cy, h) => out.push([kind, al, [[cx, cy - h], [cx + h * 0.8, cy], [cx, cy + h], [cx - h * 0.8, cy]]]);
+    const capsule = (kind, al, cx, cy, w, h) => {
+      const r = w / 2, pts = [];
+      for (let i = 0; i <= 8; i++) { const a = Math.PI + (i / 8) * Math.PI; pts.push([cx + Math.cos(a) * r, cy - h / 2 + r + Math.sin(a) * r]); }
+      for (let i = 0; i <= 8; i++) { const a = (i / 8) * Math.PI; pts.push([cx + Math.cos(a) * r, cy + h / 2 - r + Math.sin(a) * r]); }
+      out.push([kind, al, pts]);
+      for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; seg(0, 0.6, a[0], a[1], b[0], b[1]); }
+    };
+    for (let j = -1; j * rh < 112; j++) {
+      for (let i = -1; i * cw < GW + cw; i++) {
+        const cx = i * cw + (j % 2 ? cw / 2 : 0), cy = j * rh + rh / 2;
+        if (j % 2 === 0) {
+          ring(0, 0.85, cx - 5.2 * K, cy, 7.2 * K, 4.6 * K);
+          ring(0, 0.85, cx + 5.2 * K, cy, 7.2 * K, 4.6 * K);
+          diamond(0, 0.9, cx, cy, 3.4 * K);
+          diamond(1, 0.55, cx, cy, 1.5 * K);
+        } else {
+          capsule(1, 0.5, cx - 2.6 * K, cy, 3.4 * K, 10 * K);
+          capsule(1, 0.5, cx + 2.6 * K, cy, 3.4 * K, 10 * K);
+          diamond(0, 0.6, cx - cw / 2 + 0.01, cy, 2.2 * K);
+        }
+      }
+    }
+    return out;
+  }
   const STRIPE_GEN = {
+    glassmotif: glassMotifShapes,
+    redpurple: redPurpleShapes, diamondfade: diamondFadeShapes,
+    flatstripes: flatStripeShapes, liquid: liquidShapes,
     flamehatch: flameHatchShapes,
     gradstripes: gradStripeShapes, leaves: leafShapes,
     crosses: () => stripeShapes("crosses"), pinlines: () => stripeShapes("pinlines"), slashes: slashShapes,
@@ -1746,6 +1883,11 @@
     if (p.type === "ticks") return [b[0] || "#5FD8C8", b[1] || "#FFFFFF"];
     if (p.type === "gradstripes") return [b[0] || "#C4E9FB", b[1] || "#8FCDF2", b[2] || "#5BA9E3", b[3] || "#3A80C6", b[4] || "#12315C"];
     if (p.type === "flamehatch") return [b[0] || "#A98BE6", b[1] || "#CDB8F6", b[2] || "#1B1560", b[3] || "#8F72DD"];
+    if (p.type === "redpurple") return [b[0] || "#3A2C9C", b[1] || "#FFFFFF", b[2] || "#6A55D0"];
+    if (p.type === "diamondfade") return [b[0] || "#F4A6C8", b[1] || "#FFD6E8", b[2] || "#C9709A"];
+    if (p.type === "glassmotif") return [b[0] || "#3A62CC", b[1] || "#12287A", b[2] || "#D98B4E"];
+    if (p.type === "flatstripes") return [b[0] || "#FFFFFF"];
+    if (p.type === "liquid") return [b[0] || "#F4A9D8", b[1] || "#8EC2F2", b[2] || "#1B2BC0"];
     if (p.type === "leaves") return [b[0] || "#1F5FE0", b[1] || "#3DB4FF", b[2] || "#BDEBFF", b[3] || "#0F3A9C"];
     if (p.type === "ribfade") return [b[1] || "#9A97A6", b[0] || "#6A45B8", b[2] || "#7C788A"];
     if (p.type === "twotone") return [b[0] || "#97D7CF", b[1] || "#C4EEE8", b[2] || "#6FC4BA"];
