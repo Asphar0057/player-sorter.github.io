@@ -10,7 +10,16 @@
   const app = document.getElementById("app");
   const MANIFEST = window.SQUAD_MANIFEST;
   const SECTIONS = MANIFEST.sections || [];
-  const SHOW_FIRST = MANIFEST.showFirst || 5;
+  const BASE_SHOW_FIRST = MANIFEST.showFirst || 5;
+  const WIDE_COLS = [
+    { query: window.matchMedia ? window.matchMedia("(min-width: 1700px)") : null, cols: 5 },
+    { query: window.matchMedia ? window.matchMedia("(min-width: 1360px)") : null, cols: 4 }
+  ];
+
+  function showFirst() {
+    const wide = WIDE_COLS.find(w => w.query && w.query.matches);
+    return wide ? wide.cols * 2 - 1 : BASE_SHOW_FIRST;
+  }
   const INDEX = {};
   const LOADING = {};
   const EXPANDED = {};
@@ -120,9 +129,10 @@
             '<svg class="credit-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             '<span class="sr-only">Show collaborators</span>' +
           "</button>" +
+          totalStat("hero-stat-narrow") +
         "</div>" +
         '<div class="credit-chips" id="creditList" hidden>' + chips + "</div>" +
-        '<div class="hero-pills">' + requestStrip() + builderPill() + "</div>" +
+        '<div class="hero-pills">' + requestStrip() + builderPill() + totalStat() + "</div>" +
       "</div>"
     );
   }
@@ -499,8 +509,8 @@
 
   function blobColours(group) {
     const all = orderedIds(group);
-    const hidden = all.slice(SHOW_FIRST).filter(id => TEAMS[id]);
-    const source = hidden.length ? hidden : all.slice(0, SHOW_FIRST).filter(id => TEAMS[id]);
+    const hidden = all.slice(showFirst()).filter(id => TEAMS[id]);
+    const source = hidden.length ? hidden : all.slice(0, showFirst()).filter(id => TEAMS[id]);
     const colours = [];
     source.forEach(id => {
       const kit = Kits.get(TEAMS[id], "home");
@@ -531,9 +541,25 @@
     return pinned.concat(rest);
   }
 
+  const PINNED_GROUPS = new Set(["laliga"]);
+
+  function groupTotal(group) {
+    return (group.teams || []).reduce((sum, id) => sum + (Number(rankCounts[id]) || 0), 0);
+  }
+
+  function orderedGroups(section) {
+    const groups = section.groups || [];
+    if (!rankCounts) return groups;
+    const main = section === SECTIONS[0];
+    const pinned = groups.filter(g => g.builder || (main && PINNED_GROUPS.has(g.id)));
+    const rest = groups.filter(g => !pinned.includes(g));
+    rest.sort((a, b) => groupTotal(b) - groupTotal(a));
+    return pinned.concat(rest);
+  }
+
   function visibleIds(group) {
     const ids = orderedIds(group);
-    return EXPANDED[group.id] ? ids : ids.slice(0, SHOW_FIRST);
+    return EXPANDED[group.id] ? ids : ids.slice(0, showFirst());
   }
 
   const SOON_ICONS = {
@@ -577,7 +603,7 @@
       const all = (group.teams || []).filter(id => INDEX[id]);
       const tiles = visibleIds(group).filter(id => TEAMS[id]).map(id => teamTile(TEAMS[id])).join("");
       if (!tiles) return "";
-      const hiddenCount = all.length - SHOW_FIRST;
+      const hiddenCount = all.length - showFirst();
       const more = hiddenCount > 0
         ? '<button type="button" class="team-tile see-more-tile" data-more="' + group.id + '" aria-expanded="' + !!EXPANDED[group.id] + '">' +
             blobMarkup(blobColours(group)) +
@@ -585,7 +611,7 @@
             '<span class="team-tile-text">' +
               '<span class="team-tile-name">' + (EXPANDED[group.id] ? "Show less" : "Show all") + "</span>" +
               '<span class="team-tile-meta">' +
-                (EXPANDED[group.id] ? "Back to the first " + SHOW_FIRST : "+" + hiddenCount + " more") +
+                (EXPANDED[group.id] ? "Back to the first " + showFirst() : "+" + hiddenCount + " more") +
               "</span>" +
             "</span>" +
           "</button>"
@@ -693,7 +719,7 @@
       const mounted = app.querySelector(".home-body");
       if (token !== navToken || !mounted || value !== searchQuery) return;
       const section = SECTIONS.find(s => s.id === mounted.dataset.section) || SECTIONS[0];
-      mounted.innerHTML = active ? searchBody(value) : homeBody(section, section.groups || []);
+      mounted.innerHTML = active ? searchBody(value) : homeBody(section, orderedGroups(section));
       wireImages(mounted);
       if (!active) bindMore(section);
       const hero = app.querySelector(".hero");
@@ -770,7 +796,7 @@
     applyTheme(null);
     const section = SECTIONS.find(s => s.id === sectionId) || SECTIONS[0];
     if (!section) return;
-    const groups = section.groups || [];
+    const groups = orderedGroups(section);
     const ids = groups.flatMap(visibleIds);
     const ready = searching() ? loadAllTeams() : Promise.all(ids.map(ensureTeam));
 
@@ -806,6 +832,9 @@
   function paintHome(section, groups, token, keepScroll, afterRender, mounted, switching, fromIndex) {
     const body = searching() ? searchBody(searchQuery) : homeBody(section, groups);
 
+    const restoreTo = !mounted && !keepScroll && !searching() ? HOME_SCROLL[section.id] : null;
+    if (restoreTo != null) keepScroll = true;
+
     if (mounted && app.contains(mounted)) {
       mounted.innerHTML = body;
       mounted.dataset.section = section.id;
@@ -833,7 +862,6 @@
         '<section class="hero">' +
           '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
           "<h1>Pick a squad &amp; start ranking</h1>" +
-          '<p class="hero-sub">Pick between two players at a time until your whole squad is ranked.</p>' +
           siteCredits() +
         "</section>" +
         '<div class="home-bar' + (searching() ? " is-searching" : "") + '">' + searchBox() + tabs + "</div>" +
@@ -846,7 +874,7 @@
     }
 
     groups.forEach(group => {
-      const hidden = orderedIds(group).slice(SHOW_FIRST);
+      const hidden = orderedIds(group).slice(showFirst());
       if (EXPANDED[group.id] || !hidden.length || hidden.every(id => TEAMS[id])) return;
       Promise.all(hidden.map(ensureTeam)).then(() => {
         if (token !== navToken) return;
@@ -856,11 +884,14 @@
     });
 
     bindMore(section);
+    if (restoreTo != null) window.scrollTo(0, restoreTo);
     groups.forEach(group => (group.teams || []).forEach(id => {
       if (TEAMS[id]) submitRanking(TEAMS[id]);
     }));
     if (afterRender) afterRender();
   }
+
+  const HOME_SCROLL = {};
 
   const REDUCE_MOTION = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const MOVE_MS = 340;
@@ -889,7 +920,7 @@
     if (collapsing && !REDUCE_MOTION) {
       Array.from(grid.children)
         .filter(el => !el.classList.contains("see-more-tile"))
-        .slice(SHOW_FIRST)
+        .slice(showFirst())
         .forEach(el => el.classList.add("tile-leave"));
       setTimeout(rerender, LEAVE_MS);
     } else {
@@ -919,7 +950,7 @@
     if (!collapsing) {
       Array.from(grid.children)
         .filter(el => !el.classList.contains("see-more-tile"))
-        .slice(SHOW_FIRST)
+        .slice(showFirst())
         .forEach((el, i) => {
           el.style.animationDelay = (60 + i * 45) + "ms";
           el.classList.add("tile-enter");
@@ -2982,12 +3013,35 @@
 
   function homeOrder(sectionId) {
     const section = SECTIONS.find(s => s.id === sectionId);
-    return section ? (section.groups || []).map(g => visibleIds(g).join(",")).join("|") : "";
+    return section ? orderedGroups(section).map(g => g.id + ":" + visibleIds(g).join(",")).join("|") : "";
+  }
+
+  function totalRankings(counts) {
+    return Object.keys(INDEX).reduce((sum, id) => sum + (Number(counts[id]) || 0), 0);
+  }
+
+  function totalStat(extra) {
+    const total = rankCounts ? totalRankings(rankCounts) : 0;
+    return (
+      '<div class="hero-stat' + (extra ? " " + extra : "") + '" data-total' + (total ? "" : " hidden") + (extra ? ' aria-hidden="true"' : "") + ">" +
+        '<span class="hero-stat-num">' + total.toLocaleString("en-US") + "</span>" +
+        '<span class="hero-stat-label">Rankings made</span>' +
+      "</div>"
+    );
+  }
+
+  function fillTotal(counts) {
+    const total = totalRankings(counts);
+    app.querySelectorAll("[data-total]").forEach(el => {
+      el.hidden = !total;
+      el.querySelector(".hero-stat-num").textContent = total.toLocaleString("en-US");
+    });
   }
 
   function fillCounts() {
-    if (!app.querySelector("[data-count]")) return;
+    if (!app.querySelector("[data-count], [data-total]")) return;
     fetchCounts().then(counts => {
+      fillTotal(counts);
       const body = app.querySelector(".home-body");
       const sectionId = body ? body.dataset.section : "";
       const before = homeOrder(sectionId);
@@ -3405,6 +3459,8 @@
   }
 
   function show(id) {
+    const leaving = app.querySelector(".home-body");
+    if (leaving && !searching()) HOME_SCROLL[leaving.dataset.section] = window.scrollY;
     const token = ++navToken;
     const parts = id.split("/");
     if (parts[0] === CUSTOM_ID) {
@@ -3463,6 +3519,33 @@
       setTimeout(spotlightBuilder, 700);
     }
     go(target.dataset.go);
+  });
+
+  try {
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  } catch (e) {}
+
+  document.addEventListener("keydown", e => {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey || (e.key || "").toLowerCase() !== "f") return;
+    const input = app.querySelector(".search-input");
+    if (!input || document.querySelector(".modal")) return;
+    e.preventDefault();
+    input.focus();
+    input.select();
+  });
+
+  let lastShowFirst = showFirst();
+  WIDE_COLS.forEach(w => {
+    if (!w.query) return;
+    const onChange = () => {
+      const next = showFirst();
+      if (next === lastShowFirst) return;
+      lastShowFirst = next;
+      const body = app.querySelector(".home-body");
+      if (body && !searching()) renderHome(body.dataset.section, navToken, true);
+    };
+    if (w.query.addEventListener) w.query.addEventListener("change", onChange);
+    else if (w.query.addListener) w.query.addListener(onChange);
   });
 
   window.addEventListener("popstate", route);
