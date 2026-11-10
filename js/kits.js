@@ -1567,7 +1567,8 @@
     const K = GW > 300 ? 1.6 : 1;
     const N = 36;
     for (let i = 0; i < N; i++) {
-      const t = (i + 0.5) / N;
+      // black zone is 25% taller: the purple only starts fading in after the top quarter
+      const t = Math.max(0, ((i + 0.5) / N - 0.25) / 0.75);
       out.push([1, Math.pow(t, 1.5) * 0.95, [[-2, (i * 100) / N], [GW + 2, (i * 100) / N], [GW + 2, ((i + 1) * 100) / N + 0.4], [-2, ((i + 1) * 100) / N + 0.4]]]);
     }
     const step = 2.3 * K, w = 0.5 * K;
