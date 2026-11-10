@@ -5,7 +5,7 @@ registerTeam({
   monogram: "RAY",
   league: "laliga",
   season: "2026/27",
-  tile: { bg: "#FFFFFF", fg: "#E4002B", muted: "rgba(228,0,43,0.75)", pattern: { type: "sash", base: "#FFFFFF", bands: ["#E4002B"] } },
+  tile: { bg: "#FFFFFF", fg: "#E4002B", muted: "rgba(228,0,43,0.75)", pattern: { type: "lightning", base: "#FFFFFF", bands: ["#E4002B"] } },
   kits: {
     home: {
       label: "Home",
@@ -26,7 +26,7 @@ registerTeam({
       headerBand: "#E4002B",
       rowTint: "#E4002B",
       rowTintStrength: 0.12,
-      pattern: { type: "sash", base: "#FFFFFF", bands: ["#E4002B"] }
+      pattern: { type: "lightning", base: "#FFFFFF", bands: ["#E4002B"] }
     },
     away: {
       label: "Away",

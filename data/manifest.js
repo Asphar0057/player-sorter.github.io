@@ -12,7 +12,7 @@ window.SQUAD_MANIFEST = {
           id: "laliga",
           name: "LaLiga",
           country: "Spain",
-          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna", "real-sociedad", "athletic-club", "sevilla", "valencia", "malaga", "espanyol", "celta"]
+          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna", "real-sociedad", "athletic-club", "sevilla", "valencia", "malaga", "espanyol", "celta", "osasuna", "alaves", "elche", "levante", "racing-santander"]
         },
         {
           id: "premier-league",
@@ -36,7 +36,7 @@ window.SQUAD_MANIFEST = {
           id: "serie-a",
           name: "Serie A",
           country: "Italy",
-          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como", "fiorentina", "atalanta", "lazio"]//, "napoli"]
+          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como", "fiorentina", "atalanta", "lazio", "napoli", "torino"]
         },
         {
           id: "eredivisie",
@@ -72,7 +72,7 @@ window.SQUAD_MANIFEST = {
           id: "liga-mx",
           name: "Liga MX",
           country: "Mexico",
-          teams: ["club-america"]
+          teams: ["club-america", "monterrey", "cruz-azul"]
         },
         {
           id: "super-lig",
@@ -96,7 +96,7 @@ window.SQUAD_MANIFEST = {
           id: "laliga-hypermotion",
           name: "LALIGA HYPERMOTION",
           country: "Spain",
-          teams: ["leganes", "real-oviedo", "real-valladolid", "granada"]
+          teams: ["leganes", "real-oviedo", "real-valladolid", "granada", "las-palmas"]
         },
         {
           id: "primera-federacion",
