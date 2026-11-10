@@ -22,7 +22,7 @@ registerTeam({
         accent: "#D4AF37",
         onAccent: "#09261B",
         photoBg: "#D4AF37",
-        header: "#007749",
+        header: "#438d70",
         onHeader: "#FFFFFF",
         headerBand: "#D4AF37",
         rowTint: "#007749",
@@ -96,7 +96,7 @@ registerTeam({
       { id: "irankunda", name: "Nestory Irankunda", number: 19, position: "FW", nation: "AUS" },
       { id: "derry", name: "Jesse Derry", number: 28, position: "FW", nation: "ENG" },
       { id: "guilherme", name: "Luís Guilherme", number: 31, position: "FW", nation: "BRA" },
-      { id: "flavio", name: "Flávio Gonçalves", number: 58, position: "FW", nation: "POR" }
+      { id: "flavio", name: "Flávio Gonçalves", number: 58, position: "FW", nation: "POR" },
       { id: "suarez", name: "Luis Suárez", number: 97, position: "FW", nation: "COL" },
   
     ]
