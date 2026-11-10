@@ -32,7 +32,7 @@ registerTeam({
     },
     away: {
       label: "Away",
-      photoBg: "#E5F1FA",
+      photoBg: "#0B2A5B",
       paper: "#F2F6FA",
       card: "#FFFFFF",
       ink: "#0B2A5B",
@@ -52,7 +52,7 @@ registerTeam({
     third: {
       label: "Third",
       dark: true,
-      photoBg: "#661D28",
+      photoBg: "#7EC3E8",
       paper: "#8E1B22",
       card: "#75171D",
       onPaper: "#FFFFFF",
@@ -101,6 +101,7 @@ registerTeam({
     { id: "politano", name: "Matteo Politano", number: 21, position: "FW", nation: "ITA" },
     { id: "vegara", name: "Antonio Vergara", number: 26, position: "FW", nation: "ITA" },
     { id: "santos", name: "Alisson Santos", number: 27, position: "FW", nation: "BRA" },
+    { id: "giovane", name: "Giovane", number: 23, position: "FW", nation: "BRA" },
     { id: "lang", name: "Noa Lang", number: 70, position: "FW", nation: "NED" }
   ]
 });
