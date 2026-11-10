@@ -84,7 +84,8 @@
 
   const q = new URLSearchParams(location.search);
   let format = FORMATS.some(f => f[0] === q.get("format")) ? q.get("format") : "wide";
-  let sectionId = sections[0] ? sections[0].id : "";
+  let sectionId = sections.some(s => s.id === q.get("section")) ? q.get("section") : (sections[0] ? sections[0].id : "");
+  const onlyTeam = q.get("team");
   const onlyNew = document.getElementById("onlyNew");
   onlyNew.checked = q.get("only") === "new";
   const status = document.getElementById("status");
@@ -161,7 +162,7 @@
       });
     }, { rootMargin: "600px 0px" });
     section.groups.forEach(g => {
-      const teams = g.teams.filter(t => !onlyNew.checked || isRedesigned(TEAMS[t.id]));
+      const teams = g.teams.filter(t => (!onlyTeam || t.id === onlyTeam) && (!onlyNew.checked || isRedesigned(TEAMS[t.id])));
       if (!teams.length) return;
       const wrap = document.createElement("div");
       wrap.className = "group";
