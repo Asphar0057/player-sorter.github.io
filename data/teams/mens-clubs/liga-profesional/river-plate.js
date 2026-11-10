@@ -22,7 +22,7 @@ registerTeam({
       rowTint: "#E1251B",
       rowTintStrength: 0.2,
       rowTintFloor: 0.5,
-      pattern: { type: "sash", base: "#FFFFFF", bands: ["#E1251B"] }
+      pattern: { type: "sash", base: "#FFFFFF", bands: ["#E1251B"], reverse: true }
     },
     away: {
       label: "Away",
@@ -60,7 +60,7 @@ registerTeam({
       header: "#5A3E8C",
       onHeader: "#FFFFFF",
       headerBand: "#E1251B",
-      pattern: { type: "sash", base: "#5A3E8C", bands: ["#E1251B"] }
+      pattern: { type: "sash", base: "#5A3E8C", bands: ["#E1251B"], reverse: true }
     }
   },
   players: [
