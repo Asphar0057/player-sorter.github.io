@@ -22,12 +22,19 @@ registerTeam({
         accent: "#D4AF37",
         onAccent: "#09261B",
         photoBg: "#D4AF37",
-        header: "#438d70",
+        header: "#007749",
         onHeader: "#FFFFFF",
         headerBand: "#D4AF37",
         rowTint: "#007749",
         rowTintStrength: 0.12,
-        pattern: { type: "hoops", base: "#007749", bands: ["#FFFFFF"] }
+        pattern: {
+          type: "lines",
+          base: "#007749",
+          lines: [
+            ["#FFFFFF", 0.2, 0.4],
+            ["#FFFFFF", 0.6, 0.8]
+          ]
+        }
       },
       away: {
         label: "Away",
