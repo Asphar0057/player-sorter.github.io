@@ -132,7 +132,7 @@
           totalStat("hero-stat-narrow") +
         "</div>" +
         '<div class="credit-chips" id="creditList" hidden>' + chips + "</div>" +
-        '<div class="hero-pills">' + requestStrip() + builderPill() + totalStat() + "</div>" +
+        '<div class="hero-pills">' + requestStrip() + builderPill() + supportLink("support-hero", "Buy me a coffee", true) + totalStat() + "</div>" +
       "</div>"
     );
   }
@@ -860,7 +860,7 @@
         : "";
       render(
         '<section class="hero">' +
-          '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
+          '<div class="hero-top"><p class="eyebrow">Player Sorter by @nicsginthings</p>' + supportLink("support-chip", "Support", true) + "</div>" +
           "<h1>Pick a squad &amp; start ranking</h1>" +
           siteCredits() +
         "</section>" +
@@ -1035,6 +1035,7 @@
             '<button class="btn btn-primary" data-act="start">Start sorting</button>' +
             (STATS_URL ? '<button type="button" class="btn btn-ghost" data-go="' + team.id + '/stats">Community ranking</button>' : "") +
             resume +
+            supportLink("support-setup", "Buy me a coffee", true) +
           "</div>" +
         "</div>" +
         '<div class="roster">' +
@@ -1318,6 +1319,7 @@
             '<p class="share-note" id="shareNote"></p>' +
           "</div>" +
         "</div>" +
+        '<div class="support-strip"><span>Love Player Sorter? It runs on coffee</span>' + supportLink("support-strip-link", "Support it") + "</div>" +
       "</div>";
     openModal(modal);
 
@@ -2439,6 +2441,58 @@
     );
   }
 
+  const SUPPORT_URL = "https://buymeacoffee.com/nicsginthings";
+
+  function supportLink(cls, label, anchor) {
+    return (
+      '<a class="support-pill ' + cls + '" href="' + SUPPORT_URL + '" target="_blank" rel="noopener"' + (anchor ? " data-support-anchor" : "") + ">" +
+        '<span class="support-cup" aria-hidden="true">☕</span>' + esc(label) +
+      "</a>"
+    );
+  }
+
+  let supportFloat = null;
+  let supportObserver = null;
+  let supportQueued = false;
+
+  function updateSupport() {
+    supportQueued = false;
+    if (!supportFloat) {
+      document.body.insertAdjacentHTML("beforeend",
+        '<a class="support-pill support-float" href="' + SUPPORT_URL + '" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">' +
+          '<span class="support-cup" aria-hidden="true">☕</span><span class="support-float-long">Support Player Sorter</span><span class="support-float-short">Support</span>' +
+        "</a>");
+      supportFloat = document.body.lastElementChild;
+    }
+    if (supportObserver) supportObserver.disconnect();
+    const page = app.querySelector(".home-body") ? "home"
+      : app.querySelector(".results") ? "results"
+      : app.querySelector(".battle") ? "sort"
+      : app.querySelector(".stats") ? "stats"
+      : app.querySelector(".setup-body") ? "setup"
+      : "";
+    supportFloat.classList.toggle("is-round", page === "sort" || page === "stats");
+    const setShown = shown => {
+      supportFloat.classList.toggle("is-shown", shown);
+      supportFloat.setAttribute("aria-hidden", shown ? "false" : "true");
+      supportFloat.tabIndex = shown ? 0 : -1;
+    };
+    if (!page) return setShown(false);
+    const anchor = Array.from(app.querySelectorAll("[data-support-anchor]")).find(el => el.offsetParent !== null);
+    if (!anchor || !("IntersectionObserver" in window)) return setShown(!anchor);
+    supportObserver = new IntersectionObserver(entries => {
+      const entry = entries[entries.length - 1];
+      setShown(!entry.isIntersecting);
+    });
+    supportObserver.observe(anchor);
+  }
+
+  function queueSupport() {
+    if (supportQueued) return;
+    supportQueued = true;
+    requestAnimationFrame(updateSupport);
+  }
+
   function requestStrip() {
     if (!REQUESTS_URL) return "";
     return (
@@ -3156,12 +3210,20 @@
 
   function yourRanks(team) {
     const saved = storeGet(team.id);
-    if (!saved || !saved.state || !saved.state.done || !isFullSquad(team, saved.state)) return null;
+    if (!saved || !saved.state || !saved.state.done) return null;
+    const current = new Set(team.players.map(p => p.id));
     const ranks = {};
-    MergeSorter.ranking(saved.state).forEach(row => row.ids.forEach(key => {
-      ranks[key.split(":")[1]] = row.rank;
-    }));
-    return ranks;
+    let next = 1;
+    let matched = 0;
+    MergeSorter.ranking(saved.state).forEach(row => {
+      const ids = row.ids.map(key => key.split(":")[1]).filter(id => current.has(id));
+      if (!ids.length) return;
+      ids.forEach(id => { ranks[id] = next; });
+      next += ids.length;
+      matched += ids.length;
+    });
+    const needed = Math.min(team.players.length, Math.max(5, Math.ceil(team.players.length * 0.6)));
+    return matched >= needed ? ranks : null;
   }
 
   function statsTeaser(team, data) {
@@ -3365,8 +3427,14 @@
       you +
       '<h2 class="st-h">The community\'s top 10</h2>' +
       '<ol class="rank-list">' + top + "</ol>" +
-      '<p class="st-foot">Only full-squad rankings count, one per device. Sorting the squad again replaces your previous ranking. Nothing personal is collected.</p>';
+      '<p class="st-foot">Only full-squad rankings count, one per device. Sorting the squad again replaces your previous ranking. Nothing personal is collected.</p>' +
+      '<div class="support-card" data-support-anchor>' +
+        '<p class="support-card-title">Enjoyed the stats?</p>' +
+        '<p class="support-card-text">Player Sorter is free and fan-made.</p>' +
+        supportLink("support-card-link", "Buy me a coffee") +
+      "</div>";
     body.classList.add("st-in");
+    queueSupport();
     wireImages(body);
     requestAnimationFrame(() => body.querySelectorAll(".st-bar i").forEach(i => i.classList.add("is-on")));
   }
@@ -3404,9 +3472,12 @@
             '<p class="eyebrow">Your ranking</p>' +
             "<h1>" + esc(team.name) + "</h1>" +
           "</div>" +
-          (custom
-            ? '<div class="kit-picker builder-colours"><span class="kit-label">Colors</span>' + colourMenu(customConfig()) + kitSwitch(team, "site-kit", kitOf(team).id, true) + "</div>"
-            : kitPicker(team)) +
+          '<div class="results-side">' +
+            supportLink("support-results", "Buy me a coffee", true) +
+            (custom
+              ? '<div class="kit-picker builder-colours"><span class="kit-label">Colors</span>' + colourMenu(customConfig()) + kitSwitch(team, "site-kit", kitOf(team).id, true) + "</div>"
+              : kitPicker(team)) +
+          "</div>" +
         "</div>" +
         (custom ? "" : missingLine(team, true) + statsEntry(team)) +
         '<div class="setup-actions results-actions">' +
@@ -3433,6 +3504,17 @@
       storeDel(team.id);
       renderTeamSetup(team);
     }));
+  }
+
+  function pruneSaved(team, saved) {
+    if (isCustom(team) || !saved || !saved.state || !saved.state.done) return null;
+    const queue = saved.state.queue || [];
+    if (queue.length !== 1) return null;
+    const groups = queue[0]
+      .map(g => g.filter(key => key.startsWith(team.id + ":") && lookup(key)))
+      .filter(g => g.length);
+    if (!groups.length) return null;
+    return Object.assign({}, saved, { state: Object.assign({}, saved.state, { queue: [groups], history: [] }) });
   }
 
   function isValidSaved(team, saved) {
@@ -3478,10 +3560,17 @@
         return;
       }
       swapScreen(() => {
-        const saved = storeGet(team.id);
+        let saved = storeGet(team.id);
         if (!isValidSaved(team, saved)) {
-          storeDel(team.id);
-        } else {
+          const pruned = pruneSaved(team, saved);
+          if (pruned) {
+            storeSet(team.id, pruned);
+            saved = pruned;
+          } else {
+            storeDel(team.id);
+          }
+        }
+        if (isValidSaved(team, saved)) {
           submitRanking(team);
           if (parts[1] === "results" && saved.state.done) {
             session = { team, state: saved.state };
@@ -3547,6 +3636,9 @@
     if (w.query.addEventListener) w.query.addEventListener("change", onChange);
     else if (w.query.addListener) w.query.addListener(onChange);
   });
+
+  new MutationObserver(queueSupport).observe(app, { childList: true });
+  window.addEventListener("resize", queueSupport);
 
   window.addEventListener("popstate", route);
   window.addEventListener("hashchange", route);
