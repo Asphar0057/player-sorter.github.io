@@ -48,7 +48,7 @@ window.SQUAD_MANIFEST = {
           id: "liga-portugal",
           name: "Liga Portugal",
           country: "Portugal",
-          teams: ["benfica"]
+          teams: ["benfica", "porto", "sporting"]
         },
         {
           id: "mls",
