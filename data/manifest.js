@@ -148,6 +148,12 @@ window.SQUAD_MANIFEST = {
           name: "Frauen-Bundesliga",
           country: "Germany",
           teams: ["bayern-munich-women"]
+        },
+        {
+          id: "liga-bpi",
+          name: "Liga BPI",
+          country: "Portugal",
+          teams: ["benfica-femenino"]
         }
       ]
     },
