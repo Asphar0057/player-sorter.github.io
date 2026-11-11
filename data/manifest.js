@@ -18,7 +18,7 @@ window.SQUAD_MANIFEST = {
           id: "premier-league",
           name: "Premier League",
           country: "England",
-          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton", "bournemouth", "brighton"]
+          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton", "bournemouth", "brighton", "ipswich-town"]
         },
         {
           id: "bundesliga",
@@ -30,7 +30,7 @@ window.SQUAD_MANIFEST = {
           id: "ligue-1",
           name: "Ligue 1",
           country: "France",
-          teams: ["psg", "monaco", "paris-fc", "marseille", "lyon"]
+          teams: ["psg", "monaco", "paris-fc", "marseille", "lyon", "lille"]
         },
         {
           id: "serie-a",
@@ -42,7 +42,7 @@ window.SQUAD_MANIFEST = {
           id: "eredivisie",
           name: "Eredivisie",
           country: "Netherlands",
-          teams: ["ajax"]
+          teams: ["ajax", "feyenoord", "psv"]
         },
         {
           id: "liga-portugal",
@@ -66,13 +66,13 @@ window.SQUAD_MANIFEST = {
           id: "brasileiro",
           name: "Campeonato Brasileiro Série A",
           country: "Brazil",
-          teams: ["flamengo"]
+          teams: ["flamengo", "cruzeiro", "palmeiras"]
         },
         {
           id: "liga-mx",
           name: "Liga MX",
           country: "Mexico",
-          teams: ["club-america", "monterrey", "cruz-azul"]
+          teams: ["club-america", "monterrey", "cruz-azul", "chivas"]
         },
         {
           id: "super-lig",
