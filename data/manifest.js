@@ -176,7 +176,8 @@ window.SQUAD_MANIFEST = {
             "2026-usa",
             "2026-sweden",
             "2026-morocco",
-            "2026-netherlands"
+            "2026-netherlands",
+            "2026-australia"
           ]
         },
         {
