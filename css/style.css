@@ -733,6 +733,13 @@ body.modal-open { overflow: hidden; }
   --club-on-accent: var(--club-on-primary);
 }
 
+[data-club="aek-athens"] .kit-seg {
+  --club-accent: #F3CC4A;
+  --club-on-accent: #172033;
+  background: #242022;
+  color: #FFFFFF;
+}
+
 .swatch {
   display: inline-block;
   width: 16px;

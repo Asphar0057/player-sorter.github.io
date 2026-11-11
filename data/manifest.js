@@ -30,7 +30,7 @@ window.SQUAD_MANIFEST = {
           id: "ligue-1",
           name: "Ligue 1",
           country: "France",
-          teams: ["psg", "monaco", "paris-fc", "marseille", "lyon", "lille"]
+          teams: ["psg", "monaco", "paris-fc", "marseille", "lyon", "lille", "lens"]
         },
         {
           id: "serie-a",
@@ -84,7 +84,37 @@ window.SQUAD_MANIFEST = {
           id: "greek-super-league",
           name: "Greek Super League",
           country: "Greece",
-          teams: ["olympiacos"]
+          teams: ["olympiacos", "aek-athens"]
+        },
+        {
+          id: "belgian-pro-league",
+          name: "Belgian Pro League",
+          country: "Belgium",
+          teams: ["club-brugge"]
+        },
+        {
+          id: "czech-first-league",
+          name: "Czech First League",
+          country: "Czechia",
+          teams: ["slavia-praha"]
+        },
+        {
+          id: "eliteserien",
+          name: "Eliteserien",
+          country: "Norway",
+          teams: ["bodo-glimt", "viking"]
+        },
+        {
+          id: "austrian-bundesliga",
+          name: "Austrian Bundesliga",
+          country: "Austria",
+          teams: ["lask"]
+        },
+        {
+          id: "ukrainian-premier-league",
+          name: "Ukrainian Premier League",
+          country: "Ukraine",
+          teams: ["shakhtar-donetsk"]
         },
         {
           id: "championship",
@@ -103,6 +133,18 @@ window.SQUAD_MANIFEST = {
           name: "Primera Federación",
           country: "Spain",
           teams: ["real-zaragoza"]
+        },
+        {
+          id: "azerbaijan-premier-league",
+          name: "Azerbaijan Premier League",
+          country: "Azerbaijan",
+          teams: ["sabah"]
+        },
+        {
+          id: "slovak-super-liga",
+          name: "Slovak Super Liga",
+          country: "Slovakia",
+          teams: ["slovan-bratislava"]
         },
         /*
         {
