@@ -24,7 +24,7 @@ window.SQUAD_MANIFEST = {
           id: "bundesliga",
           name: "Bundesliga",
           country: "Germany",
-          teams: ["bayern-munich", "dortmund", "schalke", "stuttgart", "leverkusen", "frankfurt", "leipzig"]
+          teams: ["bayern-munich", "dortmund", "schalke", "stuttgart", "leverkusen", "frankfurt", "leipzig", "hamburg"]
         },
         {
           id: "ligue-1",
@@ -90,7 +90,7 @@ window.SQUAD_MANIFEST = {
           id: "championship",
           name: "Championship",
           country: "England",
-          teams: ["west-ham-united", "wolves"]//, "sheffield-united"]
+          teams: ["queens-park-rangers", "west-ham-united", "wolves"]//, "sheffield-united"]
         },
         {
           id: "laliga-hypermotion",
