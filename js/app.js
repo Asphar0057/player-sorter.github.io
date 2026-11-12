@@ -10,7 +10,16 @@
   const app = document.getElementById("app");
   const MANIFEST = window.SQUAD_MANIFEST;
   const SECTIONS = MANIFEST.sections || [];
-  const SHOW_FIRST = MANIFEST.showFirst || 5;
+  const BASE_SHOW_FIRST = MANIFEST.showFirst || 5;
+  const WIDE_COLS = [
+    { query: window.matchMedia ? window.matchMedia("(min-width: 1700px)") : null, cols: 5 },
+    { query: window.matchMedia ? window.matchMedia("(min-width: 1360px)") : null, cols: 4 }
+  ];
+
+  function showFirst() {
+    const wide = WIDE_COLS.find(w => w.query && w.query.matches);
+    return wide ? wide.cols * 2 - 1 : BASE_SHOW_FIRST;
+  }
   const INDEX = {};
   const LOADING = {};
   const EXPANDED = {};
@@ -120,9 +129,10 @@
             '<svg class="credit-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             '<span class="sr-only">Show collaborators</span>' +
           "</button>" +
+          totalStat("hero-stat-narrow") +
         "</div>" +
         '<div class="credit-chips" id="creditList" hidden>' + chips + "</div>" +
-        requestStrip() +
+        '<div class="hero-pills">' + requestStrip() + builderPill() + supportLink("support-hero", "Buy me a coffee", true) + totalStat() + "</div>" +
       "</div>"
     );
   }
@@ -499,9 +509,9 @@
   }
 
   function blobColours(group) {
-    const all = (group.teams || []).filter(id => INDEX[id]);
-    const hidden = all.slice(SHOW_FIRST).filter(id => TEAMS[id]);
-    const source = hidden.length ? hidden : all.slice(0, SHOW_FIRST).filter(id => TEAMS[id]);
+    const all = orderedIds(group);
+    const hidden = all.slice(showFirst()).filter(id => TEAMS[id]);
+    const source = hidden.length ? hidden : all.slice(0, showFirst()).filter(id => TEAMS[id]);
     const colours = [];
     source.forEach(id => {
       const kit = Kits.get(TEAMS[id], "home");
@@ -520,9 +530,48 @@
     );
   }
 
-  function visibleIds(group) {
+  const PINNED_FIRST = new Set(["atletico-madrid", "benfica"]);
+  let rankCounts = null;
+
+  function podiumTier(group, id) {
+    const podium = group.podium;
+    if (!podium) return 3;
+    if (podium.winner === id) return 0;
+    if (podium.finalist === id) return 1;
+    if ((podium.semis || []).includes(id)) return 2;
+    return 3;
+  }
+
+  function orderedIds(group) {
     const ids = (group.teams || []).filter(id => INDEX[id]);
-    return EXPANDED[group.id] ? ids : ids.slice(0, SHOW_FIRST);
+    if (!rankCounts && !group.podium) return ids;
+    const count = id => (rankCounts ? Number(rankCounts[id]) || 0 : 0);
+    const pinned = ids.filter(id => PINNED_FIRST.has(id));
+    const rest = ids.filter(id => !PINNED_FIRST.has(id));
+    rest.sort((a, b) => (podiumTier(group, a) - podiumTier(group, b)) || (count(b) - count(a)));
+    return pinned.concat(rest);
+  }
+
+  const PINNED_GROUPS = new Set(["laliga"]);
+  const FIXED_ORDER_SECTIONS = new Set(["wcs"]);
+
+  function groupTotal(group) {
+    return (group.teams || []).reduce((sum, id) => sum + (Number(rankCounts[id]) || 0), 0);
+  }
+
+  function orderedGroups(section) {
+    const groups = section.groups || [];
+    if (!rankCounts || FIXED_ORDER_SECTIONS.has(section.id)) return groups;
+    const main = section === SECTIONS[0];
+    const pinned = groups.filter(g => g.builder || (main && PINNED_GROUPS.has(g.id)));
+    const rest = groups.filter(g => !pinned.includes(g));
+    rest.sort((a, b) => groupTotal(b) - groupTotal(a));
+    return pinned.concat(rest);
+  }
+
+  function visibleIds(group) {
+    const ids = orderedIds(group);
+    return EXPANDED[group.id] ? ids : ids.slice(0, showFirst());
   }
 
   const SOON_ICONS = {
@@ -566,7 +615,7 @@
       const all = (group.teams || []).filter(id => INDEX[id]);
       const tiles = visibleIds(group).filter(id => TEAMS[id]).map(id => teamTile(TEAMS[id])).join("");
       if (!tiles) return "";
-      const hiddenCount = all.length - SHOW_FIRST;
+      const hiddenCount = all.length - showFirst();
       const more = hiddenCount > 0
         ? '<button type="button" class="team-tile see-more-tile" data-more="' + group.id + '" aria-expanded="' + !!EXPANDED[group.id] + '">' +
             blobMarkup(blobColours(group)) +
@@ -574,7 +623,7 @@
             '<span class="team-tile-text">' +
               '<span class="team-tile-name">' + (EXPANDED[group.id] ? "Show less" : "Show all") + "</span>" +
               '<span class="team-tile-meta">' +
-                (EXPANDED[group.id] ? "Back to the first " + SHOW_FIRST : "+" + hiddenCount + " more") +
+                (EXPANDED[group.id] ? "Back to the first " + showFirst() : "+" + hiddenCount + " more") +
               "</span>" +
             "</span>" +
           "</button>"
@@ -682,7 +731,7 @@
       const mounted = app.querySelector(".home-body");
       if (token !== navToken || !mounted || value !== searchQuery) return;
       const section = SECTIONS.find(s => s.id === mounted.dataset.section) || SECTIONS[0];
-      mounted.innerHTML = active ? searchBody(value) : homeBody(section, section.groups || []);
+      mounted.innerHTML = active ? searchBody(value) : homeBody(section, orderedGroups(section));
       wireImages(mounted);
       if (!active) bindMore(section);
       const hero = app.querySelector(".hero");
@@ -759,7 +808,7 @@
     applyTheme(null);
     const section = SECTIONS.find(s => s.id === sectionId) || SECTIONS[0];
     if (!section) return;
-    const groups = section.groups || [];
+    const groups = orderedGroups(section);
     const ids = groups.flatMap(visibleIds);
     const ready = searching() ? loadAllTeams() : Promise.all(ids.map(ensureTeam));
 
@@ -784,6 +833,7 @@
         const paint = () => {
           paintHome(section, groups, token, keepScroll, afterRender, mounted, switching, fromIndex);
           fillCounts();
+          spotlightBuilder();
         };
         if (mounted || !app.firstElementChild) paint();
         else swapScreen(paint);
@@ -793,6 +843,9 @@
 
   function paintHome(section, groups, token, keepScroll, afterRender, mounted, switching, fromIndex) {
     const body = searching() ? searchBody(searchQuery) : homeBody(section, groups);
+
+    const restoreTo = !mounted && !keepScroll && !searching() ? HOME_SCROLL[section.id] : null;
+    if (restoreTo != null) keepScroll = true;
 
     if (mounted && app.contains(mounted)) {
       mounted.innerHTML = body;
@@ -819,9 +872,8 @@
         : "";
       render(
         '<section class="hero">' +
-          '<p class="eyebrow">Player Sorter by @nicsginthings</p>' +
+          '<div class="hero-top"><p class="eyebrow">Player Sorter by @nicsginthings</p>' + supportLink("support-chip", "Support", true) + "</div>" +
           "<h1>Pick a squad &amp; start ranking</h1>" +
-          '<p class="hero-sub">Pick between two players at a time until your whole squad is ranked.</p>' +
           siteCredits() +
         "</section>" +
         '<div class="home-bar' + (searching() ? " is-searching" : "") + '">' + searchBox() + tabs + "</div>" +
@@ -834,7 +886,7 @@
     }
 
     groups.forEach(group => {
-      const hidden = (group.teams || []).filter(id => INDEX[id]).slice(SHOW_FIRST);
+      const hidden = orderedIds(group).slice(showFirst());
       if (EXPANDED[group.id] || !hidden.length || hidden.every(id => TEAMS[id])) return;
       Promise.all(hidden.map(ensureTeam)).then(() => {
         if (token !== navToken) return;
@@ -844,11 +896,14 @@
     });
 
     bindMore(section);
+    if (restoreTo != null) window.scrollTo(0, restoreTo);
     groups.forEach(group => (group.teams || []).forEach(id => {
       if (TEAMS[id]) submitRanking(TEAMS[id]);
     }));
     if (afterRender) afterRender();
   }
+
+  const HOME_SCROLL = {};
 
   const REDUCE_MOTION = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const MOVE_MS = 340;
@@ -877,7 +932,7 @@
     if (collapsing && !REDUCE_MOTION) {
       Array.from(grid.children)
         .filter(el => !el.classList.contains("see-more-tile"))
-        .slice(SHOW_FIRST)
+        .slice(showFirst())
         .forEach(el => el.classList.add("tile-leave"));
       setTimeout(rerender, LEAVE_MS);
     } else {
@@ -907,7 +962,7 @@
     if (!collapsing) {
       Array.from(grid.children)
         .filter(el => !el.classList.contains("see-more-tile"))
-        .slice(SHOW_FIRST)
+        .slice(showFirst())
         .forEach((el, i) => {
           el.style.animationDelay = (60 + i * 45) + "ms";
           el.classList.add("tile-enter");
@@ -992,6 +1047,7 @@
             '<button class="btn btn-primary" data-act="start">Start sorting</button>' +
             (STATS_URL ? '<button type="button" class="btn btn-ghost" data-go="' + team.id + '/stats">Community ranking</button>' : "") +
             resume +
+            supportLink("support-setup", "Buy me a coffee", true) +
           "</div>" +
         "</div>" +
         '<div class="roster">' +
@@ -1107,6 +1163,7 @@
   function pick(which) {
     if (!session || session.state.done) return;
     MergeSorter.choose(session.state, which);
+    if (session.state.done && isCustom(session.team)) countCustom();
     renderMatchup();
   }
 
@@ -1186,6 +1243,15 @@
 
   function importRanking() {
     const params = new URLSearchParams(location.search);
+    if (params.get("s")) {
+      return expandShortLink(params).then(full => {
+        if (full) return importCustom(full);
+        toast("That link couldn't be opened. It may have expired.");
+        try {
+          history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params.toString() : "") + location.hash);
+        } catch (e) {}
+      });
+    }
     if (params.get("l") || params.get("x") || params.get("list") || params.get("custom")) return importCustom(params);
     const club = params.get("club");
     const raw = params.get("r");
@@ -1241,8 +1307,8 @@
                   '<p class="challenge-title"><span class="challenge-icon" aria-hidden="true">' + LINK_ICON + "</span>Challenge your friends</p>" +
                   '<p class="challenge-text">Send them your unique link and they’ll rank the same ' + entries.length + " players.</p>" +
                   '<div class="challenge-field">' +
-                    '<input class="challenge-link" type="text" readonly aria-label="Your challenge link" value="' + esc(customListLink(customConfig())) + '">' +
-                    '<button type="button" class="btn btn-primary challenge-copy">Copy link</button>' +
+                    '<input class="challenge-link" type="text" readonly aria-label="Your challenge link" value="Creating your link…">' +
+                    '<button type="button" class="btn btn-primary challenge-copy" disabled>Copy link</button>' +
                   "</div>" +
                 "</div>"
               : "") +
@@ -1266,6 +1332,7 @@
             '<p class="share-note" id="shareNote"></p>' +
           "</div>" +
         "</div>" +
+        '<div class="support-strip"><span>Love Player Sorter? It runs on coffee</span>' + supportLink("support-strip-link", "Support it") + "</div>" +
       "</div>";
     openModal(modal);
 
@@ -1281,12 +1348,26 @@
         wireImages(holder);
         wireShareColours();
         modal.setAttribute("style", themeVars(team));
-        const linkField = modal.querySelector(".challenge-link");
-        if (linkField) linkField.value = customListLink(customConfig());
+        fillChallengeLink();
         if (session && session.team === team && session.state.done) renderResults();
         draw();
       });
     };
+    let linkToken = 0;
+    const fillChallengeLink = () => {
+      const field = modal.querySelector(".challenge-link");
+      const btn = modal.querySelector(".challenge-copy");
+      if (!field) return;
+      const mine = ++linkToken;
+      field.value = "Creating your link…";
+      btn.disabled = true;
+      shortLink(customListLink(customConfig())).then(link => {
+        if (mine !== linkToken) return;
+        field.value = link;
+        btn.disabled = false;
+      });
+    };
+    fillChallengeLink();
     wireShareColours();
     const copyBtn = modal.querySelector(".challenge-copy");
     if (copyBtn) {
@@ -1394,7 +1475,7 @@
       }
 
       if (act.dataset.act === "x") {
-        const postUrl = isCustom(team) ? customListLink(customConfig()) : url;
+        const postUrl = isCustom(team) ? await shortLink(customListLink(customConfig())) : url;
         const text = caption(team, entries) + (postUrl ? "\n\n" + (isCustom(team) ? "Rank my list:" : "Rank yours:") : "");
         if (fileShare) {
           await shareFile(ShareImage.canvasToFile(canvas, fileName(opts.format)), text + (postUrl ? " " + postUrl : ""));
@@ -1431,7 +1512,7 @@
 
   const CUSTOM_ID = "build-your-own";
   const CUSTOM_MIN = 5;
-  const CUSTOM_MAX = 25;
+  const CUSTOM_MAX = 50;
   const CUSTOM_DEFAULT_NAME = "My picks";
   const CHEVRON = '<svg class="colour-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const NEUTRAL_KIT = {
@@ -1561,6 +1642,22 @@
     return picks.concat(own);
   }
 
+  let builderSpotlight = false;
+
+  function spotlightBuilder() {
+    if (!builderSpotlight) return;
+    const tile = app.querySelector(".builder-tile");
+    if (!tile) return;
+    builderSpotlight = false;
+    setTimeout(() => {
+      tile.scrollIntoView({ block: "center", behavior: REDUCE_MOTION ? "auto" : "smooth" });
+      tile.classList.remove("is-spotlight");
+      void tile.offsetWidth;
+      tile.classList.add("is-spotlight");
+      tile.addEventListener("animationend", () => tile.classList.remove("is-spotlight"), { once: true });
+    }, 350);
+  }
+
   function builderTile() {
     const keys = customConfig().keys;
     const n = keys.length;
@@ -1568,7 +1665,7 @@
       '<button type="button" class="team-tile builder-tile" data-go="' + CUSTOM_ID + '">' +
         '<span class="team-tile-text">' +
           '<span class="team-tile-name">Build your own</span>' +
-          '<span class="team-tile-meta">' + (n ? "Your list: " + n + " player" + (n === 1 ? "" : "s") : "Pick " + CUSTOM_MIN + "–" + CUSTOM_MAX + " players from any club") + "</span>" +
+          '<span class="team-tile-meta builder-meta">' + (n ? "Your list: " + n + " player" + (n === 1 ? "" : "s") : "Pick " + CUSTOM_MIN + "–" + CUSTOM_MAX + " players from any club") + customCountMarkup() + "</span>" +
         "</span>" +
         '<span class="builder-fan" aria-hidden="true">' +
           builderFaces(keys).map(faceMarkup).join("") +
@@ -1647,6 +1744,40 @@
     }).filter(Boolean).sort((a, b) => a.score - b.score || a.e.order - b.e.order).slice(0, limit).map(r => r.e);
   }
 
+  function searchClubs(query, limit) {
+    const tokens = normText(query).split(" ").filter(Boolean);
+    if (!tokens.length) return [];
+    const seen = new Set();
+    const out = [];
+    playerPool().list.forEach(e => {
+      if (seen.has(e.team.id)) return;
+      seen.add(e.team.id);
+      if (isCustom(e.team) || !tokens.every(t => wordStarts(e.clubText, t))) return;
+      out.push(e.team);
+    });
+    SECTIONS.forEach(section => (section.groups || []).forEach(group => (group.teams || []).forEach(id => {
+      const team = TEAMS[id];
+      if (!team || seen.has(id) || !INDEX[id]) return;
+      seen.add(id);
+      if (tokens.every(t => wordStarts(normText([team.name, team.shortName].join(" ")), t))) out.push(team);
+    })));
+    return out.slice(0, limit);
+  }
+
+  function clubKeys(team) {
+    const pool = playerPool();
+    const seen = new Set();
+    const out = [];
+    team.players.forEach(player => {
+      const key = team.id + ":" + player.id;
+      const ident = pool.identByKey[key] || identOf(key);
+      if (seen.has(ident)) return;
+      seen.add(ident);
+      out.push({ ident, key: pool.best[ident] ? pool.best[ident].key : key });
+    });
+    return out;
+  }
+
   function clubLabel(team) {
     return team.shortName || team.name;
   }
@@ -1701,6 +1832,56 @@
     if (cfg.name.trim()) params.set("n", cfg.name.trim());
     if (colourClub(cfg)) params.set("k", cfg.colours);
     return location.origin + location.pathname + "?" + params.toString().replace(/%3A/gi, ":");
+  }
+
+  const SHORT_LINKS = {};
+
+  function shortLink(longUrl) {
+    const query = longUrl.split("?")[1] || "";
+    if (!STATS_URL || !query) return Promise.resolve(longUrl);
+    const make = id => location.origin + location.pathname + "?s=" + id;
+    const stored = storeGet("short:" + query);
+    if (stored) return Promise.resolve(make(stored));
+    if (SHORT_LINKS[query]) return SHORT_LINKS[query];
+    const request = fetch(STATS_URL, { method: "POST", body: JSON.stringify({ type: "short", q: query }) })
+      .then(r => r.json())
+      .then(reply => {
+        if (!reply || reply.ok !== true || !/^[A-Za-z0-9]{4,12}$/.test(reply.id || "")) {
+          console.warn("Short link failed:", reply && reply.error ? reply.error : reply);
+          throw new Error("short");
+        }
+        storeSet("short:" + query, reply.id);
+        return make(reply.id);
+      });
+    const timeout = new Promise(resolve => setTimeout(() => {
+      console.warn("Short link timed out");
+      delete SHORT_LINKS[query];
+      resolve(longUrl);
+    }, 15000));
+    SHORT_LINKS[query] = Promise.race([request, timeout]).catch(error => {
+      console.warn("Short link failed:", error && error.message);
+      delete SHORT_LINKS[query];
+      return longUrl;
+    });
+    return SHORT_LINKS[query];
+  }
+
+  function expandShortLink(params) {
+    const id = params.get("s");
+    params.delete("s");
+    if (!STATS_URL || !/^[A-Za-z0-9]{4,12}$/.test(id || "")) return Promise.resolve(null);
+    const url = STATS_URL + (STATS_URL.indexOf("?") < 0 ? "?" : "&") + "action=link&id=" + encodeURIComponent(id);
+    return fetch(url)
+      .then(r => r.json())
+      .then(reply => {
+        if (!reply || reply.ok !== true || typeof reply.q !== "string") return null;
+        const full = new URLSearchParams(reply.q);
+        params.forEach((value, key) => {
+          if (!full.has(key)) full.set(key, value);
+        });
+        return full;
+      })
+      .catch(() => null);
   }
 
   function decodeList(codes, extra) {
@@ -1956,11 +2137,27 @@
         search.setAttribute("aria-expanded", "false");
         return;
       }
-      hits = searchPlayers(q, 8);
+      hits = searchClubs(q, 2).map(team => ({ club: team })).concat(searchPlayers(q, 8));
       const have = chosen();
       const full = cfg.keys.length >= CUSTOM_MAX;
       results.innerHTML = hits.length
         ? hits.map((e, i) => {
+            if (e.club) {
+              const missing = clubKeys(e.club).filter(c => !have.has(c.ident)).length;
+              const done = !missing;
+              const blocked = !done && full;
+              const group = INDEX[e.club.id] ? INDEX[e.club.id].group : null;
+              return (
+                '<li role="option" id="byo-hit-' + i + '" class="builder-hit builder-hit-club' + (i === active ? " is-active" : "") + (done ? " is-added" : "") + '" data-i="' + i + '" aria-selected="' + done + '"' + (blocked ? ' aria-disabled="true"' : "") + ">" +
+                  '<span class="builder-hit-crest">' + plainCrest(e.club, "crest-xs") + "</span>" +
+                  '<span class="builder-hit-text">' +
+                    '<span class="builder-hit-name">' + esc(e.club.name) + "</span>" +
+                    '<span class="builder-hit-meta">' + esc([group ? group.name : "", e.club.players.length + " players"].filter(Boolean).join(" · ")) + "</span>" +
+                  "</span>" +
+                  '<span class="builder-add">' + (done ? "All added" : blocked ? "List full" : "+ Add all " + missing) + "</span>" +
+                "</li>"
+              );
+            }
             const added = have.has(e.ident);
             return (
               '<li role="option" id="byo-hit-' + i + '" class="builder-hit' + (i === active ? " is-active" : "") + (added ? " is-added" : "") + '" data-i="' + i + '" aria-selected="' + added + '"' + (!added && full ? ' aria-disabled="true"' : "") + ">" +
@@ -2036,7 +2233,24 @@
       paint();
     };
 
+    const addClub = team => {
+      const have = chosen();
+      const missing = clubKeys(team).filter(c => !have.has(c.ident));
+      const label = clubLabel(team);
+      if (!missing.length) return toast("Everyone from " + label + " is already in your list.");
+      const room = CUSTOM_MAX - cfg.keys.length;
+      if (room <= 0) return toast("Your list is full. Remove someone to add more.");
+      const take = missing.slice(0, room);
+      take.forEach(c => cfg.keys.push(c.key));
+      commit();
+      const left = missing.length - take.length;
+      toast(left
+        ? "Added " + take.length + " from " + label + " · list full, " + left + " left out"
+        : "Added " + take.length + " player" + (take.length === 1 ? "" : "s") + " from " + label);
+    };
+
     const toggleKey = e => {
+      if (e.club) return addClub(e.club);
       const have = cfg.keys.findIndex(k => identOf(k) === e.ident);
       if (have >= 0) cfg.keys.splice(have, 1);
       else if (cfg.keys.length < CUSTOM_MAX) cfg.keys.push(e.key);
@@ -2227,6 +2441,69 @@
         '<button type="button" class="link-btn" data-request="player" data-team="' + team.id + '">Let us know</button>' +
       "</p>"
     );
+  }
+
+  function builderPill() {
+    const section = builderSection();
+    if (!section) return "";
+    return (
+      '<button type="button" class="request-pill builder-pill" data-go="' + section.id + '" data-spotlight="builder">' +
+        '<span class="builder-pill-spark" aria-hidden="true">✦</span>New: Build your own ranking' +
+        '<span class="arrow-circle builder-pill-arrow" aria-hidden="true">' + ARROW + "</span>" +
+      "</button>"
+    );
+  }
+
+  const SUPPORT_URL = "https://buymeacoffee.com/nicsginthings";
+
+  function supportLink(cls, label, anchor) {
+    return (
+      '<a class="support-pill ' + cls + '" href="' + SUPPORT_URL + '" target="_blank" rel="noopener"' + (anchor ? " data-support-anchor" : "") + ">" +
+        '<span class="support-cup" aria-hidden="true">☕</span>' + esc(label) +
+      "</a>"
+    );
+  }
+
+  let supportFloat = null;
+  let supportObserver = null;
+  let supportQueued = false;
+
+  function updateSupport() {
+    supportQueued = false;
+    if (!supportFloat) {
+      document.body.insertAdjacentHTML("beforeend",
+        '<a class="support-pill support-float" href="' + SUPPORT_URL + '" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">' +
+          '<span class="support-cup" aria-hidden="true">☕</span><span class="support-float-long">Support Player Sorter</span><span class="support-float-short">Support</span>' +
+        "</a>");
+      supportFloat = document.body.lastElementChild;
+    }
+    if (supportObserver) supportObserver.disconnect();
+    const page = app.querySelector(".home-body") ? "home"
+      : app.querySelector(".results") ? "results"
+      : app.querySelector(".battle") ? "sort"
+      : app.querySelector(".stats") ? "stats"
+      : app.querySelector(".setup-body") ? "setup"
+      : "";
+    supportFloat.classList.toggle("is-round", page === "sort" || page === "stats");
+    const setShown = shown => {
+      supportFloat.classList.toggle("is-shown", shown);
+      supportFloat.setAttribute("aria-hidden", shown ? "false" : "true");
+      supportFloat.tabIndex = shown ? 0 : -1;
+    };
+    if (!page) return setShown(false);
+    const anchor = Array.from(app.querySelectorAll("[data-support-anchor]")).find(el => el.offsetParent !== null);
+    if (!anchor || !("IntersectionObserver" in window)) return setShown(!anchor);
+    supportObserver = new IntersectionObserver(entries => {
+      const entry = entries[entries.length - 1];
+      setShown(!entry.isIntersecting);
+    });
+    supportObserver.observe(anchor);
+  }
+
+  function queueSupport() {
+    if (supportQueued) return;
+    supportQueued = true;
+    requestAnimationFrame(updateSupport);
   }
 
   function requestStrip() {
@@ -2774,6 +3051,7 @@
   const STATS_URL = MANIFEST.statsUrl || MANIFEST.requestsUrl || "";
   const STATS_CACHE = {};
   let countsCache = null;
+  rankCounts = storeGet("rank-counts");
 
   function fetchCounts() {
     if (!STATS_URL) return Promise.reject(new Error("no stats"));
@@ -2800,14 +3078,71 @@
     return n ? shortCount(n) + " ranking" + (n === 1 ? "" : "s") : "No rankings yet";
   }
 
+  function homeOrder(sectionId) {
+    const section = SECTIONS.find(s => s.id === sectionId);
+    return section ? orderedGroups(section).map(g => g.id + ":" + visibleIds(g).join(",")).join("|") : "";
+  }
+
+  function totalRankings(counts) {
+    return Object.keys(INDEX).reduce((sum, id) => sum + (Number(counts[id]) || 0), 0) + (Number(counts[CUSTOM_ID]) || 0);
+  }
+
+  function countCustom() {
+    if (!STATS_URL) return;
+    try {
+      fetch(STATS_URL, { method: "POST", body: JSON.stringify({ type: "custom" }), keepalive: true }).catch(() => {});
+    } catch (e) {}
+    if (rankCounts) rankCounts = Object.assign({}, rankCounts, { [CUSTOM_ID]: (Number(rankCounts[CUSTOM_ID]) || 0) + 1 });
+    countsCache = null;
+  }
+
+  function customCountMarkup() {
+    const n = rankCounts ? Number(rankCounts[CUSTOM_ID]) || 0 : 0;
+    return '<span class="builder-count" data-custom-count' + (n ? "" : " hidden") + '><span class="builder-sep"> · </span><strong class="tile-count">' + (n ? esc(countLabel(n)) : "") + "</strong></span>";
+  }
+
+  function totalStat(extra) {
+    const total = rankCounts ? totalRankings(rankCounts) : 0;
+    return (
+      '<div class="hero-stat' + (extra ? " " + extra : "") + '" data-total' + (total ? "" : " hidden") + (extra ? ' aria-hidden="true"' : "") + ">" +
+        '<span class="hero-stat-num">' + total.toLocaleString("en-US") + "</span>" +
+        '<span class="hero-stat-label">Rankings made</span>' +
+      "</div>"
+    );
+  }
+
+  function fillTotal(counts) {
+    const total = totalRankings(counts);
+    app.querySelectorAll("[data-total]").forEach(el => {
+      el.hidden = !total;
+      el.querySelector(".hero-stat-num").textContent = total.toLocaleString("en-US");
+    });
+  }
+
   function fillCounts() {
-    if (!app.querySelector("[data-count]")) return;
+    if (!app.querySelector("[data-count], [data-total], [data-custom-count]")) return;
     fetchCounts().then(counts => {
+      fillTotal(counts);
+      app.querySelectorAll("[data-custom-count]").forEach(el => {
+        const n = Number(counts[CUSTOM_ID]) || 0;
+        el.hidden = !n;
+        el.querySelector(".tile-count").textContent = n ? countLabel(n) : "";
+      });
+      const body = app.querySelector(".home-body");
+      const sectionId = body ? body.dataset.section : "";
+      const before = homeOrder(sectionId);
+      rankCounts = counts;
+      storeSet("rank-counts", counts);
+      if (body && !searching() && before !== homeOrder(sectionId)) {
+        renderHome(sectionId, navToken, true);
+        return;
+      }
       app.querySelectorAll("[data-count]").forEach(el => {
         const team = TEAMS[el.dataset.count];
         if (!team) return;
         const n = Number(counts[team.id]) || 0;
-        el.innerHTML = (team.season ? esc(team.season) + " · " : "") + '<strong class="tile-count">' + esc(countLabel(n)) + "</strong>";
+        el.classList.add("has-count");
+        el.innerHTML = (team.season ? '<span class="tile-season">' + esc(team.season) + " · </span>" : "") + '<strong class="tile-count">' + esc(countLabel(n)) + "</strong>";
       });
     }).catch(() => {});
   }
@@ -2907,12 +3242,20 @@
 
   function yourRanks(team) {
     const saved = storeGet(team.id);
-    if (!saved || !saved.state || !saved.state.done || !isFullSquad(team, saved.state)) return null;
+    if (!saved || !saved.state || !saved.state.done) return null;
+    const current = new Set(team.players.map(p => p.id));
     const ranks = {};
-    MergeSorter.ranking(saved.state).forEach(row => row.ids.forEach(key => {
-      ranks[key.split(":")[1]] = row.rank;
-    }));
-    return ranks;
+    let next = 1;
+    let matched = 0;
+    MergeSorter.ranking(saved.state).forEach(row => {
+      const ids = row.ids.map(key => key.split(":")[1]).filter(id => current.has(id));
+      if (!ids.length) return;
+      ids.forEach(id => { ranks[id] = next; });
+      next += ids.length;
+      matched += ids.length;
+    });
+    const needed = Math.min(team.players.length, Math.max(5, Math.ceil(team.players.length * 0.6)));
+    return matched >= needed ? ranks : null;
   }
 
   function statsTeaser(team, data) {
@@ -3116,8 +3459,14 @@
       you +
       '<h2 class="st-h">The community\'s top 10</h2>' +
       '<ol class="rank-list">' + top + "</ol>" +
-      '<p class="st-foot">Only full-squad rankings count, one per device. Sorting the squad again replaces your previous ranking. Nothing personal is collected.</p>';
+      '<p class="st-foot">Only full-squad rankings count, one per device. Sorting the squad again replaces your previous ranking. Nothing personal is collected.</p>' +
+      '<div class="support-card" data-support-anchor>' +
+        '<p class="support-card-title">Enjoyed the stats?</p>' +
+        '<p class="support-card-text">Player Sorter is free and fan-made.</p>' +
+        supportLink("support-card-link", "Buy me a coffee") +
+      "</div>";
     body.classList.add("st-in");
+    queueSupport();
     wireImages(body);
     requestAnimationFrame(() => body.querySelectorAll(".st-bar i").forEach(i => i.classList.add("is-on")));
   }
@@ -3155,9 +3504,12 @@
             '<p class="eyebrow">Your ranking</p>' +
             "<h1>" + esc(team.name) + "</h1>" +
           "</div>" +
-          (custom
-            ? '<div class="kit-picker builder-colours"><span class="kit-label">Colors</span>' + colourMenu(customConfig()) + kitSwitch(team, "site-kit", kitOf(team).id, true) + "</div>"
-            : kitPicker(team)) +
+          '<div class="results-side">' +
+            supportLink("support-results", "Buy me a coffee", true) +
+            (custom
+              ? '<div class="kit-picker builder-colours"><span class="kit-label">Colors</span>' + colourMenu(customConfig()) + kitSwitch(team, "site-kit", kitOf(team).id, true) + "</div>"
+              : kitPicker(team)) +
+          "</div>" +
         "</div>" +
         (custom ? "" : missingLine(team, true) + statsEntry(team)) +
         '<div class="setup-actions results-actions">' +
@@ -3186,6 +3538,17 @@
     }));
   }
 
+  function pruneSaved(team, saved) {
+    if (isCustom(team) || !saved || !saved.state || !saved.state.done) return null;
+    const queue = saved.state.queue || [];
+    if (queue.length !== 1) return null;
+    const groups = queue[0]
+      .map(g => g.filter(key => key.startsWith(team.id + ":") && lookup(key)))
+      .filter(g => g.length);
+    if (!groups.length) return null;
+    return Object.assign({}, saved, { state: Object.assign({}, saved.state, { queue: [groups], history: [] }) });
+  }
+
   function isValidSaved(team, saved) {
     if (!saved || !saved.state) return false;
     try {
@@ -3210,6 +3573,8 @@
   }
 
   function show(id) {
+    const leaving = app.querySelector(".home-body");
+    if (leaving && !searching()) HOME_SCROLL[leaving.dataset.section] = window.scrollY;
     const token = ++navToken;
     const parts = id.split("/");
     if (parts[0] === CUSTOM_ID) {
@@ -3227,10 +3592,17 @@
         return;
       }
       swapScreen(() => {
-        const saved = storeGet(team.id);
+        let saved = storeGet(team.id);
         if (!isValidSaved(team, saved)) {
-          storeDel(team.id);
-        } else {
+          const pruned = pruneSaved(team, saved);
+          if (pruned) {
+            storeSet(team.id, pruned);
+            saved = pruned;
+          } else {
+            storeDel(team.id);
+          }
+        }
+        if (isValidSaved(team, saved)) {
           submitRanking(team);
           if (parts[1] === "results" && saved.state.done) {
             session = { team, state: saved.state };
@@ -3263,8 +3635,42 @@
     const target = e.target.closest("[data-go]");
     if (!target) return;
     e.preventDefault();
+    if (target.dataset.spotlight === "builder") {
+      builderSpotlight = true;
+      setTimeout(spotlightBuilder, 700);
+    }
     go(target.dataset.go);
   });
+
+  try {
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  } catch (e) {}
+
+  document.addEventListener("keydown", e => {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey || (e.key || "").toLowerCase() !== "f") return;
+    const input = app.querySelector(".search-input");
+    if (!input || document.querySelector(".modal")) return;
+    e.preventDefault();
+    input.focus();
+    input.select();
+  });
+
+  let lastShowFirst = showFirst();
+  WIDE_COLS.forEach(w => {
+    if (!w.query) return;
+    const onChange = () => {
+      const next = showFirst();
+      if (next === lastShowFirst) return;
+      lastShowFirst = next;
+      const body = app.querySelector(".home-body");
+      if (body && !searching()) renderHome(body.dataset.section, navToken, true);
+    };
+    if (w.query.addEventListener) w.query.addEventListener("change", onChange);
+    else if (w.query.addListener) w.query.addListener(onChange);
+  });
+
+  new MutationObserver(queueSupport).observe(app, { childList: true });
+  window.addEventListener("resize", queueSupport);
 
   window.addEventListener("popstate", route);
   window.addEventListener("hashchange", route);

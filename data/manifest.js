@@ -1,6 +1,6 @@
 window.SQUAD_MANIFEST = {
   siteUrl: "player-sorter.github.io",
-  requestsUrl: "https://script.google.com/macros/s/AKfycbzpRmruHijXqpEBUtNcQ3GCbJL5Hf9kWD2pK5l5sd1AkstYPdXVksdNLeD0rrKsOxIR/exec",
+  requestsUrl: "https://script.google.com/macros/s/AKfycbxBVcQ1q_iNfHeYMxxbqZ-9vrZW3Q1LzSp3_33R1-9TK-F1Bi_x0ExE_cajWECRppD-/exec",
   showFirst: 5,
   sections: [
     {
@@ -12,43 +12,43 @@ window.SQUAD_MANIFEST = {
           id: "laliga",
           name: "LaLiga",
           country: "Spain",
-          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna", "real-sociedad", "athletic-club", "sevilla", "valencia", "malaga", "espanyol", "celta"]
+          teams: ["atletico-madrid", "barcelona", "real-madrid", "real-betis", "villarreal", "rayo-vallecano", "getafe", "deportivo-a-coruna", "real-sociedad", "athletic-club", "sevilla", "valencia", "malaga", "espanyol", "celta", "osasuna", "alaves", "elche", "levante", "racing-santander"]
         },
         {
           id: "premier-league",
           name: "Premier League",
           country: "England",
-          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton", "bournemouth", "brighton", "sunderland"]
+          teams: ["arsenal", "liverpool", "manchester-city", "manchester-united", "aston-villa", "chelsea", "tottenham", "newcastle", "fulham", "leeds", "everton", "bournemouth", "brighton", "ipswich-town"]//, "sunderland"]
         },
         {
           id: "bundesliga",
           name: "Bundesliga",
           country: "Germany",
-          teams: ["bayern-munich", "dortmund", "schalke", "stuttgart", "leverkusen", "frankfurt", "leipzig"]
+          teams: ["bayern-munich", "dortmund", "schalke", "stuttgart", "leverkusen", "frankfurt", "leipzig", "hamburg"]
         },
         {
           id: "ligue-1",
           name: "Ligue 1",
           country: "France",
-          teams: ["psg", "monaco", "paris-fc", "marseille", "lyon"]
+          teams: ["psg", "monaco", "paris-fc", "marseille", "lyon", "lille", "lens"]
         },
         {
           id: "serie-a",
           name: "Serie A",
           country: "Italy",
-          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como", "fiorentina", "atalanta", "lazio"]//, "napoli"]
+          teams: ["roma", "juventus", "ac-milan", "inter", "cagliari", "como", "fiorentina", "atalanta", "lazio", "napoli", "torino"]
         },
         {
           id: "eredivisie",
           name: "Eredivisie",
           country: "Netherlands",
-          teams: ["ajax"]
+          teams: ["ajax", "feyenoord", "psv"]
         },
         {
           id: "liga-portugal",
           name: "Liga Portugal",
           country: "Portugal",
-          teams: ["benfica"]
+          teams: ["benfica", "porto", "sporting"]
         },
         {
           id: "mls",
@@ -66,13 +66,13 @@ window.SQUAD_MANIFEST = {
           id: "brasileiro",
           name: "Campeonato Brasileiro Série A",
           country: "Brazil",
-          teams: ["flamengo"]
+          teams: ["flamengo", "cruzeiro", "palmeiras"]
         },
         {
           id: "liga-mx",
           name: "Liga MX",
           country: "Mexico",
-          teams: ["club-america"]
+          teams: ["club-america", "monterrey", "cruz-azul", "chivas"]
         },
         {
           id: "super-lig",
@@ -84,25 +84,67 @@ window.SQUAD_MANIFEST = {
           id: "greek-super-league",
           name: "Greek Super League",
           country: "Greece",
-          teams: ["olympiacos"]
+          teams: ["olympiacos", "aek-athens"]
+        },
+        {
+          id: "belgian-pro-league",
+          name: "Belgian Pro League",
+          country: "Belgium",
+          teams: ["club-brugge"]
+        },
+        {
+          id: "czech-first-league",
+          name: "Czech First League",
+          country: "Czechia",
+          teams: ["slavia-praha"]
+        },
+        {
+          id: "eliteserien",
+          name: "Eliteserien",
+          country: "Norway",
+          teams: ["bodo-glimt", "viking"]
+        },
+        {
+          id: "austrian-bundesliga",
+          name: "Austrian Bundesliga",
+          country: "Austria",
+          teams: ["lask"]
+        },
+        {
+          id: "ukrainian-premier-league",
+          name: "Ukrainian Premier League",
+          country: "Ukraine",
+          teams: ["shakhtar-donetsk"]
         },
         {
           id: "championship",
           name: "Championship",
           country: "England",
-          teams: ["west-ham-united", "wolves", "southampton", "swansea"]//, "sheffield-united"]
+          teams: ["queens-park-rangers", "west-ham-united", "wolves"]//, "sheffield-united", "southampton", "swansea"]
         },
         {
           id: "laliga-hypermotion",
           name: "LALIGA HYPERMOTION",
           country: "Spain",
-          teams: ["leganes", "real-oviedo", "real-valladolid", "granada"]
+          teams: ["leganes", "real-oviedo", "real-valladolid", "granada", "las-palmas"]
         },
         {
           id: "primera-federacion",
           name: "Primera Federación",
           country: "Spain",
           teams: ["real-zaragoza"]
+        },
+        {
+          id: "azerbaijan-premier-league",
+          name: "Azerbaijan Premier League",
+          country: "Azerbaijan",
+          teams: ["sabah"]
+        },
+        {
+          id: "slovak-super-liga",
+          name: "Slovak Super Liga",
+          country: "Slovakia",
+          teams: ["slovan-bratislava"]
         },
         /*
         {
@@ -135,7 +177,7 @@ window.SQUAD_MANIFEST = {
           id: "wsl",
           name: "WSL",
           country: "England",
-          teams: ["arsenal-women", "chelsea-women", "manchester-city-women", "manchester-united-women", "london-city-lionesses"]
+          teams: ["arsenal-women", "chelsea-women", "manchester-city-women", "manchester-united-women", "london-city-lionesses", "liverpool-women"]
         },
         {
           id: "premiere-ligue",
@@ -148,6 +190,12 @@ window.SQUAD_MANIFEST = {
           name: "Frauen-Bundesliga",
           country: "Germany",
           teams: ["bayern-munich-women"]
+        },
+        {
+          id: "liga-bpi",
+          name: "Liga BPI",
+          country: "Portugal",
+          teams: ["benfica-femenino"]
         }
       ]
     },
@@ -173,18 +221,37 @@ window.SQUAD_MANIFEST = {
             "2026-belgium",
             "2026-algeria",
             "2026-egypt",
-            "2026-usa"
-          ]
+            "2026-usa",
+            "2026-sweden",
+            "2026-morocco",
+            "2026-netherlands",
+            "2026-australia"
+          ],
+          podium: { winner: "2026-spain", finalist: "2026-argentina", semis: ["2026-france", "2026-england"] }
+        },
+        {
+          id: "asean-cup-2026",
+          name: "ASEAN Cup 2026",
+          teams: ["2026-indonesia"],
+          podium: { winner: "2026-indonesia", finalist: "", semis: [] }
+        },
+        {
+          id: "womens-world-cup-2023",
+          name: "Women's World Cup 2023",
+          teams: ["2023-spain", "2023-england", "2023-france", "2023-sweden", "2023-australia", "2023-usa"],
+          podium: { winner: "2023-spain", finalist: "2023-england", semis: ["2023-sweden", "2023-australia"] }
         },
         {
           id: "world-cup-2022",
           name: "World Cup 2022",
-          teams: ["2022-argentina"]
+          teams: ["2022-argentina"],
+          podium: { winner: "2022-argentina", finalist: "", semis: [] }
         },
         {
           id: "world-cup-2018",
           name: "World Cup 2018",
-          teams: ["2018-france"]
+          teams: ["2018-france"],
+          podium: { winner: "2018-france", finalist: "", semis: [] }
         }
       ]
     },
@@ -193,13 +260,11 @@ window.SQUAD_MANIFEST = {
       name: "Specials",
       tab: "Specials",
       groups: [
-        /*
         {
           id: "build-your-own",
-          name: "Build your own",
+          name: "Custom",
           builder: true
         },
-        */
         {
           id: "ballon-dor",
           name: "Ballon d'Or",

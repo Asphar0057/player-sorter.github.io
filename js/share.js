@@ -1,7 +1,7 @@
 (function () {
   const FORMATS = {
     story: { w: 1080, h: 1920, head: 340, foot: 120 },
-    post: { w: 1080, h: 1350, head: 240, foot: 96 },
+    post: { w: 1080, h: 1350, head: 240, foot: 96, maxCols: 3, threeColsFrom: 31 },
     square: { w: 1080, h: 1080, head: 210, foot: 90, maxCols: 3 },
     wide: { w: 1920, h: 1080, head: 210, foot: 90, maxCols: 3, side: true, maxRowW: 1200, uniformNames: true, leadMax: 150 }
   };
@@ -342,12 +342,14 @@
       const bw = Math.min(120, room * 0.38);
       const x0 = Math.max(from + 20, f.w - bw - h * 0.9);
       const x1 = x0 + h * 0.7;
+      const top = p.reverse ? x1 : x0;
+      const bottom = p.reverse ? x0 : x1;
       ctx.fillStyle = band;
       ctx.beginPath();
-      ctx.moveTo(x0, 0);
-      ctx.lineTo(x0 + bw, 0);
-      ctx.lineTo(x1 + bw, h);
-      ctx.lineTo(x1, h);
+      ctx.moveTo(top, 0);
+      ctx.lineTo(top + bw, 0);
+      ctx.lineTo(bottom + bw, h);
+      ctx.lineTo(bottom, h);
       ctx.closePath();
       ctx.fill();
     } else if (p.type === "lightning") {
@@ -925,12 +927,18 @@
     for (let n = 2; n <= (f.maxCols || 2); n++) {
       const perCol = Math.ceil(rest.length / n);
       const colW = (restAreaW - colGap * (n - 1)) / n;
-      if (n > 2 && (colW < 290 || rest.length < 12)) break;
-      let c = f.side
-        ? (avail - (perCol - 1) * 8) / (perCol * 1.0)
-        : avail / (leadW * 1.1 + perCol * 1.12 + 0.3);
-      c = Math.min(c, MAX_ROW);
-      if (!f.side) c = Math.min(c, maxFirst / weight(lead[0]));
+      if (n > 2 && (colW < 290 || rest.length < (f.threeColsFrom || 12))) break;
+      const used = h => f.side
+        ? perCol * h + (perCol - 1) * gapOf(h)
+        : lead.reduce((sum, e) => sum + h * weight(e) + gapOf(h * weight(e)), 0) + perCol * h + (perCol - 1) * gapOf(h);
+      let lo = 8;
+      let hi = f.side ? MAX_ROW : Math.min(MAX_ROW, maxFirst / weight(lead[0]));
+      for (let k = 0; k < 30; k++) {
+        const midH = (lo + hi) / 2;
+        if (used(midH) <= avail) lo = midH;
+        else hi = midH;
+      }
+      const c = lo;
       const score = f.uniformNames
         ? Math.min(...groupNameSizes(ctx, rest.map(e => ({ w: colW, h: c, entry: e, showPos: false, cols: columns(c) }))))
         : c;

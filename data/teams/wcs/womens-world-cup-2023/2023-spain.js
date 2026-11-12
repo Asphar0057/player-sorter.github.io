@@ -1,0 +1,77 @@
+registerTeam({
+  id: "2023-spain",
+  name: "Spain 2023",
+  shortName: "Spain",
+  monogram: "ESP",
+  league: "womens-world-cup-2023",
+  season: "2023 Women's World Cup",
+  kits: {
+    home: {
+      label: "Home",
+      paper: "#C8102E",
+      card: "#FFFFFF",
+      onPaper: "#FFFFFF",
+      onPaperMuted: "rgba(255,255,255,0.82)",
+      paperPrimary: "#FFFFFF",
+      paperOnPrimary: "#C8102E",
+      line: "rgba(0,0,0,0.16)",
+      ink: "#15203A",
+      muted: "#5B6170",
+      primary: "#C8102E",
+      onPrimary: "#FFFFFF",
+      accent: "#1B2A4A",
+      onAccent: "#FFFFFF",
+      header: "#C8102E",
+      onHeader: "#FFFFFF",
+      headerBand: "#F1BF00",
+      rowTintStrength: 0.15,
+      pattern: { type: "finelines", base: "#C8102E", bands: ["#B00D27"] }
+    },
+    away: {
+      label: "Away",
+      paper: "#F6F2F9",
+      card: "#FFFFFF",
+      ink: "#2A1846",
+      muted: "#5B6170",
+      primary: "#6B3FA0",
+      onPrimary: "#FFFFFF",
+      accent: "#6B3FA0",
+      onAccent: "#FFFFFF",
+      header: "#FFFFFF",
+      onHeader: "#6B3FA0",
+      headerBand: "#D6407A",
+      rowTint: "#6B3FA0",
+      rowTintStrength: 0.2,
+      rowTintFloor: 0.5,
+      pattern: { type: "ripple", base: "#FFFFFF", bands: ["#D8C8EC", "#EBDFF5"] }
+    }
+  },
+  players: [
+    { id: "misa-rodriguez", name: "Misa Rodríguez", number: 1, position: "GK", nation: "Real Madrid" },
+    { id: "enith-salon", name: "Enith Salón", number: 13, position: "GK", nation: "Valencia" },
+    { id: "cata-coll", name: "Cata Coll", number: 23, position: "GK", nation: "FC Barcelona" },
+
+    { id: "ona-batlle", name: "Ona Batlle", number: 2, position: "DF", nation: "Manchester United" },
+    { id: "irene-paredes", name: "Irene Paredes", number: 4, position: "DF", nation: "FC Barcelona" },
+    { id: "ivana-andres", name: "Ivana Andrés", number: 5, position: "DF", nation: "Real Madrid" },
+    { id: "oihane-hernandez", name: "Oihane Hernández", number: 12, position: "DF", nation: "Athletic Club" },
+    { id: "laia-codina", name: "Laia Codina", number: 14, position: "DF", nation: "FC Barcelona" },
+    { id: "olga-carmona", name: "Olga Carmona", number: 19, position: "DF", nation: "Real Madrid" },
+    { id: "rocio-galvez", name: "Rocío Gálvez", number: 20, position: "DF", nation: "Real Madrid" },
+
+    { id: "teresa-abelleira", name: "Teresa Abelleira", number: 3, position: "MF", nation: "Real Madrid" },
+    { id: "aitana-bonmati", name: "Aitana Bonmatí", number: 6, position: "MF", nation: "FC Barcelona" },
+    { id: "irene-guerrero", name: "Irene Guerrero", number: 7, position: "MF", nation: "Atlético de Madrid" },
+    { id: "jenni-hermoso", name: "Jenni Hermoso", number: 10, position: "MF", nation: "Pachuca" },
+    { id: "alexia-putellas", name: "Alexia Putellas", number: 11, position: "MF", nation: "FC Barcelona" },
+    { id: "eva-navarro", name: "Eva Navarro", number: 15, position: "MF", nation: "Atlético de Madrid" },
+    { id: "maria-perez", name: "María Pérez", number: 16, position: "MF", nation: "FC Barcelona" },
+    { id: "claudia-zornoza", name: "Claudia Zornoza", number: 21, position: "MF", nation: "Real Madrid" },
+    { id: "athenea-del-castillo", name: "Athenea del Castillo", number: 22, position: "MF", nation: "Real Madrid" },
+
+    { id: "mariona-caldentey", name: "Mariona Caldentey", number: 8, position: "FW", nation: "FC Barcelona" },
+    { id: "esther-gonzalez", name: "Esther González", number: 9, position: "FW", nation: "Real Madrid" },
+    { id: "alba-redondo", name: "Alba Redondo", number: 17, position: "FW", nation: "Levante" },
+    { id: "salma-paralluelo", name: "Salma Paralluelo", number: 18, position: "FW", nation: "FC Barcelona" }
+  ]
+});

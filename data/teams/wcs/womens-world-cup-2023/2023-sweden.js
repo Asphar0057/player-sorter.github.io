@@ -1,0 +1,77 @@
+registerTeam({
+  id: "2023-sweden",
+  name: "Sweden 2023",
+  shortName: "Sweden",
+  monogram: "SWE",
+  league: "womens-world-cup-2023",
+  season: "2023 Women's World Cup",
+  kits: {
+    home: {
+      label: "Home",
+      paper: "#FECC02",
+      card: "#FFFFFF",
+      onPaper: "#0B2C5A",
+      onPaperMuted: "rgba(0,0,0,0.6)",
+      paperPrimary: "#0B2C5A",
+      paperOnPrimary: "#FECC02",
+      line: "rgba(0,0,0,0.14)",
+      ink: "#0B2C5A",
+      muted: "#5B6170",
+      primary: "#005BAC",
+      onPrimary: "#FFFFFF",
+      accent: "#005BAC",
+      onAccent: "#FFFFFF",
+      header: "#FECC02",
+      onHeader: "#0B2C5A",
+      headerBand: "#005BAC",
+      rowTintStrength: 0.15,
+      pattern: { type: "finelines", base: "#FECC02", bands: ["#F2BF00"] }
+    },
+    away: {
+      label: "Away",
+      dark: true,
+      paper: "#0B2C5A",
+      card: "#12396F",
+      ink: "#F4F7FB",
+      muted: "#A8B9D3",
+      line: "rgba(255,255,255,0.12)",
+      primary: "#FECC02",
+      onPrimary: "#0B2C5A",
+      accent: "#FECC02",
+      onAccent: "#0B2C5A",
+      photoBg: "#7FB2E5",
+      header: "#1B4F9C",
+      onHeader: "#FECC02",
+      headerBand: "#FECC02",
+      pattern: { type: "bruise", base: "#1B4F9C", bands: ["#2F6BC0"] }
+    }
+  },
+  players: [
+    { id: "zecira-musovic", name: "Zećira Mušović", number: 1, position: "GK", nation: "Chelsea" },
+    { id: "jennifer-falk", name: "Jennifer Falk", number: 12, position: "GK", nation: "BK Häcken" },
+    { id: "tove-enblom", name: "Tove Enblom", number: 21, position: "GK", nation: "KIF Örebro" },
+
+    { id: "jonna-andersson", name: "Jonna Andersson", number: 2, position: "DF", nation: "Hammarby" },
+    { id: "linda-sembrant", name: "Linda Sembrant", number: 3, position: "DF", nation: "Juventus" },
+    { id: "stina-lennartsson", name: "Stina Lennartsson", number: 4, position: "DF", nation: "Linköping" },
+    { id: "anna-sandberg", name: "Anna Sandberg", number: 5, position: "DF", nation: "BK Häcken" },
+    { id: "magdalena-eriksson", name: "Magdalena Eriksson", number: 6, position: "DF", nation: "Chelsea" },
+    { id: "amanda-ilestedt", name: "Amanda Ilestedt", number: 13, position: "DF", nation: "Paris Saint-Germain" },
+    { id: "nathalie-bjorn", name: "Nathalie Björn", number: 14, position: "DF", nation: "Everton" },
+
+    { id: "kosovare-asllani", name: "Kosovare Asllani", number: 9, position: "MF", nation: "AC Milan" },
+    { id: "filippa-angeldahl", name: "Filippa Angeldahl", number: 16, position: "MF", nation: "Manchester City" },
+    { id: "caroline-seger", name: "Caroline Seger", number: 17, position: "MF", nation: "FC Rosengård" },
+    { id: "johanna-rytting-kaneryd", name: "Johanna Rytting Kaneryd", number: 19, position: "MF", nation: "Chelsea" },
+    { id: "hanna-bennison", name: "Hanna Bennison", number: 20, position: "MF", nation: "Everton" },
+    { id: "olivia-schough", name: "Olivia Schough", number: 22, position: "MF", nation: "FC Rosengård" },
+    { id: "elin-rubensson", name: "Elin Rubensson", number: 23, position: "MF", nation: "BK Häcken" },
+
+    { id: "madelen-janogy", name: "Madelen Janogy", number: 7, position: "FW", nation: "Hammarby" },
+    { id: "lina-hurtig", name: "Lina Hurtig", number: 8, position: "FW", nation: "Arsenal" },
+    { id: "sofia-jakobsson", name: "Sofia Jakobsson", number: 10, position: "FW", nation: "San Diego Wave" },
+    { id: "stina-blackstenius", name: "Stina Blackstenius", number: 11, position: "FW", nation: "Arsenal" },
+    { id: "rebecka-blomqvist", name: "Rebecka Blomqvist", number: 15, position: "FW", nation: "VfL Wolfsburg" },
+    { id: "fridolina-rolfo", name: "Fridolina Rolfö", number: 18, position: "FW", nation: "FC Barcelona" }
+  ]
+});

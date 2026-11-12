@@ -1,0 +1,77 @@
+registerTeam({
+  id: "2023-england",
+  name: "England 2023",
+  shortName: "England",
+  monogram: "ENG",
+  league: "womens-world-cup-2023",
+  season: "2023 Women's World Cup",
+  kits: {
+    home: {
+      label: "Home",
+      paper: "#F3F5F9",
+      card: "#FFFFFF",
+      ink: "#0F1E3D",
+      muted: "#5B6170",
+      primary: "#1B2A5C",
+      onPrimary: "#FFFFFF",
+      accent: "#1B2A5C",
+      onAccent: "#FFFFFF",
+      header: "#FFFFFF",
+      onHeader: "#1B2A5C",
+      headerBand: "#CE1124",
+      rowTint: "#1B2A5C",
+      rowTintStrength: 0.2,
+      rowTintFloor: 0.5,
+      pattern: { type: "finelines", base: "#FFFFFF", bands: ["#E6EAF2"] }
+    },
+    away: {
+      label: "Away",
+      paper: "#C8102E",
+      card: "#FFFFFF",
+      onPaper: "#FFFFFF",
+      onPaperMuted: "rgba(255,255,255,0.82)",
+      paperPrimary: "#FFFFFF",
+      paperOnPrimary: "#C8102E",
+      line: "rgba(0,0,0,0.16)",
+      ink: "#0F1E3D",
+      muted: "#5B6170",
+      primary: "#C8102E",
+      onPrimary: "#FFFFFF",
+      accent: "#0F1E3D",
+      onAccent: "#FFFFFF",
+      header: "#C8102E",
+      onHeader: "#FFFFFF",
+      headerBand: "#FFFFFF",
+      rowTintStrength: 0.15,
+      pattern: { type: "finelines", base: "#C8102E", bands: ["#B00D27"] }
+    }
+  },
+  players: [
+    { id: "mary-earps", name: "Mary Earps", number: 1, position: "GK", nation: "Manchester United" },
+    { id: "hannah-hampton", name: "Hannah Hampton", number: 13, position: "GK", nation: "Aston Villa" },
+    { id: "ellie-roebuck", name: "Ellie Roebuck", number: 21, position: "GK", nation: "Manchester City" },
+
+    { id: "lucy-bronze", name: "Lucy Bronze", number: 2, position: "DF", nation: "FC Barcelona" },
+    { id: "niamh-charles", name: "Niamh Charles", number: 3, position: "DF", nation: "Chelsea" },
+    { id: "alex-greenwood", name: "Alex Greenwood", number: 5, position: "DF", nation: "Manchester City" },
+    { id: "millie-bright", name: "Millie Bright", number: 6, position: "DF", nation: "Chelsea" },
+    { id: "lotte-wubben-moy", name: "Lotte Wubben-Moy", number: 14, position: "DF", nation: "Arsenal" },
+    { id: "esme-morgan", name: "Esme Morgan", number: 15, position: "DF", nation: "Manchester City" },
+    { id: "jess-carter", name: "Jess Carter", number: 16, position: "DF", nation: "Chelsea" },
+
+    { id: "keira-walsh", name: "Keira Walsh", number: 4, position: "MF", nation: "FC Barcelona" },
+    { id: "georgia-stanway", name: "Georgia Stanway", number: 8, position: "MF", nation: "Bayern Munich" },
+    { id: "ella-toone", name: "Ella Toone", number: 10, position: "MF", nation: "Manchester United" },
+    { id: "jordan-nobbs", name: "Jordan Nobbs", number: 12, position: "MF", nation: "Aston Villa" },
+    { id: "laura-coombs", name: "Laura Coombs", number: 17, position: "MF", nation: "Manchester City" },
+    { id: "katie-zelem", name: "Katie Zelem", number: 20, position: "MF", nation: "Manchester United" },
+
+    { id: "lauren-james", name: "Lauren James", number: 7, position: "FW", nation: "Chelsea" },
+    { id: "rachel-daly", name: "Rachel Daly", number: 9, position: "FW", nation: "Aston Villa" },
+    { id: "lauren-hemp", name: "Lauren Hemp", number: 11, position: "FW", nation: "Manchester City" },
+    { id: "chloe-kelly", name: "Chloe Kelly", number: 18, position: "FW", nation: "Manchester City" },
+    { id: "bethany-england", name: "Bethany England", number: 19, position: "FW", nation: "Tottenham Hotspur" },
+    { id: "katie-robinson", name: "Katie Robinson", number: 22, position: "FW", nation: "Brighton & Hove Albion" },
+    { id: "alessia-russo", name: "Alessia Russo", number: 23, position: "FW", nation: "Manchester United" }
+  ]
+});
