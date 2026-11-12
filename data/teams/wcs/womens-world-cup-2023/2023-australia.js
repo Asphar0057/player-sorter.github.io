@@ -1,0 +1,77 @@
+registerTeam({
+  id: "2023-australia",
+  name: "Australia 2023",
+  shortName: "Australia",
+  monogram: "AUS",
+  league: "womens-world-cup-2023",
+  season: "2023 Women's World Cup",
+  kits: {
+    home: {
+      label: "Home",
+      paper: "#FFCD00",
+      card: "#FFFFFF",
+      onPaper: "#00573F",
+      onPaperMuted: "rgba(0,0,0,0.6)",
+      paperPrimary: "#00573F",
+      paperOnPrimary: "#FFCD00",
+      line: "rgba(0,0,0,0.14)",
+      ink: "#00573F",
+      muted: "#5B6170",
+      primary: "#00843D",
+      onPrimary: "#FFFFFF",
+      accent: "#00573F",
+      onAccent: "#FFFFFF",
+      header: "#FFCD00",
+      onHeader: "#00573F",
+      headerBand: "#00843D",
+      rowTintStrength: 0.15,
+      pattern: { type: "marble", base: "#FFCD00", bands: ["#F5B700", "#FFE066", "#E8A800"] }
+    },
+    away: {
+      label: "Away",
+      dark: true,
+      paper: "#0B3B33",
+      card: "#124A41",
+      ink: "#EEF7F3",
+      muted: "#9CC3B6",
+      line: "rgba(255,255,255,0.12)",
+      primary: "#FFCD00",
+      onPrimary: "#0B3B33",
+      accent: "#FFCD00",
+      onAccent: "#0B3B33",
+      photoBg: "#4FB3A4",
+      header: "#0F5248",
+      onHeader: "#FFCD00",
+      headerBand: "#FFCD00",
+      pattern: { type: "swirls", base: "#0F5248", bands: ["#1C7466", "#0B3B33", "#2A8A79"] }
+    }
+  },
+  players: [
+    { id: "lydia-williams", name: "Lydia Williams", number: 1, position: "GK", nation: "Brighton & Hove Albion" },
+    { id: "teagan-micah", name: "Teagan Micah", number: 12, position: "GK", nation: "FC Rosengård" },
+    { id: "mackenzie-arnold", name: "Mackenzie Arnold", number: 18, position: "GK", nation: "West Ham United" },
+
+    { id: "courtney-nevin", name: "Courtney Nevin", number: 2, position: "DF", nation: "Leicester City" },
+    { id: "aivi-luik", name: "Aivi Luik", number: 3, position: "DF", nation: "BK Häcken" },
+    { id: "clare-polkinghorne", name: "Clare Polkinghorne", number: 4, position: "DF", nation: "Vittsjö GIK" },
+    { id: "steph-catley", name: "Steph Catley", number: 7, position: "DF", nation: "Arsenal" },
+    { id: "alanna-kennedy", name: "Alanna Kennedy", number: 14, position: "DF", nation: "Manchester City" },
+    { id: "clare-hunt", name: "Clare Hunt", number: 15, position: "DF", nation: "Western Sydney Wanderers" },
+    { id: "ellie-carpenter", name: "Ellie Carpenter", number: 21, position: "DF", nation: "Olympique Lyonnais" },
+    { id: "charli-grant", name: "Charli Grant", number: 22, position: "DF", nation: "Vittsjö GIK" },
+
+    { id: "clare-wheeler", name: "Clare Wheeler", number: 6, position: "MF", nation: "Everton" },
+    { id: "alex-chidiac", name: "Alex Chidiac", number: 8, position: "MF", nation: "Racing Louisville" },
+    { id: "emily-van-egmond", name: "Emily van Egmond", number: 10, position: "MF", nation: "San Diego Wave" },
+    { id: "tameka-yallop", name: "Tameka Yallop", number: 13, position: "MF", nation: "SK Brann" },
+    { id: "katrina-gorry", name: "Katrina Gorry", number: 19, position: "MF", nation: "Vittsjö GIK" },
+    { id: "kyra-cooney-cross", name: "Kyra Cooney-Cross", number: 23, position: "MF", nation: "Hammarby" },
+
+    { id: "cortnee-vine", name: "Cortnee Vine", number: 5, position: "FW", nation: "Sydney FC" },
+    { id: "caitlin-foord", name: "Caitlin Foord", number: 9, position: "FW", nation: "Arsenal" },
+    { id: "mary-fowler", name: "Mary Fowler", number: 11, position: "FW", nation: "Manchester City" },
+    { id: "hayley-raso", name: "Hayley Raso", number: 16, position: "FW", nation: "Manchester City" },
+    { id: "kyah-simon", name: "Kyah Simon", number: 17, position: "FW", nation: "Tottenham Hotspur" },
+    { id: "sam-kerr", name: "Sam Kerr", number: 20, position: "FW", nation: "Chelsea" }
+  ]
+});
