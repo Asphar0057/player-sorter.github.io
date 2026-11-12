@@ -532,16 +532,27 @@
   const PINNED_FIRST = new Set(["atletico-madrid"]);
   let rankCounts = null;
 
+  function podiumTier(group, id) {
+    const podium = group.podium;
+    if (!podium) return 3;
+    if (podium.winner === id) return 0;
+    if (podium.finalist === id) return 1;
+    if ((podium.semis || []).includes(id)) return 2;
+    return 3;
+  }
+
   function orderedIds(group) {
     const ids = (group.teams || []).filter(id => INDEX[id]);
-    if (!rankCounts) return ids;
+    if (!rankCounts && !group.podium) return ids;
+    const count = id => (rankCounts ? Number(rankCounts[id]) || 0 : 0);
     const pinned = ids.filter(id => PINNED_FIRST.has(id));
     const rest = ids.filter(id => !PINNED_FIRST.has(id));
-    rest.sort((a, b) => (Number(rankCounts[b]) || 0) - (Number(rankCounts[a]) || 0));
+    rest.sort((a, b) => (podiumTier(group, a) - podiumTier(group, b)) || (count(b) - count(a)));
     return pinned.concat(rest);
   }
 
   const PINNED_GROUPS = new Set(["laliga"]);
+  const FIXED_ORDER_SECTIONS = new Set(["wcs"]);
 
   function groupTotal(group) {
     return (group.teams || []).reduce((sum, id) => sum + (Number(rankCounts[id]) || 0), 0);
@@ -549,7 +560,7 @@
 
   function orderedGroups(section) {
     const groups = section.groups || [];
-    if (!rankCounts) return groups;
+    if (!rankCounts || FIXED_ORDER_SECTIONS.has(section.id)) return groups;
     const main = section === SECTIONS[0];
     const pinned = groups.filter(g => g.builder || (main && PINNED_GROUPS.has(g.id)));
     const rest = groups.filter(g => !pinned.includes(g));
@@ -1151,6 +1162,7 @@
   function pick(which) {
     if (!session || session.state.done) return;
     MergeSorter.choose(session.state, which);
+    if (session.state.done && isCustom(session.team)) countCustom();
     renderMatchup();
   }
 
@@ -1652,7 +1664,7 @@
       '<button type="button" class="team-tile builder-tile" data-go="' + CUSTOM_ID + '">' +
         '<span class="team-tile-text">' +
           '<span class="team-tile-name">Build your own</span>' +
-          '<span class="team-tile-meta">' + (n ? "Your list: " + n + " player" + (n === 1 ? "" : "s") : "Pick " + CUSTOM_MIN + "–" + CUSTOM_MAX + " players from any club") + "</span>" +
+          '<span class="team-tile-meta builder-meta">' + (n ? "Your list: " + n + " player" + (n === 1 ? "" : "s") : "Pick " + CUSTOM_MIN + "–" + CUSTOM_MAX + " players from any club") + customCountMarkup() + "</span>" +
         "</span>" +
         '<span class="builder-fan" aria-hidden="true">' +
           builderFaces(keys).map(faceMarkup).join("") +
@@ -3071,7 +3083,21 @@
   }
 
   function totalRankings(counts) {
-    return Object.keys(INDEX).reduce((sum, id) => sum + (Number(counts[id]) || 0), 0);
+    return Object.keys(INDEX).reduce((sum, id) => sum + (Number(counts[id]) || 0), 0) + (Number(counts[CUSTOM_ID]) || 0);
+  }
+
+  function countCustom() {
+    if (!STATS_URL) return;
+    try {
+      fetch(STATS_URL, { method: "POST", body: JSON.stringify({ type: "custom" }), keepalive: true }).catch(() => {});
+    } catch (e) {}
+    if (rankCounts) rankCounts = Object.assign({}, rankCounts, { [CUSTOM_ID]: (Number(rankCounts[CUSTOM_ID]) || 0) + 1 });
+    countsCache = null;
+  }
+
+  function customCountMarkup() {
+    const n = rankCounts ? Number(rankCounts[CUSTOM_ID]) || 0 : 0;
+    return '<span class="builder-count" data-custom-count' + (n ? "" : " hidden") + '><span class="builder-sep"> · </span><strong class="tile-count">' + (n ? esc(countLabel(n)) : "") + "</strong></span>";
   }
 
   function totalStat(extra) {
@@ -3093,9 +3119,14 @@
   }
 
   function fillCounts() {
-    if (!app.querySelector("[data-count], [data-total]")) return;
+    if (!app.querySelector("[data-count], [data-total], [data-custom-count]")) return;
     fetchCounts().then(counts => {
       fillTotal(counts);
+      app.querySelectorAll("[data-custom-count]").forEach(el => {
+        const n = Number(counts[CUSTOM_ID]) || 0;
+        el.hidden = !n;
+        el.querySelector(".tile-count").textContent = n ? countLabel(n) : "";
+      });
       const body = app.querySelector(".home-body");
       const sectionId = body ? body.dataset.section : "";
       const before = homeOrder(sectionId);

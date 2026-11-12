@@ -48,7 +48,7 @@ window.SQUAD_MANIFEST = {
           id: "liga-portugal",
           name: "Liga Portugal",
           country: "Portugal",
-          teams: ["benfica", "porto", "sporting"]
+          teams: ["benfica"]
         },
         {
           id: "mls",
@@ -135,7 +135,7 @@ window.SQUAD_MANIFEST = {
           id: "wsl",
           name: "WSL",
           country: "England",
-          teams: ["arsenal-women", "chelsea-women", "manchester-city-women", "manchester-united-women", "london-city-lionesses"]
+          teams: ["arsenal-women", "chelsea-women", "manchester-city-women", "manchester-united-women", "london-city-lionesses", "liverpool-women"]
         },
         {
           id: "premiere-ligue",
@@ -173,22 +173,33 @@ window.SQUAD_MANIFEST = {
             "2026-belgium",
             "2026-algeria",
             "2026-egypt",
-            "2026-usa",
-            "2026-sweden",
-            "2026-morocco",
-            "2026-netherlands",
-            "2026-australia"
-          ]
+            "2026-usa"
+          ],
+          podium: { winner: "2026-spain", finalist: "2026-argentina", semis: ["2026-france", "2026-england"] }
+        },
+        {
+          id: "asean-cup-2026",
+          name: "ASEAN Cup 2026",
+          teams: ["2026-indonesia"],
+          podium: { winner: "2026-indonesia", finalist: "", semis: [] }
+        },
+        {
+          id: "womens-world-cup-2023",
+          name: "Women's World Cup 2023",
+          teams: ["2023-spain", "2023-england", "2023-france", "2023-sweden", "2023-australia", "2023-usa"],
+          podium: { winner: "2023-spain", finalist: "2023-england", semis: ["2023-sweden", "2023-australia"] }
         },
         {
           id: "world-cup-2022",
           name: "World Cup 2022",
-          teams: ["2022-argentina"]
+          teams: ["2022-argentina"],
+          podium: { winner: "2022-argentina", finalist: "", semis: [] }
         },
         {
           id: "world-cup-2018",
           name: "World Cup 2018",
-          teams: ["2018-france"]
+          teams: ["2018-france"],
+          podium: { winner: "2018-france", finalist: "", semis: [] }
         }
       ]
     },
